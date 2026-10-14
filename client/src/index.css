@@ -1,0 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+  font-family: "DM Sans", sans-serif;
+  color: #302725;
+  background: #fbf7eb;
+  font-synthesis: none;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+}
+* {
+  box-sizing: border-box;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+img {
+  object-fit: cover;
+}
+a {
+  text-decoration: none;
+}
+::selection {
+  background: #dbab8f;
+  color: #302725;
+}
+@layer components {
+  .shell {
+    @apply mx-auto w-[min(1180px,90%)];
+  }
+  .eyebrow {
+    @apply text-xs uppercase tracking-[.27em] font-semibold text-clay;
+  }
+  .h2 {
+    @apply font-display text-4xl md:text-5xl tracking-[-.045em] font-light leading-[1.13];
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-clay text-white px-6 py-3.5 text-sm font-semibold transition hover:bg-ink;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink/25 px-6 py-3 text-sm font-semibold transition hover:bg-skin;
+  }
+  .field {
+    @apply w-full bg-white border border-ink/15 rounded-xl px-4 py-3 outline-none focus:border-clay;
+  }
+  .panel {
+    @apply bg-white/75 rounded-[2rem] border border-ink/5 overflow-hidden;
+  }
+}
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.75s ease,
+    transform 0.75s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.watermark {
+  background-image: url("/watermark.png");
+  background-size: 340px;
+  background-position: 95% center;
+  background-repeat: no-repeat;
+}
+.reel-track {
+  display: flex;
+  width: max-content;
+  animation: moveRight 70s linear infinite;
+}
+.reel-track:hover {
+  animation-play-state: running;
+}
+@keyframes moveRight {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .reel-track {
+    animation: none;
+    overflow-x: auto;
+  }
+}
