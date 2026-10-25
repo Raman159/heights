@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { X } from "lucide-react";
 import { pic } from "../data";
 import { Reveal } from "../components/Layout";
 import Banner from "../components/site/Banner";
@@ -7,6 +8,21 @@ import SectionHead from "../components/site/SectionHead";
 import Card from "../components/site/ExperienceCard";
 
 export function Restro() {
+  const [activeMenu, setActiveMenu] = useState(null);
+
+  useEffect(() => {
+    if (!activeMenu) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setActiveMenu(null);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [activeMenu]);
+
   return (
     <>
       <Banner
@@ -20,25 +36,44 @@ export function Restro() {
           eyebrow="The dining experience"
           title="Discover a taste of HEIGHT"
         />
-        <div className="grid md:grid-cols-2 gap-6">
-          {["Food", "Beverages"].map((n, i) => (
-            <Reveal key={n}>
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {[
+            {
+              title: "Breakfast Menu",
+              description: "Start your day with breakfast at HEIGHT.",
+              image: "Food /_DSC0044",
+              file: "/Menu/Breakfast%20Menu.pdf",
+            },
+            {
+              title: "Menu by Height",
+              description: "Explore our food menu for lunch and dinner.",
+              image: "Food /_DSC9927",
+              file: "/Menu/Menu%20by%20Height.pdf",
+            },
+            {
+              title: "Drinks Menu",
+              description: "Non-alcoholic and alcoholic beverages.",
+              image: "Food /_DSC9808",
+              file: "/Menu/Drinks%20Menu.pdf",
+            },
+          ].map((menu) => (
+            <Reveal key={menu.title}>
               <div className="panel">
                 <img
-                  src={pic(i ? "Food /_DSC9808" : "Food /_DSC0044")}
+                  src={pic(menu.image)}
                   className="w-full h-64"
-                  alt={n}
+                  alt={menu.title}
                 />
                 <div className="p-8">
-                  <h3 className="text-2xl">{n}</h3>
-                  <p className="text-muted my-3">
-                    {i
-                      ? "Non-alcoholic and alcoholic beverages"
-                      : "Breakfast, lunch and dinner"}
-                  </p>
-                  <Link to="/contact" className="text-clay font-semibold">
-                    Request menu →
-                  </Link>
+                  <h3 className="text-2xl">{menu.title}</h3>
+                  <p className="text-muted my-3">{menu.description}</p>
+                  <button
+                    type="button"
+                    onClick={() => setActiveMenu(menu)}
+                    className="text-clay font-semibold"
+                  >
+                    View menu →
+                  </button>
                 </div>
               </div>
             </Reveal>
@@ -125,6 +160,40 @@ export function Restro() {
           </div>
         </div>
       </section>
+      {activeMenu && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setActiveMenu(null);
+          }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="menu-dialog-title"
+            className="flex h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+          >
+            <header className="flex shrink-0 items-center justify-between border-b border-slate-200 px-4 py-3 sm:px-6">
+              <h2 id="menu-dialog-title" className="font-semibold text-ink">
+                {activeMenu.title}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setActiveMenu(null)}
+                aria-label="Close menu"
+                className="rounded-full p-2 text-ink transition hover:bg-skin"
+              >
+                <X size={20} />
+              </button>
+            </header>
+            <iframe
+              title={activeMenu.title}
+              src={activeMenu.file + "#toolbar=0&navpanes=0&scrollbar=0"}
+              className="min-h-0 w-full flex-1 bg-slate-100"
+            />
+          </section>
+        </div>
+      )}
     </>
   );
 }

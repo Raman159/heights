@@ -63,7 +63,7 @@ export default function Layout({ children }) {
     ["/restro", "Restro"],
     ["/offers", "Offers"],
     ["/blog", "Blog"],
-    // ["/contact", "Contact Us"],
+    ["/contact", "Contact Us"],
   ];
   return (
     <>

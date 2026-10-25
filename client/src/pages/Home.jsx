@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, ArrowRight, Star } from "lucide-react";
 import { get } from "../api";
-import { pic, services } from "../data";
+import { services } from "../data";
 import { Reveal } from "../components/Layout";
 import SectionHead from "../components/site/SectionHead";
 import Card from "../components/site/ExperienceCard";
@@ -22,18 +22,20 @@ export function Home() {
   return (
     <>
       <section className="relative h-[min(900px,100vh)] min-h-[660px] bg-[#46382f] text-white flex items-end pb-24 md:pb-32">
-        <img
-          src={hero?.hero_image || pic("The Height -4350")}
-          className="absolute inset-0 w-full h-full object-cover"
-          alt="The Height exterior"
-        />
+        {hero?.hero_image && (
+          <img
+            src={hero.hero_image}
+            className="absolute inset-0 w-full h-full object-cover"
+            alt="The Height exterior"
+          />
+        )}
         {hero?.hero_video && (
           <video
             autoPlay
             muted
             loop
             playsInline
-            poster={hero.hero_image || pic("The Height -4350")}
+            poster={hero.hero_image || undefined}
             className="absolute inset-0 w-full h-full object-cover"
             src={hero.hero_video}
           />

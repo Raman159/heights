@@ -22,7 +22,6 @@ async function seed() {
 
     const defaults = {
       hero_video: "",
-      hero_image: "/media/12-the-height-4350.webp",
       whatsapp_number: "",
       contact_email: "",
       address: "",

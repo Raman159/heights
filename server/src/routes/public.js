@@ -21,7 +21,7 @@ router.get(
       return res.status(404).json({ error: "Not found" });
     res.json(
       await rows(
-        "SELECT * FROM `" + table + "` ORDER BY sort_order ASC,id DESC LIMIT 200",
+        "SELECT * FROM `" + table + "` ORDER BY id DESC LIMIT 200",
       ),
     );
   }),

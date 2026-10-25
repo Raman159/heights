@@ -26,3 +26,8 @@ export const post = (p, body) =>
 export const put = (p, body) =>
   api(p, { method: "PUT", body: JSON.stringify(body) });
 export const del = (p) => api(p, { method: "DELETE" });
+export const upload = (file) => {
+  const form = new FormData();
+  form.append("file", file);
+  return api("/admin/upload", { method: "POST", body: form });
+};

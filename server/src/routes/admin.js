@@ -34,11 +34,16 @@ router.put(
   "/settings",
   asyncRoute(async (req, res) => {
     for (const key of settingFields) {
-      if (typeof req.body[key] === "string" && req.body[key].length <= 1024)
+      if (typeof req.body[key] === "string" && req.body[key].length <= 1024) {
+        if (key === "hero_image" && !req.body[key].trim()) {
+          await rows("DELETE FROM settings WHERE `key`=?", [key]);
+          continue;
+        }
         await rows(
           "INSERT INTO settings(`key`,`value`) VALUES (?,?) ON DUPLICATE KEY UPDATE `value`=VALUES(`value`)",
           [key, req.body[key].trim()],
         );
+      }
     }
     res.json({ ok: true });
   }),
