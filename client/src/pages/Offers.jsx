@@ -20,7 +20,7 @@ export function Offers() {
           item?.description ||
           "Wellness packages and thoughtful experiences for every occasion."
         }
-        image={item?.image_url || pic("Jacuzzi.jpg")}
+        image={item?.image_url || pic("jacuzzi-bath.webp")}
       />
       <section className="shell py-24">
         {offers === null ? null : item ? (

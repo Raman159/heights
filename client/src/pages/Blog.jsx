@@ -19,7 +19,7 @@ export function Blog() {
           item?.excerpt ||
           "Notes on wellness, restoration, food and intentional living."
         }
-        image={item?.image_url || pic("Spa.jpg")}
+        image={item?.image_url || pic("spa-lobby.webp")}
       />
       <section className="shell py-24">
         {posts === null ? null : item ? (

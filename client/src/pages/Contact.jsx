@@ -30,7 +30,7 @@ export function Contact() {
         tag="LET'S CONNECT"
         title="Your HEIGHT experience begins here."
         body="Questions, reservations, membership enquiries or special moments — let us help."
-        image={pic("Spa at Height")}
+        image={pic("spa-lobby.webp")}
       />
       <section className="shell py-24 grid lg:grid-cols-[.75fr_1.25fr] gap-16">
         <div>

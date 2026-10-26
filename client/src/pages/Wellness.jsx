@@ -13,7 +13,7 @@ export function Wellness() {
         tag="WELLNESS AT THE HEIGHT"
         title="Find your moment of calm."
         body="Restore your senses, recharge your energy and find time for yourself."
-        image={pic("Swimming Pool")}
+        image={pic("infinity-pool.webp")}
       />
       <section className="py-24 shell">
         <SectionHead

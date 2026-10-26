@@ -12,11 +12,11 @@ export function Spa() {
         tag="SPA AT THE HEIGHT"
         title="Rejuvenate mind. Body. Soul."
         body="Relax, release and reconnect through deeply relaxing oil-based therapies, dry massages and mini reflexologies."
-        image={pic("Spa at Height")}
+        image={pic("spa-lobby.webp")}
       />
       <section className="shell py-24 grid lg:grid-cols-2 gap-16 items-center">
         <img
-          src={pic("Spa at Height")}
+          src={pic("spa-treatment.webp")}
           className="rounded-[3rem] h-[450px] w-full"
         />
         <div>
@@ -46,10 +46,10 @@ export function Spa() {
                     <img
                       src={pic(
                         [
-                          "Spa.jpg",
-                          "Spa by Height",
-                          "Spa at Height",
-                          "Jacuzzi",
+                          "spa-treatment.webp",
+                          "leg-massage.webp",
+                          "massage-room.webp",
+                          "jacuzzi-bath.webp",
                         ][i % 4],
                       )}
                       alt={n}

@@ -37,6 +37,7 @@ a {
 }
 @layer components {
   .shell {
+    /* @apply mx-auto w-full px-[5%]; */
     @apply mx-auto w-[min(1180px,90%)];
   }
   .eyebrow {
@@ -85,10 +86,42 @@ a {
   transform: translateY(0);
 }
 .watermark {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.watermark::before,
+.watermark::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  width: clamp(180px, 28vw, 320px);
   background-image: url("/watermark.png");
-  background-size: 340px;
-  background-position: 95% center;
+  background-size: auto 100%;
   background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.10;
+  pointer-events: none;
+}
+@media (max-width: 680px) {
+  .watermark::before,
+  .watermark::after {
+    display:none;
+  }
+}
+.watermark::before {
+  left: 0;
+}
+.watermark::after {
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.watermark > .shell {
+  position: relative;
+  z-index: 1;
 }
 .reel-track {
   display: flex;

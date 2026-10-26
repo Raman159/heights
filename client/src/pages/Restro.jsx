@@ -29,7 +29,7 @@ export function Restro() {
         tag="HEIGHT RESTRO"
         title="Come for the view. Stay for the moments."
         body="Multi cuisine | Bar — thoughtful dining, great company and memorable experiences."
-        image={pic("_DSC0116-HDR")}
+        image={pic("restaurant-interior.webp")}
       />
       <section className="shell py-24">
         <SectionHead
@@ -41,19 +41,19 @@ export function Restro() {
             {
               title: "Breakfast Menu",
               description: "Start your day with breakfast at HEIGHT.",
-              image: "Food /_DSC0044",
+              image: "breakfast-plate.webp",
               file: "/Menu/Breakfast%20Menu.pdf",
             },
             {
               title: "Menu by Height",
               description: "Explore our food menu for lunch and dinner.",
-              image: "Food /_DSC9927",
+              image: "nepali-thali.webp",
               file: "/Menu/Menu%20by%20Height.pdf",
             },
             {
               title: "Drinks Menu",
               description: "Non-alcoholic and alcoholic beverages.",
-              image: "Food /_DSC9808",
+              image: "orange-mocktail.webp",
               file: "/Menu/Drinks%20Menu.pdf",
             },
           ].map((menu) => (
@@ -91,10 +91,10 @@ export function Restro() {
                   item={{
                     title: n,
                     photo: [
-                      "The Height -4350",
-                      "_DSC0116-HDR",
-                      "Food /_DSC9808",
-                      "Pool.jpg",
+                      "terrace-lounge.webp",
+                      "restaurant-interior.webp",
+                      "bar-counter.webp",
+                      "rooftop-poolside.webp",
                     ][i],
                     subtitle: "Explore and enquire",
                   }}
@@ -109,10 +109,10 @@ export function Restro() {
         <SectionHead eyebrow="From our kitchen" title="Chef’s special" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            "Food /_DSC0044",
-            "Food /DSC02595",
-            "Food /_DSC9927",
-            "Food /DSC02562",
+            "breakfast-spread.webp",
+            "grilled-wrap.webp",
+            "rice-curry.webp",
+            "plated-fish.webp",
           ].map((p) => (
             <img
               key={p}
@@ -139,11 +139,11 @@ export function Restro() {
                 <img
                   src={pic(
                     [
-                      "Food /_DSC0044",
-                      "Food /_DSC9808",
-                      "_DSC0116",
-                      "DSC04821",
-                      "DSC04851",
+                      "restaurant-dining.webp",
+                      "restaurant-lounge.webp",
+                      "lounge-seating.webp",
+                      "restaurant-interior.webp",
+                      "terrace-lounge.webp",
                     ][i],
                   )}
                   alt={n}

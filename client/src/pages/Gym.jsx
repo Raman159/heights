@@ -11,7 +11,7 @@ export function Gym() {
         tag="GYM AT THE HEIGHT"
         title="Elevate your fitness."
         body="Purposeful movement, elevated facilities and a membership designed for you."
-        image={pic("Gym.jpg")}
+        image={pic("gym-interior.webp")}
       />
       <section className="shell py-24">
         <SectionHead
