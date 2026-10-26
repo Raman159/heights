@@ -9,7 +9,7 @@ export function Spa() {
   return (
     <>
       <Banner
-        tag="SPA AT THE HEIGHT"
+        tag="SPA AT HEIGHT"
         title="Rejuvenate mind. Body. Soul."
         body="Relax, release and reconnect through deeply relaxing oil-based therapies, dry massages and mini reflexologies."
         image={pic("spa-lobby.webp")}

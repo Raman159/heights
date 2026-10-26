@@ -8,7 +8,7 @@ export function Gym() {
   return (
     <>
       <Banner
-        tag="GYM AT THE HEIGHT"
+        tag="GYM AT HEIGHT"
         title="Elevate your fitness."
         body="Purposeful movement, elevated facilities and a membership designed for you."
         image={pic("gym-interior.webp")}

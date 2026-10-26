@@ -13,7 +13,7 @@ export function Blog() {
   return (
     <>
       <Banner
-        tag="THE HEIGHT JOURNAL"
+        tag="HEIGHT JOURNAL"
         title={item?.title || "Stories of mindful living."}
         body={
           item?.excerpt ||

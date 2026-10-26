@@ -10,7 +10,7 @@ export function Wellness() {
   return (
     <>
       <Banner
-        tag="WELLNESS AT THE HEIGHT"
+        tag="WELLNESS AT HEIGHT"
         title="Find your moment of calm."
         body="Restore your senses, recharge your energy and find time for yourself."
         image={pic("infinity-pool.webp")}
