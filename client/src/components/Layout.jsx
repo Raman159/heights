@@ -71,8 +71,8 @@ export default function Layout({ children }) {
         className={
           "fixed top-0 left-0 z-50 w-full transition-all duration-500 " +
           (solid
-            ? "bg-cream/95 backdrop-blur-xl shadow-sm py-2"
-            : "bg-transparent py-4")
+            ? "bg-cream/95 backdrop-blur-xl shadow-sm py-1 md:py-2"
+            : "bg-transparent py-2 md:py-4")
         }
       >
         <div className="shell flex items-center justify-between gap-5 ">
@@ -81,7 +81,7 @@ export default function Layout({ children }) {
               src="/logo.png"
               alt="HEIGHT Restro & Wellness"
               className={
-                "w-24 md:w-12 object-contain transition " +
+                "w-14 md:w-12 object-contain transition " +
                 (!solid ? "brightness-0 invert" : "")
               }
             />
@@ -137,7 +137,10 @@ export default function Layout({ children }) {
             </Link>
           </div>
           <button
-            className={solid ? "lg:hidden text-ink" : "lg:hidden text-white"}
+            className={
+              "lg:hidden [&_svg]:size-5 " +
+              (solid ? "text-ink" : "text-white")
+            }
             onClick={() => setMenu(!menu)}
             aria-label="Toggle menu"
           >
@@ -162,14 +165,14 @@ export default function Layout({ children }) {
       </header>
       <main>{children}</main>
       <footer className="bg-ink text-cream pt-20 pb-8">
-        <div className="shell grid md:grid-cols-4 gap-12">
+        <div className="shell grid gap-12 text-center md:grid-cols-4 md:text-left">
           <div className="md:col-span-2">
             <img
               src="/logo.png"
-              className="w-32 brightness-0 invert"
+              className="mx-auto w-32 brightness-0 invert md:mx-0"
               alt="HEIGHT"
             />
-            <p className="text-cream/65 max-w-md mt-5 leading-8">
+            <p className="mx-auto mt-5 max-w-md leading-8 text-cream/65 md:mx-0">
               Where traditional wisdom meets modern convenience. A destination
               to dine, move, heal and reconnect.
             </p>
@@ -197,12 +200,12 @@ export default function Layout({ children }) {
             <p className="font-semibold mb-5">Connect</p>
             <Link
               to="/contact"
-              className="flex gap-2 items-center text-cream/70 mb-3"
+              className="mb-3 flex items-center justify-center gap-2 text-cream/70 md:justify-start"
             >
               <Mail size={16} />
               Contact & enquiries
             </Link>
-            <div className="flex gap-4">
+            <div className="flex justify-center gap-4 md:justify-start">
               <a
                 href="https://instagram.com"
                 target="_blank"
@@ -222,7 +225,7 @@ export default function Layout({ children }) {
             </div>
           </div>
         </div>
-        <div className="shell border-t border-white/15 mt-16 pt-6 text-cream/50 text-xs flex flex-wrap justify-between gap-3">
+        <div className="shell mt-16 flex flex-wrap justify-center gap-3 border-t border-white/15 pt-6 text-center text-xs text-cream/50 md:justify-between md:text-left">
           <span>
             © {new Date().getFullYear()} HEIGHT Restro & Wellness. All rights
             reserved.
@@ -252,7 +255,3 @@ export default function Layout({ children }) {
     </>
   );
 }
-
-
-
-

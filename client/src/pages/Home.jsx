@@ -11,7 +11,6 @@ import Reels from "../components/site/Reels";
 import useCollection from "../hooks/useCollection";
 import Design from "../components/site/design";
 
-
 const SETTINGS_KEY = "height:public-settings";
 
 function readCachedSettings() {
@@ -36,12 +35,183 @@ function useHeroSettings() {
           /* storage full or blocked: ignore */
         }
       })
-      .catch(() => { });
+      .catch(() => {});
     return () => {
       alive = false;
     };
   }, []);
   return hero;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile slider helpers: active-slide tracking + pagination dots      */
+/* ------------------------------------------------------------------ */
+
+function useActiveSlide(trackRef, count) {
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    let raf = 0;
+
+    const update = () => {
+      raf = 0;
+      const kids = Array.from(el.children);
+      if (!kids.length) return;
+      // Reached the end of the track: last slide is active
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 4) {
+        setActive(kids.length - 1);
+        return;
+      }
+      const centre = el.scrollLeft + el.clientWidth / 2;
+      let best = 0;
+      let min = Infinity;
+      kids.forEach((k, i) => {
+        const d = Math.abs(k.offsetLeft + k.offsetWidth / 2 - centre);
+        if (d < min) {
+          min = d;
+          best = i;
+        }
+      });
+      setActive(best);
+    };
+
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    update();
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [trackRef, count]);
+
+  const goTo = (i) => {
+    const el = trackRef.current;
+    const kid = el?.children[i];
+    if (!el || !kid) return;
+    el.scrollTo({
+      left: kid.offsetLeft + kid.offsetWidth / 2 - el.clientWidth / 2,
+      behavior: "smooth",
+    });
+  };
+
+  return [active, goTo];
+}
+
+function Dots({ count, active, onSelect, label, className = "" }) {
+  if (count < 2) return null;
+  return (
+    <div
+      role="group"
+      aria-label={`${label} pagination`}
+      className={`mt-5 flex items-center justify-center ${className}`}
+    >
+      {Array.from({ length: count }).map((_, i) => (
+        <button
+          key={i}
+          type="button"
+          aria-label={`Go to ${label} ${i + 1} of ${count}`}
+          aria-current={i === active ? "true" : undefined}
+          onClick={() => onSelect(i)}
+          className="grid h-6 min-w-6 place-items-center px-0.5"
+        >
+          <span
+            className={`block h-1.5 rounded-full transition-all duration-300 ${
+              i === active ? "w-6 bg-clay" : "w-1.5 bg-clay/30"
+            }`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+/* Swipeable slider with touch, mouse-drag, arrow, and pagination controls. */
+function Slider({ children, label }) {
+  const trackRef = useRef(null);
+  const dragRef = useRef({
+    active: false,
+    moved: false,
+    startX: 0,
+    startScrollLeft: 0,
+  });
+  const items = React.Children.toArray(children);
+  const [active, goTo] = useActiveSlide(trackRef, items.length);
+  const scroll = (direction) => {
+    const track = trackRef.current;
+    track?.scrollBy({
+      left: direction * track.clientWidth * 0.8,
+      behavior: "smooth",
+    });
+  };
+  const startDrag = (event) => {
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+    const track = trackRef.current;
+    if (!track) return;
+    dragRef.current = {
+      active: true,
+      moved: false,
+      startX: event.clientX,
+      startScrollLeft: track.scrollLeft,
+    };
+  };
+  const moveDrag = (event) => {
+    const drag = dragRef.current;
+    const track = trackRef.current;
+    if (!drag.active || !track) return;
+    const distance = event.clientX - drag.startX;
+    if (Math.abs(distance) > 4 && !drag.moved) {
+      drag.moved = true;
+      track.setPointerCapture(event.pointerId);
+    }
+    if (drag.moved) {
+      track.scrollLeft = drag.startScrollLeft - distance;
+      event.preventDefault();
+    }
+  };
+  const stopDrag = () => {
+    dragRef.current.active = false;
+    if (dragRef.current.moved) {
+      window.setTimeout(() => {
+        dragRef.current.moved = false;
+      }, 0);
+    }
+  };
+  const preventDraggedClick = (event) => {
+    if (!dragRef.current.moved) return;
+    event.preventDefault();
+    event.stopPropagation();
+    dragRef.current.moved = false;
+  };
+
+  return (
+    <div>
+     
+      <div
+        ref={trackRef}
+        aria-label={label}
+        aria-roledescription="carousel"
+        onPointerDown={startDrag}
+        onPointerMove={moveDrag}
+        onPointerUp={stopDrag}
+        onPointerCancel={stopDrag}
+        onClickCapture={preventDraggedClick}
+        className="relative flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:cursor-grab md:gap-5 md:active:cursor-grabbing md:pb-2"
+      >
+        {items}
+      </div>
+      <Dots
+        count={items.length}
+        active={active}
+        onSelect={goTo}
+        label={label}
+      />
+    </div>
+  );
 }
 
 function HeroMedia({ image, video }) {
@@ -99,7 +269,7 @@ function HeroMedia({ image, video }) {
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    if (inView) v.play().catch(() => { });
+    if (inView) v.play().catch(() => {});
     else v.pause();
   }, [inView, allowVideo]);
 
@@ -126,16 +296,20 @@ function HeroMedia({ image, video }) {
           disablePictureInPicture
           disableRemotePlayback
           onPlaying={() => setPlaying(true)}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${playing ? "opacity-100" : "opacity-0"
-            }`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+            playing ? "opacity-100" : "opacity-0"
+          }`}
         />
       )}
     </div>
   );
 }
 
-function Carousel({ children, label, arrowClass = "" }) {
-  const trackRef = React.useRef(null);
+function Carousel({ children, label = "Services", arrowClass = "" }) {
+  const trackRef = useRef(null);
+  const count = React.Children.count(children);
+  const [active, goTo] = useActiveSlide(trackRef, count);
+
   const scroll = (direction) => {
     trackRef.current?.scrollBy({
       left: direction * trackRef.current.clientWidth * 0.8,
@@ -145,34 +319,41 @@ function Carousel({ children, label, arrowClass = "" }) {
 
   return (
     <div className="relative">
-      <button
-        type="button"
-        aria-label={`Scroll ${label} backward`}
-        className={`absolute left-0 z-20 ${arrowClass}`}
-        onClick={() => scroll(-1)}
-      >
-        {/* <ChevronLeft aria-hidden="true" /> */}
-      </button>
+      {/* {arrowClass && (
+        <button
+          type="button"
+          aria-label={`Scroll ${label} backward`}
+          className={`absolute left-0 z-20 ${arrowClass}`}
+          onClick={() => scroll(-1)}
+        />
+      )} */}
+      {/* Mobile: edge-to-edge track with side padding so the next card peeks in */}
       <div
         ref={trackRef}
         aria-label={label}
         aria-roledescription="carousel"
-        className="flex snap-x snap-mandatory gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="relative -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto overscroll-x-contain scroll-smooth px-5 [scrollbar-width:none] sm:mx-0 sm:scroll-px-0 sm:gap-5 sm:px-0 [&::-webkit-scrollbar]:hidden"
       >
         {children}
       </div>
-      <button
-        type="button"
-        aria-label={`Scroll ${label} forward`}
-        className={`absolute right-0 z-20 ${arrowClass}`}
-        onClick={() => scroll(1)}
-      >
-        {/* <ChevronRight aria-hidden="true" /> */}
-      </button>
+      {arrowClass && (
+        <button
+          type="button"
+          aria-label={`Scroll ${label} forward`}
+          className={`absolute right-0 z-20 ${arrowClass}`}
+          onClick={() => scroll(1)}
+        />
+      )}
+      <Dots
+        count={count}
+        active={active}
+        onSelect={goTo}
+        label={label}
+        className="sm:hidden"
+      />
     </div>
   );
 }
-
 
 export function Home() {
   const offers = useCollection("offers"),
@@ -180,39 +361,54 @@ export function Home() {
   const hero = useHeroSettings();
   return (
     <>
-      <section className="relative h-[min(900px,100vh)] min-h-[660px] bg-[#46382f] text-white flex items-end pb-16 md:pb-24">
+      {/* HERO */}
+      <section className="relative flex h-[88svh] min-h-[560px] items-end bg-[#46382f] pb-[max(3rem,env(safe-area-inset-bottom))] text-white md:h-[min(900px,100vh)] md:min-h-[660px] md:pb-24">
         <HeroMedia image={hero?.hero_image} video={hero?.hero_video} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 md:from-black/75 md:via-black/15 md:to-black/25" />
         <div className="shell relative z-10 max-w-4xl text-center">
           <img
             src="/watermark.png"
-            className="h-40 brightness-0 invert justify-center mx-auto mb-10 "
+            className="mx-auto mb-6 h-24 justify-center brightness-0 invert md:mb-10 md:h-40"
             alt="Watermark"
           />
 
-          <h1 className="font-display font-light tracking-[-.06em] leading-[1.04] text-5xl sm:text-6xl md:text-[92px] max-w-5xl">
+          <h1 className="max-w-5xl font-display text-[42px] font-light leading-[1.08] tracking-[-.04em] sm:text-6xl md:text-[92px] md:leading-[1.04] md:tracking-[-.06em]">
             Above the ordinary.
             <br />
             <em className="not-italic text-[#f2d5c6]">Closer to yourself.</em>
           </h1>
-          <p className="eyebrow !text-skin mt-5">
+          <p className="eyebrow !text-skin mt-4 max-md:text-[11px] md:mt-5">
             RESTRO • WELLNESS • SPA • FITNESS
           </p>
-          {/* <p className="mt-7 text-white/85 max-w-md leading-7">
-            Discover an elevated destination for dining, restoration, movement
-            and memorable moments.
-          </p> */}
+
+          {/* Mobile-only quick actions */}
+          <div className="mx-auto mt-7 flex max-w-xs flex-col gap-3 md:hidden">
+            <Link
+              to="/contact"
+              className="rounded-full bg-white px-6 py-3 text-center text-sm font-semibold text-ink shadow-lg shadow-black/20 transition-transform active:scale-[0.98]"
+            >
+              Plan your visit
+            </Link>
+            <a
+              href="#services"
+              className="rounded-full border border-white/50 bg-white/10 px-6 py-3 text-center text-sm font-medium text-white backdrop-blur-sm transition-transform active:scale-[0.98]"
+            >
+              Explore services
+            </a>
+          </div>
         </div>
       </section>
-      <section className="py-16 md:py-20 bg-cream watermark">
-        <div className="shell text-center max-w-4xl">
+
+      {/* PHILOSOPHY */}
+      <section className="watermark bg-cream py-12 md:py-20">
+        <div className="shell max-w-4xl text-center">
           <Reveal>
-            <p className="eyebrow mb-6">The Height Philosophy</p>
-            <h2 className="h2 mb-7">
+            <p className="eyebrow mb-4 md:mb-6">The Height Philosophy</p>
+            <h2 className="h2 mb-5 md:mb-7">
               Where everyday life finds{" "}
               <span className="text-clay">its balance.</span>
             </h2>
-            <p className="text-muted text-lg leading-9">
+            <p className="mx-auto max-w-[34rem] text-base leading-8 text-muted md:max-w-none md:text-lg md:leading-9">
               The Height is where traditional wisdom meets modern convenience —
               a sanctuary offering a touch-led holistic approach to healing.
               Unlike fleeting getaway retreats, The Height brings balance and
@@ -223,20 +419,20 @@ export function Home() {
           </Reveal>
         </div>
       </section>
-      <section id="services" className="bg-cream py-10 md:py-12">
-        <h2 className="mb-7 text-center font-normal text-3xl italic md:text-4xl">
+
+      {/* SERVICES */}
+      <section id="services" className="scroll-mt-4 bg-cream py-10 md:py-12">
+        <h2 className="mb-6 text-center text-3xl font-normal italic md:mb-7 md:text-4xl">
           Our Services
         </h2>
 
         <div className="mx-auto max-w-7xl px-5">
-          <Carousel
-            // arrowClass="grid top-[28%] size-6 place-items-center rounded-full bg-clay text-white text-2xl hover:bg-clay/80"
-          >
+          <Carousel label="Services">
             {serviceCards.map((service) => (
               <a
                 key={service.name}
                 href={service.href}
-                className="group relative flex h-[34rem] shrink-0 snap-start basis-[80%] flex-col overflow-hidden rounded-t-full bg-cream sm:basis-[calc((100%_-_1.25rem)/2)] lg:basis-[30%]"
+                className="group relative flex h-[30rem] shrink-0 basis-[78%] snap-center flex-col overflow-hidden rounded-t-full bg-cream transition-transform duration-200 max-sm:active:scale-[0.985] sm:h-[34rem] sm:basis-[calc((100%_-_1.25rem)/2)] sm:snap-start lg:basis-[30%]"
               >
                 <span
                   aria-hidden="true"
@@ -253,16 +449,16 @@ export function Home() {
                   />
                 </div>
 
-                <div className="flex flex-1 flex-col items-center px-6 pb-6 pt-6 text-center">
-                  <h3 className="font-normal text-2xl italic leading-tight text-ink md:text-[1.7rem]">
+                <div className="flex flex-1 flex-col items-center px-5 pb-6 pt-5 text-center sm:px-6 sm:pt-6">
+                  <h3 className="text-2xl font-normal italic leading-tight text-ink md:text-[1.7rem]">
                     {service.name}
                   </h3>
 
-                  <p className="mt-3 min-h-[4.5rem] max-w-xs text-sm leading-relaxed text-muted transition-all duration-500 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-focus-visible:translate-y-0 md:group-focus-visible:opacity-100">
+                  <p className="mt-2 line-clamp-3 max-w-xs text-sm leading-relaxed text-muted transition-all duration-500 sm:mt-3 sm:line-clamp-none sm:min-h-[4.5rem] md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-focus-visible:translate-y-0 md:group-focus-visible:opacity-100">
                     {service.desc}
                   </p>
 
-                  <span className="mt-4 text-sm font-medium uppercase tracking-[0.18em] text-clay">
+                  <span className="mt-auto pt-3 text-sm font-medium uppercase tracking-[0.18em] text-clay sm:mt-4 sm:pt-0">
                     Explore
                   </span>
                 </div>
@@ -271,7 +467,9 @@ export function Home() {
           </Carousel>
         </div>
       </section>
-      <section className="relative isolate w-full overflow-hidden py-16 md:py-20 bg-cream ">
+
+      {/* REVIEWS */}
+      <section className="relative isolate w-full overflow-hidden bg-cream py-12 md:py-20">
         <Design />
         <div className="shell relative z-10">
           <SectionHead
@@ -282,28 +480,37 @@ export function Home() {
           {reviews === null ? null : reviews.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="grid md:grid-cols-3 gap-5">
-              {reviews.slice(0, 3).map((r) => (
-                <Reveal key={r.id}>
-                  <div className="bg-white rounded-[2rem] p-7 md:p-8 h-full">
-                    <div className="flex gap-1 text-clay mb-6">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star fill="currentColor" size={15} key={i} />
-                      ))}
+            <Slider label="Reviews">
+              {reviews.map((r) => (
+                <div
+                  key={r.id}
+                  className="w-[84%] shrink-0 snap-center md:w-[44%] lg:w-[32%]"
+                >
+                  <Reveal className="h-full">
+                    <div className="h-full rounded-[1.5rem] bg-white p-6 shadow-[0_8px_30px_-12px_rgba(70,56,47,0.18)] md:rounded-[2rem] md:p-8 md:shadow-none">
+                      <div className="mb-5 flex gap-1 text-clay md:mb-6">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star fill="currentColor" size={15} key={i} />
+                        ))}
+                      </div>
+                      <p className="mb-6 text-[15px] leading-7 text-muted md:mb-8 md:text-base md:leading-8">
+                        “{r.quote}”
+                      </p>
+                      <p className="font-semibold">{r.author}</p>
                     </div>
-                    <p className="leading-8 text-muted mb-8">“{r.quote}”</p>
-                    <p className="font-semibold">{r.author}</p>
-                  </div>
-                </Reveal>
+                  </Reveal>
+                </div>
               ))}
-            </div>
+            </Slider>
           )}
         </div>
       </section>
+
       <Reels />
-      <section className=" bg-cream py-16 md:py-20">
- 
-  <div className="shell ">
+
+      {/* OFFERS */}
+      <section className="bg-cream py-12 md:py-20">
+        <div className="shell">
           <SectionHead
             eyebrow="Special experiences"
             title="Wellness & offers"
@@ -312,26 +519,30 @@ export function Home() {
           {offers === null ? null : offers.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="grid md:grid-cols-3 gap-5">
-              {offers.slice(0, 3).map((o) => (
-                <Reveal key={o.id}>
+            <Slider label="Offers">
+              {offers.map((o) => (
+                <Reveal
+                  key={o.id}
+                  className="w-[84%] shrink-0 snap-center md:w-[44%] lg:w-[32%]"
+                >
                   <Card
                     item={{ ...o, subtitle: o.description }}
                     to={"/offers/" + o.id}
                   />
                 </Reveal>
-             
               ))}
-            </div>
+            </Slider>
           )}
         </div>
       </section>
-      <section className="bg-clay py-16 md:py-20 text-white">
+
+      {/* CTA */}
+      <section className="bg-clay py-14 text-white md:py-20">
         <div className="shell text-center">
-          <p className="eyebrow !text-skin mb-5">Your moment awaits</p>
-          <h2 className="h2 mb-6">Take time for the extraordinary.</h2>
+          <p className="eyebrow !text-skin mb-4 md:mb-5">Your moment awaits</p>
+          <h2 className="h2 mb-7 md:mb-6">Take time for the extraordinary.</h2>
           <Link
-            className="inline-block rounded-full bg-white text-ink px-8 py-4 font-semibold"
+            className="mx-auto block w-full max-w-xs rounded-full bg-white px-8 py-3.5 text-center font-semibold text-ink transition-transform active:scale-[0.98] md:inline-block md:w-auto md:max-w-none"
             to="/contact"
           >
             Plan your visit →
