@@ -488,11 +488,11 @@ export function Home() {
                 >
                   <Reveal className="h-full">
                     <div className="h-full rounded-[1.5rem] bg-white p-6 shadow-[0_8px_30px_-12px_rgba(70,56,47,0.18)] md:rounded-[2rem] md:p-8 md:shadow-none">
-                      <div className="mb-5 flex gap-1 text-clay md:mb-6">
+                      {/* <div className="mb-5 flex gap-1 text-clay md:mb-6">
                         {Array.from({ length: 5 }).map((_, i) => (
                           <Star fill="currentColor" size={15} key={i} />
                         ))}
-                      </div>
+                      </div> */}
                       <p className="mb-6 text-[15px] leading-7 text-muted md:mb-8 md:text-base md:leading-8">
                         “{r.quote}”
                       </p>
@@ -527,7 +527,7 @@ export function Home() {
                 >
                   <Card
                     item={{ ...o, subtitle: o.description }}
-                    to={"/offers/" + o.id}
+                    to={"/offers/" + o.id}q
                   />
                 </Reveal>
               ))}
