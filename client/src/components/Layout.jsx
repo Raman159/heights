@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { get } from "../api";
 import { useToast } from "./Toast";
-import {
-  Menu,
-  X,
-  ChevronDown,
-  Instagram,
-  Facebook,
-  Mail,
-  ArrowUpRight,
-} from "lucide-react";
+import Footer from "./site/Footer";
+import Navbar from "./site/Navbar";
 export function Reveal({ children, className = "" }) {
   useEffect(() => {
     const ob = new IntersectionObserver(
@@ -31,207 +24,27 @@ export function Reveal({ children, className = "" }) {
   return <div className={"reveal " + className}>{children}</div>;
 }
 export default function Layout({ children }) {
-  const [scroll, setScroll] = useState(false),
-    [menu, setMenu] = useState(false),
-    [whatsappNumber, setWhatsappNumber] = useState("");
-  let loc = useLocation();
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const loc = useLocation();
   const notify = useToast();
-  useEffect(() => {
-    let update = () => setScroll(window.scrollY > 40);
-    window.addEventListener("scroll", update, { passive: true });
-    update();
-    return () => window.removeEventListener("scroll", update);
-  }, []);
   useEffect(() => {
     get("/public/settings")
       .then((settings) => setWhatsappNumber(settings.whatsapp_number || ""))
       .catch((error) => notify(error.message, "error"));
   }, [notify]);
   useEffect(() => {
-    setMenu(false);
     window.scrollTo(0, 0);
   }, [loc.pathname]);
-  const home = loc.pathname === "/",
-    solid = scroll || !home || menu;
   const whatsappDigits = whatsappNumber.replace(/\D/g, "");
   const whatsappHref =
     whatsappDigits.length >= 7 && whatsappDigits.length <= 15
       ? `https://wa.me/${whatsappDigits}?text=${encodeURIComponent("Hello! I would like to inquire about your services.")}`
       : "/contact";
-  const nav = [
-    ["/", "Home"],
-    ["/restro", "Restro"],
-    ["/offers", "Offers"],
-    ["/blog", "Blog"],
-    ["/contact", "Contact Us"],
-  ];
   return (
     <>
-      <header
-        className={
-          "fixed top-0 left-0 z-50 w-full transition-all duration-500 " +
-          (solid
-            ? "bg-cream/95 backdrop-blur-xl shadow-sm py-1 md:py-2"
-            : "bg-transparent py-2 md:py-4")
-        }
-      >
-        <div className="shell flex items-center justify-between gap-5 ">
-          <Link to="/" aria-label="Height home">
-            <img
-              src="/logo.png"
-              alt="HEIGHT Restro & Wellness"
-              className={
-                "w-14 md:w-12 object-contain transition " +
-                (!solid ? "brightness-0 invert" : "")
-              }
-            />
-          </Link>
-          <nav
-            className={
-              "hidden lg:flex items-center gap-8 text-sm font-medium " +
-              (solid ? "text-ink" : "text-white")
-            }
-          >
-            <div className="relative group">
-              <Link
-                to="/wellness"
-                className="flex gap-1 items-center hover:opacity-70"
-              >
-                Wellness <ChevronDown size={14} />
-              </Link>
-              <div className="absolute top-full left-0 pt-4 hidden group-hover:block">
-                <div className="rounded-2xl min-w-48 p-3 bg-cream text-ink shadow-xl">
-                  {[
-                    ["/gym", "Gym"],
-                    ["/spa", "Spa"],
-                    ["/wellness", "Wellness"],
-                    ["/services/salon", "Salon"],
-                  ].map((x) => (
-                    <Link
-                      key={x[0]}
-                      className="block px-3 py-2 hover:bg-skin rounded-lg"
-                      to={x[0]}
-                    >
-                      {x[1]}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-            {nav.slice(1).map(([to, label]) => (
-              <NavLink key={to} to={to} className="hover:opacity-70">
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-          <div className="hidden lg:block">
-            <Link
-              to="/contact"
-              className={
-                solid
-                  ? "btn"
-                  : "inline-flex rounded-full px-6 py-3 bg-white text-ink font-semibold text-sm"
-              }
-            >
-              Book an Experience <ArrowUpRight size={16} />
-            </Link>
-          </div>
-          <button
-            className={
-              "lg:hidden [&_svg]:size-5 " +
-              (solid ? "text-ink" : "text-white")
-            }
-            onClick={() => setMenu(!menu)}
-            aria-label="Toggle menu"
-          >
-            {menu ? <X /> : <Menu />}
-          </button>
-        </div>
-        {menu && (
-          <div className="lg:hidden px-[5%] py-5 bg-cream text-ink flex flex-col gap-4">
-            {[
-              ["/", "Home"],
-              ["/wellness", "Wellness"],
-              ["/spa", "Spa"],
-              ["/gym", "Gym"],
-              ...nav.slice(1),
-            ].map(([to, l]) => (
-              <Link to={to} key={to}>
-                {l}
-              </Link>
-            ))}
-          </div>
-        )}
-      </header>
+      <Navbar />
       <main>{children}</main>
-      <footer className="bg-ink text-cream pt-20 pb-8">
-        <div className="shell grid gap-12 text-center md:grid-cols-4 md:text-left">
-          <div className="md:col-span-2">
-            <img
-              src="/logo.png"
-              className="mx-auto w-32 brightness-0 invert md:mx-0"
-              alt="HEIGHT"
-            />
-            <p className="mx-auto mt-5 max-w-md leading-8 text-cream/65 md:mx-0">
-              Where traditional wisdom meets modern convenience. A destination
-              to dine, move, heal and reconnect.
-            </p>
-          </div>
-          <div>
-            <p className="font-semibold mb-5">Discover</p>
-            {[
-              ["Spa", "/spa"],
-              ["Gym", "/gym"],
-              ["Wellness", "/wellness"],
-              ["Restro", "/restro"],
-              ["Offers", "/offers"],
-              ["Blog", "/blog"],
-            ].map(([n, l]) => (
-              <Link
-                key={l}
-                className="block text-cream/65 mb-3 hover:text-white"
-                to={l}
-              >
-                {n}
-              </Link>
-            ))}
-          </div>
-          <div>
-            <p className="font-semibold mb-5">Connect</p>
-            <Link
-              to="/contact"
-              className="mb-3 flex items-center justify-center gap-2 text-cream/70 md:justify-start"
-            >
-              <Mail size={16} />
-              Contact & enquiries
-            </Link>
-            <div className="flex justify-center gap-4 md:justify-start">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Instagram"
-              >
-                <Instagram />
-              </a>
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Facebook"
-              >
-                <Facebook />
-              </a>
-            </div>
-          </div>
-        </div>
-        <div className="shell mt-16 flex flex-wrap justify-center gap-3 border-t border-white/15 pt-6 text-center text-xs text-cream/50 md:justify-between md:text-left">
-          <span>
-            © {new Date().getFullYear()} HEIGHT Restro & Wellness. All rights
-            reserved.
-          </span>
-        </div>
-      </footer>
+      <Footer />
       <a
         href={whatsappHref}
         target={whatsappDigits.length >= 7 ? "_blank" : undefined}
