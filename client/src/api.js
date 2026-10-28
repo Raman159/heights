@@ -1,4 +1,4 @@
-const ROOT = import.meta.env.VITE_API_URL || "/api";
+const ROOT = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
 let token = sessionStorage.getItem("height_token") || "";
 export function setToken(v) {
   token = v || "";

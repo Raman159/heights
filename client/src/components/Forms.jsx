@@ -33,7 +33,6 @@ export default function Inquiry({
 
   async function submit(e) {
     e.preventDefault();
-
     if (values.name.trim().length < 2) {
       notify("Name must be at least 2 characters.", "error");
       return;
