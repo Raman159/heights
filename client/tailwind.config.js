@@ -11,8 +11,8 @@ export default {
         muted: "#776C66",
       },
       fontFamily: {
-        sans: ["DM Sans", "sans-serif"],
-        display: ["Manrope", "sans-serif"],
+        sans: ["Avenir", "sans-serif"],
+        display: ["Avenir", "sans-serif"],
       },
     },
   },

@@ -4,9 +4,6 @@ export default function Banner({ tag, title, body, image, children }) {
     <section className="banner relative isolate flex min-h-[640px] h-[92svh] w-full overflow-hidden bg-neutral-900 text-white">
       <style>{`
 
-        .banner .banner-serif {
-          font-family: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
-        }
         .banner .banner-img {
           animation: banner-settle 2.4s cubic-bezier(.2,.7,.2,1) both;
         }
@@ -57,7 +54,7 @@ export default function Banner({ tag, title, body, image, children }) {
         )}
 
         <div className="grid items-end gap-10 md:grid-cols-12 md:gap-8">
-          <h1 className="banner-serif banner-rise-late text-balance text-[clamp(2.75rem,7.2vw,6.75rem)] font-light leading-[0.98] tracking-[-0.02em] md:col-span-8">
+          <h1 className="banner-rise-late text-balance text-[clamp(2.75rem,7.2vw,6.75rem)] font-light leading-[0.98] tracking-[-0.02em] md:col-span-8">
             {title}
           </h1>
 

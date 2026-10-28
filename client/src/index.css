@@ -1,8 +1,50 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@font-face {
+  font-family: "Avenir";
+  src: url("/avenir/Avenir%20Light/Avenir%20Light.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("/avenir/Avenir%20Book/Avenir%20Book.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 350;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("/avenir/Avenir%20Regular/Avenir%20Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("/avenir/Avenir%20Medium/Avenir%20Medium.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("/avenir/Avenir%20Heavy/Avenir%20Heavy.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Avenir";
+  src: url("/avenir/Avenir%20Black/Avenir%20Black.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
 :root {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Avenir", sans-serif;
   color: #302725;
   background: #fbf7eb;
   font-synthesis: none;
@@ -60,7 +102,7 @@ a {
   }
 }
 .admin-app {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Avenir", sans-serif;
 }
 .admin-app .admin-field {
   @apply block w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#a66d59] focus:ring-2 focus:ring-[#a66d59]/10;
