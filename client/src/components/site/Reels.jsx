@@ -1,502 +1,281 @@
 import React, { memo, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import useCollection from "../../hooks/useCollection";
 import EmptyState from "./EmptyState";
 
-// Respect data-saver: show posters only, never download video
-const saveData =
-  typeof navigator !== "undefined" && navigator.connection?.saveData === true;
+const ReelCard = memo(function ReelCard({ reel, onOpen, paused }) {
+  const elementRef = useRef(null);
+  const playerRef = useRef(null);
+  const [visible, setVisible] = useState(false);
 
-// Resting "wave" of the cards: vertical offset (px) and tilt (deg), by position in the list.
-// Indexed by (i % count) so all three looped copies match and the seam stays invisible.
-const WAVE_Y = [0, 28, -10, 36, 12, 30];
-const WAVE_R = [-1.5, 1, -0.5, 1.5, -1, 0.5];
-
-/**
- * One card. Hover/visibility state lives HERE, not in the parent,
- * so hovering a card never re-renders the other cards.
- */
-const ReelCard = memo(function ReelCard({ video, slot }) {
-  const cardRef = useRef(null);
-  const videoRef = useRef(null);
-  const [everVisible, setEverVisible] = useState(false); // mount <video> only after first sight
-  const [inView, setInView] = useState(false);
-  const [playing, setPlaying] = useState(false); // fades video in over the poster
-  const [sound, setSound] = useState(false); // drives the "sound on" badge
-
-  // Watch the card: only on-screen cards load and play
   useEffect(() => {
-    const el = cardRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") {
-      setEverVisible(true);
-      setInView(true);
+    const element = elementRef.current;
+    if (!element) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setVisible(true);
       return;
     }
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        setInView(entry.isIntersecting);
-        if (entry.isIntersecting) setEverVisible(true);
-      },
-      { rootMargin: "0px 200px 0px 200px", threshold: 0.01 } // warm up just before entering
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { rootMargin: "100px", threshold: 0.01 }
     );
-    io.observe(el);
-    return () => io.disconnect();
+    observer.observe(element);
+    return () => observer.disconnect();
   }, []);
 
-  // Pause off-screen videos so the browser stops decoding them
   useEffect(() => {
-    const vid = videoRef.current;
-    if (!vid) return;
-    if (inView) vid.play().catch(() => {});
-    else vid.pause();
-  }, [inView, everVisible]);
-
-  const handleEnter = () => {
-    const vid = videoRef.current;
-    if (!vid) return;
-    vid.muted = false;
-    // Browsers may block sound without a click; fall back to muted playback
-    vid
-      .play()
-      .then(() => setSound(true))
-      .catch(() => {
-        vid.muted = true;
-        setSound(false);
-        vid.play().catch(() => {});
-      });
-  };
-  const handleLeave = () => {
-    if (videoRef.current) videoRef.current.muted = true;
-    setSound(false);
-  };
-
-  const showVideo = video.video_url && everVisible && !saveData;
+    const video = playerRef.current;
+    if (!video) return;
+    if (visible && !paused) video.play().catch(() => {});
+    else video.pause();
+  }, [visible, paused]);
 
   return (
-    <div
-      ref={cardRef}
-      className="reel-card"
-      style={{
-        "--y": `${WAVE_Y[slot % WAVE_Y.length]}px`,
-        "--r": `${WAVE_R[slot % WAVE_R.length]}deg`,
-      }}
-      tabIndex={0}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-      onFocus={handleEnter}
-      onBlur={handleLeave}
+    <button
+      ref={elementRef}
+      type="button"
+      className="height-reel-card"
+      aria-label="Open reel"
+      onClick={onOpen}
     >
-      <div className="reel-card__inner">
-        {/* Poster is always there: instant paint, no blank card while video buffers */}
-        {video.thumbnail_url && (
-          <img
-            className="reel-card__poster"
-            src={video.thumbnail_url}
-            alt="HEIGHT experience"
-            loading="lazy"
-            decoding="async"
-            draggable={false}
-          />
-        )}
-        {showVideo && (
-          <video
-            ref={videoRef}
-            className={`reel-card__video ${playing ? "is-playing" : ""}`}
-            src={video.video_url}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            controls={false}
-            disablePictureInPicture
-            draggable={false}
-            onPlaying={() => setPlaying(true)}
-          />
-        )}
-
-        {showVideo && (
-          <div className={`reel-card__badge ${sound ? "is-on" : ""}`} aria-hidden="true">
-            <span className="reel-card__eq">
-              <i />
-              <i />
-              <i />
-            </span>
-            <span className="reel-card__badge-text">{sound ? "Sound on" : "Muted"}</span>
-          </div>
-        )}
-      </div>
-    </div>
+      {reel.thumbnail_url && (
+        <img src={reel.thumbnail_url} alt="HEIGHT experience" loading="lazy" draggable={false} />
+      )}
+      {visible && reel.video_url && (
+        <video
+          ref={playerRef}
+          src={reel.video_url}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          draggable={false}
+        />
+      )}
+    </button>
   );
 });
 
 export default function Reels() {
   const videos = useCollection("videos");
-  const count = videos ? videos.length : 0;
-
   const scrollerRef = useRef(null);
-  const posRef = useRef(0); // float scroll position (scrollLeft gets rounded by browsers)
-  const pauseRef = useRef({ hover: false, drag: false, touchUntil: 0 });
-  const dragRef = useRef({ active: false, startX: 0, startScroll: 0 });
+  const scrollPosition = useRef(0);
+  const dragging = useRef(null);
+  const pauseScroll = useRef(false);
+  const ignoreClick = useRef(false);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const selectedReel = selectedIndex === null ? null : videos?.[selectedIndex];
+  const closeRef = useRef(null);
+  const lastFocused = useRef(null);
+  const count = videos?.length ?? 0;
 
-  // Width of one full copy of the list: the distance we jump to loop seamlessly
-  const loopWidth = () => {
-    const row = scrollerRef.current?.firstElementChild;
-    if (!row || !count) return 0;
-    const a = row.children[0];
-    const b = row.children[count];
-    return a && b ? b.offsetLeft - a.offsetLeft : 0;
+  const openReel = (index) => {
+    if (ignoreClick.current || !videos?.[index]?.video_url) return;
+    lastFocused.current = document.activeElement;
+    setSelectedIndex(index);
+  };
+
+  const closeReel = () => setSelectedIndex(null);
+  const moveReel = (direction) => {
+    if (!count) return;
+    setSelectedIndex((index) => (index === null ? null : (index + direction + count) % count));
   };
 
   useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el || !count) return;
-
-    // Three copies rendered; we always stay inside the middle one
-    const w0 = loopWidth();
-    if (w0) {
-      el.scrollLeft = w0;
-      posRef.current = w0;
-    }
-
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const SPEED = 0.04; // px per ms = 40px/s
-    let raf;
-    let last = performance.now();
-
-    const tick = (now) => {
-      const dt = Math.min(now - last, 64);
-      last = now;
-      const p = pauseRef.current;
-      if (!reduceMotion && !p.hover && !p.drag && now > p.touchUntil && !document.hidden) {
-        const w = loopWidth();
-        let x = posRef.current + SPEED * dt;
-        if (w && x >= 2 * w) x -= w;
-        posRef.current = x;
-        el.scrollLeft = x;
-      }
-      raf = requestAnimationFrame(tick);
+    if (!selectedReel) return;
+    const oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeRef.current?.focus();
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") closeReel();
+      if (event.key === "ArrowLeft") { event.preventDefault(); moveReel(-1); }
+      if (event.key === "ArrowRight") { event.preventDefault(); moveReel(1); }
     };
-    raf = requestAnimationFrame(tick);
-
-    // Wheel / trackpad / scrollbar / touch scrolling: keep the loop seamless
-    const onScroll = () => {
-      if (Math.abs(el.scrollLeft - posRef.current) <= 1.5) return; // our own auto-scroll
-      const w = loopWidth();
-      let x = el.scrollLeft;
-      if (w) {
-        if (x >= 2 * w) x -= w;
-        else if (x < w) x += w;
-        if (x !== el.scrollLeft) el.scrollLeft = x;
-      }
-      posRef.current = x;
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-
+    document.addEventListener("keydown", onKeyDown);
     return () => {
-      cancelAnimationFrame(raf);
-      el.removeEventListener("scroll", onScroll);
+      document.body.style.overflow = oldOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+      lastFocused.current?.focus?.();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedIndex !== null, count]);
+
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller || !count) return;
+    const loopWidth = () => {
+      const items = scroller.firstElementChild?.children;
+      return items?.[count] ? items[count].offsetLeft - items[0].offsetLeft : 0;
+    };
+    const start = () => {
+      const width = loopWidth();
+      if (width) {
+        scroller.scrollLeft = width;
+        scrollPosition.current = width;
+      }
+    };
+    start();
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let frame;
+    let previous = performance.now();
+    const tick = (now) => {
+      const elapsed = Math.min(now - previous, 64);
+      previous = now;
+      if (!reducedMotion && !pauseScroll.current && !dragging.current && !document.hidden) {
+        const width = loopWidth();
+        if (width) {
+          let next = scrollPosition.current + elapsed * 0.035;
+          if (next >= 2 * width) next -= width;
+          scrollPosition.current = next;
+          scroller.scrollLeft = next;
+        }
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    const onScroll = () => {
+      if (Math.abs(scroller.scrollLeft - scrollPosition.current) < 1.5) return;
+      const width = loopWidth();
+      let next = scroller.scrollLeft;
+      if (width) {
+        if (next >= 2 * width) next -= width;
+        if (next < width) next += width;
+        if (next !== scroller.scrollLeft) scroller.scrollLeft = next;
+      }
+      scrollPosition.current = next;
+    };
+    scroller.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", start);
+    frame = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(frame);
+      scroller.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", start);
+    };
   }, [count]);
 
-  // ---- mouse drag-to-scroll ----
-  const onPointerDown = (e) => {
-    if (e.pointerType !== "mouse") {
-      // touch uses native scrolling; just hold the auto-scroll for a moment
-      pauseRef.current.touchUntil = performance.now() + 2500;
-      return;
-    }
-    if (e.button !== 0) return;
-    const el = scrollerRef.current;
-    dragRef.current = { active: true, startX: e.clientX, startScroll: el.scrollLeft };
-    pauseRef.current.drag = true;
-    el.setPointerCapture(e.pointerId);
-    el.classList.add("is-dragging");
+  const onPointerDown = (event) => {
+    ignoreClick.current = false;
+    if (event.pointerType !== "mouse" || event.button !== 0) return;
+    dragging.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      scroll: scrollerRef.current.scrollLeft,
+      moved: false,
+    };
+    // Do NOT capture on pointer down: doing so can swallow button clicks.
   };
 
-  const onPointerMove = (e) => {
-    const d = dragRef.current;
-    if (!d.active) return;
-    const el = scrollerRef.current;
-    const w = loopWidth();
-    let target = d.startScroll - (e.clientX - d.startX);
-    if (w) {
-      while (target >= 2 * w) { target -= w; d.startScroll -= w; }
-      while (target < w) { target += w; d.startScroll += w; }
+  const onPointerMove = (event) => {
+    const drag = dragging.current;
+    if (!drag) return;
+    const distance = event.clientX - drag.x;
+    if (!drag.moved && Math.abs(distance) < 7) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      ignoreClick.current = true;
+      scrollerRef.current.setPointerCapture?.(drag.pointerId);
+      scrollerRef.current.classList.add("is-dragging");
     }
-    el.scrollLeft = target;
-    posRef.current = target;
+    const el = scrollerRef.current;
+    el.scrollLeft = drag.scroll - distance;
+    scrollPosition.current = el.scrollLeft;
   };
 
-  const endDrag = (e) => {
-    const d = dragRef.current;
-    if (!d.active) return;
-    d.active = false;
-    pauseRef.current.drag = false;
+  const onPointerUp = (event) => {
+    const drag = dragging.current;
+    if (!drag) return;
+    dragging.current = null;
     const el = scrollerRef.current;
     el.classList.remove("is-dragging");
-    if (el.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
+    if (el.hasPointerCapture?.(event.pointerId)) el.releasePointerCapture(event.pointerId);
+    if (drag.moved) {
+      ignoreClick.current = true;
+      // Clear after the synthetic click produced by this pointer gesture.
+      requestAnimationFrame(() => { ignoreClick.current = false; });
+    }
   };
 
   return (
-    <section className="reel-section py-16 overflow-hidden">
+    <section className="height-reels" aria-label="Moments at HEIGHT">
       <style>{`
-        /* ---------- section backdrop: warm light pooling behind the cards ---------- */
-        .reel-section {
-          position: relative;
-          background:
-            radial-gradient(60% 55% at 12% 28%, rgba(255, 214, 170, .55) 0%, rgba(255, 214, 170, 0) 70%),
-            radial-gradient(55% 60% at 88% 78%, rgba(230, 197, 83, .30) 0%, rgba(230, 197, 83, 0) 70%),
-            #f4e6d9;
-        }
-
-        /* ---------- scroller ---------- */
-        .reel-scroller {
-          overflow-x: auto;
-          overflow-y: hidden;
-          cursor: grab;
-          user-select: none;
-          -webkit-user-select: none;
-          scrollbar-width: none;           /* Firefox */
-          -ms-overflow-style: none;
-          overscroll-behavior-x: contain;  /* don't trigger browser back-swipe */
-          /* cards drift in and out of the edges instead of being cut off */
-          -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
-                  mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
-        }
-        .reel-scroller::-webkit-scrollbar { display: none; }
-        .reel-scroller.is-dragging { cursor: grabbing; }
-        .reel-scroller.is-dragging .reel-card { pointer-events: none; }
-
-        /* Room above/below for the wave, the popped card and its shadow */
-        .reel-row {
-          display: flex;
-          gap: 22px;
-          width: max-content;
-          padding: 96px 48px 110px;
-        }
-
-        /* ---------- card: soft ivory bezel, gold ring fades in on hover ---------- */
-        .reel-card {
-          --y: 0px;
-          --r: 0deg;
-          position: relative;
-          flex-shrink: 0;
-          width: 225px;
-          height: 410px;
-          padding: 5px;
-          border-radius: 30px;
-          background: linear-gradient(160deg, #fffdf8 0%, #f8ecdc 100%);
-          box-shadow:
-            0 1px 1px rgba(90, 60, 20, .10),
-            0 12px 22px -10px rgba(90, 60, 20, .30),
-            0 28px 40px -24px rgba(90, 60, 20, .28);
-          translate: 0 var(--y);
-          rotate: var(--r);
-          transition:
-            translate 500ms cubic-bezier(0.22, 1, 0.36, 1),
-            rotate 500ms cubic-bezier(0.22, 1, 0.36, 1),
-            scale 500ms cubic-bezier(0.22, 1, 0.36, 1),
-            box-shadow 500ms cubic-bezier(0.22, 1, 0.36, 1),
-            opacity 300ms ease;
-          contain: layout;
-          z-index: 0;
-          outline: none;
-        }
-        @media (min-width: 768px) {
-          .reel-card { width: 270px; height: 475px; }
-        }
-
-        /* gold ring, revealed on hover */
-        .reel-card::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          border-radius: inherit;
-          background: linear-gradient(145deg, #f7e08f 0%, #d4a91a 45%, #f0cf62 100%);
-          opacity: 0;
-          transition: opacity 400ms ease;
-        }
-
-        .reel-card__inner {
-          position: relative;
-          z-index: 1;
-          width: 100%;
-          height: 100%;
-          border-radius: 25px;
-          overflow: hidden;
-          background: #241a12;
-        }
-        .reel-card__poster,
-        .reel-card__video {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-          -webkit-user-drag: none;
-        }
-        .reel-card__video { opacity: 0; transition: opacity 500ms ease; }
-        .reel-card__video.is-playing { opacity: 1; }
-
-        /* gloss on top, warm shade at the bottom for the badge */
-        .reel-card__inner::after {
-          content: "";
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background:
-            linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,0) 20%),
-            linear-gradient(0deg, rgba(30,16,4,.55) 0%, rgba(30,16,4,0) 34%);
-          transition: opacity 400ms ease;
-        }
-
-        /* ---------- sound badge ---------- */
-        .reel-card__badge {
-          position: absolute;
-          left: 50%;
-          bottom: 14px;
-          z-index: 2;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 7px 13px 7px 11px;
-          border-radius: 999px;
-          font-size: 12px;
-          line-height: 1;
-          font-weight: 600;
-          letter-spacing: .01em;
-          color: #fff8ec;
-          background: rgba(36, 24, 12, .55);
-          -webkit-backdrop-filter: blur(10px);
-                  backdrop-filter: blur(10px);
-          box-shadow: inset 0 0 0 1px rgba(255, 244, 220, .22);
-          opacity: 0;
-          translate: -50% 8px;
-          transition: opacity 350ms ease, translate 450ms cubic-bezier(0.22, 1, 0.36, 1), background 300ms ease;
-          pointer-events: none;
-        }
-        .reel-card__badge.is-on { background: rgba(204, 161, 21, .85); color: #2a1d06; box-shadow: none; }
-
-        .reel-card__eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
-        .reel-card__eq i {
-          display: block;
-          width: 2.5px;
-          height: 100%;
-          border-radius: 2px;
-          background: currentColor;
-          transform-origin: bottom;
-          transform: scaleY(.3);
-        }
-        .reel-card__badge.is-on .reel-card__eq i { animation: reel-eq 900ms ease-in-out infinite; }
-        .reel-card__badge.is-on .reel-card__eq i:nth-child(2) { animation-delay: -300ms; }
-        .reel-card__badge.is-on .reel-card__eq i:nth-child(3) { animation-delay: -600ms; }
-        @keyframes reel-eq {
-          0%, 100% { transform: scaleY(.3); }
-          50%      { transform: scaleY(1); }
-        }
-
-        /* ---------- hover / focus: straighten, lift, glow ---------- */
-        .reel-card:hover,
-        .reel-card:focus-visible {
-          z-index: 30;
-          will-change: translate, scale;
-          translate: 0 calc(var(--y) - 18px);
-          rotate: 0deg;
-          scale: 1.13;
-          box-shadow:
-            0 2px 4px rgba(90, 60, 20, .16),
-            0 34px 60px -14px rgba(90, 60, 20, .50),
-            0 0 56px -6px rgba(204, 161, 21, .55);
-        }
-        .reel-card:hover::before,
-        .reel-card:focus-visible::before { opacity: 1; }
-        .reel-card:hover .reel-card__inner::after { opacity: .55; }
-        .reel-card:hover .reel-card__badge,
-        .reel-card:focus-visible .reel-card__badge { opacity: 1; translate: -50% 0; }
-
-        .reel-scroller:hover .reel-card:not(:hover) { opacity: 0.55; }
-        .reel-scroller.is-dragging .reel-card { opacity: 1 !important; }
-
-        .reel-card:focus-visible { box-shadow: 0 0 0 3px #241a12, 0 0 0 6px #f4e6d9, 0 34px 60px -14px rgba(90,60,20,.5); }
-
-        /* ---------- header hint ---------- */
-        .reel-hint {
-          display: none;
-          align-items: center;
-          gap: 10px;
-          font-size: .875rem;
-        }
-        @media (min-width: 768px) { .reel-hint { display: inline-flex; } }
-        .reel-hint__track {
-          position: relative;
-          width: 44px;
-          height: 22px;
-          border-radius: 999px;
-          background: rgba(36, 26, 18, .08);
-          box-shadow: inset 0 0 0 1px rgba(36, 26, 18, .14);
-        }
-        .reel-hint__dot {
-          position: absolute;
-          top: 3px;
-          left: 3px;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: linear-gradient(145deg, #f3d777, #cca115);
-          box-shadow: 0 1px 3px rgba(90, 60, 20, .4);
-          animation: reel-hint 2.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-        }
-        @keyframes reel-hint {
-          0%, 100% { transform: translateX(0); }
-          50%      { transform: translateX(22px); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .reel-card, .reel-card::before, .reel-card__video, .reel-card__badge { transition: none; }
-          .reel-card__badge.is-on .reel-card__eq i,
-          .reel-hint__dot { animation: none; }
-          .reel-card__badge.is-on .reel-card__eq i { transform: scaleY(.7); }
-        }
+        .height-reels { overflow: hidden; padding: clamp(64px,7vw,104px) 0; background: #f6f2ec; color: #28231e; }
+        .height-reels__heading { display:flex; align-items:end; justify-content:space-between; gap:24px; margin-bottom:20px; }
+        .height-reels__eyebrow { font-size:12px; letter-spacing:.2em; color:#9a8065; margin:0 0 16px; }
+        .height-reels__title { font-family:inherit; font-size:clamp(44px,6vw,84px); font-weight:400; line-height:1.04; letter-spacing:-.045em; margin:0; }
+        .height-reels__hint { font-size:12px; letter-spacing:.1em; color:#85776a; white-space:nowrap; }
+        .height-reels__scroller { overflow-x:auto; overflow-y:hidden; cursor:grab; scrollbar-width:none; overscroll-behavior-x:contain; }
+        .height-reels__scroller::-webkit-scrollbar { display:none; }
+        .height-reels__scroller.is-dragging { cursor:grabbing; user-select:none; }
+        .height-reels__scroller.is-dragging .height-reel-card { pointer-events:none; }
+        .height-reels__row { display:flex; width:max-content; gap:20px; padding:28px max(24px,4vw) 42px; }
+        .height-reel-card { border:0; padding:0; position:relative; display:block; flex:none; width:270px; aspect-ratio:9/15; border-radius:18px; overflow:hidden; background:#302b27; cursor:pointer; box-shadow:0 12px 35px -20px rgba(25,19,13,.3); transition:transform .3s,box-shadow .3s; }
+        .height-reel-card:hover { transform:scale(1.025); box-shadow:0 20px 45px -19px rgba(25,19,13,.4); }
+        .height-reel-card:focus-visible { outline:3px solid #b39470; outline-offset:3px; }
+        .height-reel-card img,.height-reel-card video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none; }
+        .height-reel-popup { position:fixed; inset:0; z-index:99999; background:rgba(10,10,10,.88); display:flex; align-items:center; justify-content:center; padding:54px 20px 24px; }
+        .height-reel-popup__panel { position:relative; height:min(82vh,820px); max-width:calc(100vw - 40px); aspect-ratio:9/16; border-radius:14px; overflow:hidden; background:#111; box-shadow:0 24px 80px rgba(0,0,0,.5); }
+        .height-reel-popup__video { display:block; width:100%; height:100%; object-fit:contain; }
+        .height-reel-popup__nav { position:absolute; top:50%; transform:translateY(-50%); width:46px; height:46px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.3); border-radius:50%; background:rgba(20,20,20,.6); color:white; cursor:pointer; font-size:30px; line-height:1; z-index:2; }
+        .height-reel-popup__nav:hover { background:rgba(255,255,255,.22); }
+        .height-reel-popup__nav--prev { left:max(12px,calc(50% - min(82vh * 9 / 32, 410px) - 74px)); }
+        .height-reel-popup__nav--next { right:max(12px,calc(50% - min(82vh * 9 / 32, 410px) - 74px)); }
+        .height-reel-popup__close { position:absolute; top:16px; right:18px; display:grid; place-items:center; width:40px; height:40px; border:1px solid rgba(255,255,255,.35); border-radius:50%; background:rgba(0,0,0,.5); color:#fff; font-size:26px; line-height:1; cursor:pointer; }
+        @media (max-width:767px) { .height-reels__heading { display:block; } .height-reels__hint { margin-top:20px; } .height-reel-card { width:220px; } .height-reels__row { gap:15px; } .height-reel-popup__panel { height:auto; max-height:82vh; width:min(100%,440px); } .height-reel-popup__nav { top:auto; bottom:14px; transform:none; width:42px; height:42px; } .height-reel-popup__nav--prev { left:16px; } .height-reel-popup__nav--next { right:16px; } }
+        @media (prefers-reduced-motion:reduce) { .height-reel-card { transition:none; } }
       `}</style>
-
-      <div className="shell mb-2 flex items-end justify-between">
+      <div className="shell height-reels__heading">
         <div>
-          <p className="eyebrow mb-3">Moments at HEIGHT</p>
-          <h2 className="h2">A glimpse of life here.</h2>
+          <p className="height-reels__eyebrow">THE HEIGHT EXPERIENCE</p>
+          <h2 className="height-reels__title">Life, beautifully<br />in motion.</h2>
         </div>
-        {/* <span className="reel-hint text-muted">
-          <span className="reel-hint__track" aria-hidden="true">
-            <span className="reel-hint__dot" />
-          </span>
-          Drag to explore
-        </span> */}
+        <p className="height-reels__hint">DRAG TO EXPLORE</p>
       </div>
-
-      {videos === null ? null : videos.length === 0 ? (
-        <EmptyState />
-      ) : (
+      {videos === null ? null : count === 0 ? <EmptyState /> : (
         <div
+          className="height-reels__scroller"
           ref={scrollerRef}
-          className="reel-scroller"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-          onPointerEnter={(e) => {
-            if (e.pointerType === "mouse") pauseRef.current.hover = true;
-          }}
-          onPointerLeave={(e) => {
-            if (e.pointerType === "mouse") pauseRef.current.hover = false;
-          }}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          onMouseEnter={() => { pauseScroll.current = true; }}
+          onMouseLeave={() => { pauseScroll.current = false; }}
+          onTouchStart={() => { pauseScroll.current = true; }}
+          onTouchEnd={() => { pauseScroll.current = false; }}
         >
-          <div className="reel-row">
-            {[...videos, ...videos, ...videos].map((v, i) => (
-              <ReelCard video={v} slot={i % count} key={`${v.id}-${i}`} />
+          <div className="height-reels__row">
+            {[...videos, ...videos, ...videos].map((reel, index) => (
+              <ReelCard
+                key={`${reel.id ?? index}-${index}`}
+                reel={reel}
+                paused={Boolean(selectedReel)}
+                onOpen={() => openReel(index % count)}
+              />
             ))}
           </div>
         </div>
+      )}
+      {selectedReel && typeof document !== "undefined" && createPortal(
+        <div className="height-reel-popup" role="presentation" onClick={(e) => { if (e.target === e.currentTarget) closeReel(); }}>
+          <div className="height-reel-popup__panel" role="dialog" aria-modal="true" aria-label="Reel video">
+            <video
+              key={selectedReel.video_url}
+              className="height-reel-popup__video"
+              src={selectedReel.video_url}
+              poster={selectedReel.thumbnail_url || undefined}
+              autoPlay
+              controls
+              playsInline
+              loop
+            />
+          </div>
+          {count > 1 && (<>
+            <button type="button" className="height-reel-popup__nav height-reel-popup__nav--prev" onClick={() => moveReel(-1)} aria-label="Previous reel">‹</button>
+            <button type="button" className="height-reel-popup__nav height-reel-popup__nav--next" onClick={() => moveReel(1)} aria-label="Next reel">›</button>
+          </>)}
+          <button ref={closeRef} type="button" className="height-reel-popup__close" onClick={closeReel} aria-label="Close reel">×</button>
+        </div>,
+        document.body
       )}
     </section>
   );

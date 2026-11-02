@@ -1,111 +1,212 @@
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { EditorialPhoto } from "./HomeMedia";
 
-export default function HomeCtaSection() {
-  // CHANGE IMAGES DIRECTLY HERE
-  const mainImage = "/images/cta-main.jpg";
-  const secondaryImage = "/images/cta-secondary.jpg";
+export default function HomeCtaSection({
+  imageSrc = "/media/terrace-lounge.webp",
+  text = "Above the ordinary.",
+}) {
+  const sectionRef = useRef(null);
+  const imageRef = useRef(null);
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    const image = imageRef.current;
+    const content = contentRef.current;
+
+    if (!section || !image || !content) return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    let frameId = 0;
+    let current = 0;
+    let target = 0;
+
+    const clamp = (value, min = 0, max = 1) =>
+      Math.max(min, Math.min(max, value));
+
+    const animate = () => {
+      frameId = 0;
+
+      current += (target - current) * 0.12;
+
+      if (Math.abs(target - current) < 0.001) {
+        current = target;
+      }
+
+      const progress = current;
+
+      // Original pinned cinematic image animation
+      if (!reducedMotion) {
+        const scale = 1.38 - progress * 0.38;
+        const moveY = (progress - 0.5) * 65;
+
+        image.style.transform = `
+          translate3d(0, ${moveY}px, 0)
+          scale(${scale})
+        `;
+      } else {
+        image.style.transform = "none";
+      }
+
+      // Fade in, hold, then fade out
+      const fadeIn = clamp((progress - 0.12) / 0.2);
+      const fadeOut = clamp((0.92 - progress) / 0.18);
+
+      const opacity = reducedMotion
+        ? 1
+        : Math.min(fadeIn, fadeOut);
+
+      const move = reducedMotion
+        ? 0
+        : (1 - fadeIn) * 55 - (1 - fadeOut) * 35;
+
+      const scale = reducedMotion
+        ? 1
+        : 0.94 + fadeIn * 0.06;
+
+      content.style.opacity = String(opacity);
+      content.style.transform = `
+        translate3d(0, ${move}px, 0)
+        scale(${scale})
+      `;
+
+      // Keep the CTA non-interactive when hidden
+      content.style.pointerEvents =
+        opacity > 0.5 ? "auto" : "none";
+
+      if (Math.abs(target - current) > 0.001) {
+        frameId = requestAnimationFrame(animate);
+      }
+    };
+
+    const updateTarget = () => {
+      const rect = section.getBoundingClientRect();
+      const distance = Math.max(
+        1,
+        section.offsetHeight - window.innerHeight
+      );
+
+      target = clamp(-rect.top / distance);
+
+      if (!frameId) {
+        frameId = requestAnimationFrame(animate);
+      }
+    };
+
+    updateTarget();
+
+    window.addEventListener("scroll", updateTarget, {
+      passive: true,
+    });
+
+    window.addEventListener("resize", updateTarget);
+
+    return () => {
+      window.removeEventListener("scroll", updateTarget);
+      window.removeEventListener("resize", updateTarget);
+      cancelAnimationFrame(frameId);
+    };
+  }, []);
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#46382f] text-white">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[.045]"
-        aria-hidden="true"
-      >
-        <img
-          src="/watermark.png"
-          alt=""
-          className="absolute -left-24 top-1/2 w-[540px] -translate-y-1/2 brightness-0 invert lg:w-[820px]"
-          loading="lazy"
-        />
-      </div>
+    <section
+      ref={sectionRef}
+      className="relative h-[240svh] bg-[#29231f]"
+    >
+      {/* Pinned full-screen photograph */}
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
+        {/* Cinematic image */}
+        <div
+          ref={imageRef}
+          className="absolute inset-0 will-change-transform"
+        >
+          <img
+            src={imageSrc}
+            alt="HEIGHT terrace lounge"
+            className="h-full w-full object-cover"
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+          />
+        </div>
 
-      <div className="mx-auto grid max-w-[1600px] items-center gap-12 px-5 py-20 sm:px-10 md:gap-16 md:py-28 lg:grid-cols-[1fr_.85fr] lg:gap-20 lg:px-16 lg:py-36">
-        <div className="relative z-10 max-w-[780px]">
-          <div className="mb-10 flex items-center gap-4">
-            <span className="h-px w-12 bg-[#f2d5c6]/80" />
-            <p className="text-[11px] font-medium uppercase tracking-[.3em] text-[#f2d5c6]">
-              Your moment awaits
-            </p>
-          </div>
+        {/* Soft overlay for readability */}
+        <div className="pointer-events-none absolute inset-0 bg-black/25" />
 
-          <h2 className="font-display text-[clamp(3.8rem,6.8vw,8rem)] font-light leading-[1.02] tracking-[-.055em]">
-            Make room
-            <br />
-            for something
-            <br />
-            <span className="italic text-[#f2d5c6]">
-              extraordinary.
-            </span>
-          </h2>
+        {/* Animated center content */}
+        <div className="absolute inset-0 z-10 flex items-center justify-center px-6">
+          <div
+            ref={contentRef}
+            className="flex w-full max-w-[1400px] flex-col items-center text-center opacity-0 will-change-transform"
+            style={{ pointerEvents: "none" }}
+          >
+            {/* Heading */}
+            <h2
+              className="
+                max-w-[1200px]
+                text-[clamp(3.5rem,9vw,10rem)]
+                font-light
+                leading-[0.95]
+                tracking-[-0.065em]
+                text-white
+                drop-shadow-[0_5px_35px_rgba(0,0,0,0.2)]
+              "
+            >
+              {text}
+            </h2>
 
-          <p className="mt-8 max-w-md text-base leading-8 text-white/70 md:ml-16 md:text-lg">
-            The best moments begin when you make time for yourself.
-            Discover your next experience at Height.
-          </p>
-
-          <div className="mt-10 flex flex-wrap items-center gap-8 md:ml-16">
+            {/* Contact button */}
             <Link
               to="/contact"
-              className="group inline-flex min-h-14 items-center gap-8 rounded-full bg-[#f2d5c6] px-7 py-4 text-xs font-semibold uppercase tracking-[.18em] text-[#46382f] transition-colors duration-300 hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+              className="
+                group
+                mt-10
+                inline-flex
+                min-h-[56px]
+                items-center
+                justify-center
+                gap-8
+                rounded-full
+                border
+                border-white/75
+                bg-white/10
+                px-8
+                text-[11px]
+                font-medium
+                uppercase
+                tracking-[0.18em]
+                text-white
+                backdrop-blur-sm
+                transition-all
+                duration-500
+                hover:border-white
+                hover:bg-white
+                hover:text-[#29231f]
+                md:mt-14
+              "
             >
-              Plan your visit
+              Book an Experience
+
               <span
+                className="
+                  text-lg
+                  leading-none
+                  transition-transform
+                  duration-500
+                  group-hover:translate-x-1
+                  group-hover:-translate-y-1
+                "
                 aria-hidden="true"
-                className="text-lg transition-transform group-hover:translate-x-1"
               >
                 ↗
               </span>
             </Link>
-
-            <a
-              href="#services"
-              className="border-b border-white/50 pb-2 text-xs font-medium uppercase tracking-[.18em] text-white/80 transition-colors hover:border-white hover:text-white"
-            >
-              Explore experiences
-            </a>
           </div>
         </div>
-
-        {/* IMAGE SECTION */}
-        <div
-          className="relative mx-auto h-[400px] w-full max-w-[520px] sm:h-[540px] lg:h-[600px]"
-          aria-label="A glimpse of the Height experiences"
-        >
-          {/* Main Image */}
-          <div className="absolute right-0 top-0 h-[85%] w-[80%] overflow-hidden rounded-t-[180px] bg-white/10 sm:rounded-t-[260px]">
-            <EditorialPhoto
-              src={mainImage}
-              alt="Explore the experiences at Height"
-              className="transition-transform duration-1000 hover:scale-105"
-            />
-          </div>
-
-          {/* Secondary Image */}
-          <div className="absolute bottom-0 left-0 h-[47%] w-[51%] overflow-hidden border-[8px] border-[#46382f] bg-white/10 shadow-2xl sm:border-[12px]">
-            <EditorialPhoto
-              src={secondaryImage}
-              alt="A second view of Height"
-            />
-          </div>
-
-          {/* Watermark */}
-          <div className="absolute bottom-[7%] right-[2%] flex h-24 w-24 items-center justify-center rounded-full border border-white/50 bg-[#46382f]/80 p-3 backdrop-blur-md sm:h-32 sm:w-32">
-            <img
-              src="/watermark.png"
-              alt=""
-              className="max-h-full max-w-full brightness-0 invert"
-              loading="lazy"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="relative mx-auto flex max-w-[1472px] items-center justify-between gap-4 border-t border-white/20 px-5 py-6 text-[10px] uppercase tracking-[.2em] text-white/50 sm:px-10 lg:px-16">
-        <span>Height · Closer to yourself.</span>
-        <span>Restro / Wellness / Spa / Fitness</span>
       </div>
     </section>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Layout from "./components/Layout";
 import { Home } from "./pages/Home";
@@ -17,11 +17,16 @@ import { ToastProvider } from "./components/Toast";
 
 function AppContent() {
   const location = useLocation();
+  const hasOpenedHome = useRef(false);
   if (location.pathname.replace(/\/+$/, "") === "/admin") return <Admin />;
+  const isHome = location.pathname === "/";
+  const showHomeSplash = isHome && !hasOpenedHome.current;
+  if (isHome) hasOpenedHome.current = true;
+
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home showSplash={showHomeSplash} />} />
         <Route path="/wellness" element={<Wellness />} />
         <Route path="/spa" element={<Spa />} />
         <Route path="/gym" element={<Gym />} />

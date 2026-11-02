@@ -1,202 +1,111 @@
 import React, { useEffect, useRef, useState } from "react";
-
-function useActiveSlide(trackRef, count) {
+function useCarousel(count) {
+  const ref = useRef(null);
   const [active, setActive] = useState(0);
-
   useEffect(() => {
-    const el = trackRef.current;
-    if (!el) return;
-    let raf = 0;
-
+    const track = ref.current;
+    if (!track) return;
+    let frame = 0;
     const update = () => {
-      raf = 0;
-      const kids = Array.from(el.children);
-      if (!kids.length) return;
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 4) {
-        setActive(kids.length - 1);
-        return;
-      }
-      const centre = el.scrollLeft + el.clientWidth / 2;
-      let best = 0;
-      let min = Infinity;
-      kids.forEach((kid, index) => {
-        const distance = Math.abs(kid.offsetLeft + kid.offsetWidth / 2 - centre);
-        if (distance < min) {
-          min = distance;
-          best = index;
-        }
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const slides = [...track.children];
+        if (!slides.length) return;
+        const center = track.scrollLeft + track.clientWidth / 2;
+        let idx = 0,
+          distance = Infinity;
+        slides.forEach((slide, i) => {
+          const d = Math.abs(slide.offsetLeft + slide.offsetWidth / 2 - center);
+          if (d < distance) {
+            distance = d;
+            idx = i;
+          }
+        });
+        setActive(idx);
       });
-      setActive(best);
     };
-
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-
-    el.addEventListener("scroll", onScroll, { passive: true });
+    track.addEventListener("scroll", update, { passive: true });
     update();
     return () => {
-      el.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
+      track.removeEventListener("scroll", update);
+      cancelAnimationFrame(frame);
     };
-  }, [trackRef, count]);
-
+  }, [count]);
   const goTo = (index) => {
-    const el = trackRef.current;
-    const kid = el?.children[index];
-    if (!el || !kid) return;
-    el.scrollTo({
-      left: kid.offsetLeft + kid.offsetWidth / 2 - el.clientWidth / 2,
+    const track = ref.current;
+    const slide = track?.children[index];
+    if (!track || !slide) return;
+    track.scrollTo({
+      left: slide.offsetLeft + slide.offsetWidth / 2 - track.clientWidth / 2,
       behavior: "smooth",
     });
   };
-
-  return [active, goTo];
+  return { ref, active, goTo };
 }
-
-function Dots({ count, active, onSelect, label, className = "" }) {
+function Controls({ label, count, active, goTo, refEl }) {
   if (count < 2) return null;
+  const scroll = (direction) =>
+    refEl.current?.scrollBy({
+      left: direction * refEl.current.clientWidth * 0.8,
+      behavior: "smooth",
+    });
   return (
-    <div
-      role="group"
-      aria-label={`${label} pagination`}
-      className={`mt-5 flex items-center justify-center ${className}`}
-    >
-      {Array.from({ length: count }).map((_, index) => (
+    <div className="mt-7 flex items-center justify-between gap-6">
+      <span className="text-[11px] uppercase tracking-[.2em] text-clay">
+        {String(active + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
+      </span>
+      <div
+        className="flex items-center gap-2"
+        role="group"
+        aria-label={`${label} controls`}
+      >
         <button
-          key={index}
           type="button"
-          aria-label={`Go to ${label} ${index + 1} of ${count}`}
-          aria-current={index === active ? "true" : undefined}
-          onClick={() => onSelect(index)}
-          className="grid h-6 min-w-6 place-items-center px-0.5"
+          onClick={() => scroll(-1)}
+          aria-label={`Previous ${label}`}
+          className="grid h-11 w-11 place-items-center rounded-full border border-ink/20 text-ink transition hover:bg-ink hover:text-white"
         >
-          <span
-            className={`block h-1.5 rounded-full transition-all duration-300 ${
-              index === active ? "w-6 bg-clay" : "w-1.5 bg-clay/30"
-            }`}
-          />
+          ←
         </button>
-      ))}
+        <button
+          type="button"
+          onClick={() => scroll(1)}
+          aria-label={`Next ${label}`}
+          className="grid h-11 w-11 place-items-center rounded-full border border-ink/20 text-ink transition hover:bg-ink hover:text-white"
+        >
+          →
+        </button>
+      </div>
     </div>
   );
 }
-
-export function Slider({ children, label }) {
-  const trackRef = useRef(null);
-  const dragRef = useRef({
-    active: false,
-    moved: false,
-    startX: 0,
-    startScrollLeft: 0,
-  });
+function Track({ children, label = "Items", className = "" }) {
   const items = React.Children.toArray(children);
-  const [active, goTo] = useActiveSlide(trackRef, items.length);
-
-  const scroll = (direction) => {
-    const track = trackRef.current;
-    track?.scrollBy({
-      left: direction * track.clientWidth * 0.8,
-      behavior: "smooth",
-    });
-  };
-  const startDrag = (event) => {
-    if (event.pointerType !== "mouse" || event.button !== 0) return;
-    const track = trackRef.current;
-    if (!track) return;
-    dragRef.current = {
-      active: true,
-      moved: false,
-      startX: event.clientX,
-      startScrollLeft: track.scrollLeft,
-    };
-  };
-  const moveDrag = (event) => {
-    const drag = dragRef.current;
-    const track = trackRef.current;
-    if (!drag.active || !track) return;
-    const distance = event.clientX - drag.startX;
-    if (Math.abs(distance) > 4 && !drag.moved) {
-      drag.moved = true;
-      track.setPointerCapture(event.pointerId);
-    }
-    if (drag.moved) {
-      track.scrollLeft = drag.startScrollLeft - distance;
-      event.preventDefault();
-    }
-  };
-  const stopDrag = () => {
-    dragRef.current.active = false;
-    if (dragRef.current.moved) {
-      window.setTimeout(() => {
-        dragRef.current.moved = false;
-      }, 0);
-    }
-  };
-  const preventDraggedClick = (event) => {
-    if (!dragRef.current.moved) return;
-    event.preventDefault();
-    event.stopPropagation();
-    dragRef.current.moved = false;
-  };
-
+  const { ref, active, goTo } = useCarousel(items.length);
   return (
     <div>
       <div
-        ref={trackRef}
-        aria-label={label}
+        ref={ref}
+        role="region"
         aria-roledescription="carousel"
-        onPointerDown={startDrag}
-        onPointerMove={moveDrag}
-        onPointerUp={stopDrag}
-        onPointerCancel={stopDrag}
-        onClickCapture={preventDraggedClick}
-        className="relative flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:cursor-grab md:gap-5 md:active:cursor-grabbing md:pb-2"
+        aria-label={label}
+        className={`flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:gap-6 ${className}`}
       >
         {items}
       </div>
-      <Dots count={items.length} active={active} onSelect={goTo} label={label} />
-    </div>
-  );
-}
-
-export function Carousel({ children, label = "Services", arrowClass = "" }) {
-  const trackRef = useRef(null);
-  const count = React.Children.count(children);
-  const [active, goTo] = useActiveSlide(trackRef, count);
-
-  const scroll = (direction) => {
-    trackRef.current?.scrollBy({
-      left: direction * trackRef.current.clientWidth * 0.8,
-      behavior: "smooth",
-    });
-  };
-
-  return (
-    <div className="relative">
-      <div
-        ref={trackRef}
-        aria-label={label}
-        aria-roledescription="carousel"
-        className="relative -mx-5 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto overscroll-x-contain scroll-smooth px-5 [scrollbar-width:none] sm:mx-0 sm:scroll-px-0 sm:gap-5 sm:px-0 [&::-webkit-scrollbar]:hidden"
-      >
-        {children}
-      </div>
-      {arrowClass && (
-        <button
-          type="button"
-          aria-label={`Scroll ${label} forward`}
-          className={`absolute right-0 z-20 ${arrowClass}`}
-          onClick={() => scroll(1)}
-        />
-      )}
-      <Dots
-        count={count}
-        active={active}
-        onSelect={goTo}
+      <Controls
         label={label}
-        className="sm:hidden"
+        count={items.length}
+        active={active}
+        goTo={goTo}
+        refEl={ref}
       />
     </div>
   );
+}
+export function Slider(props) {
+  return <Track {...props} />;
+}
+export function Carousel({ children, label = "Services", arrowClass = "" }) {
+  return <Track label={label}>{children}</Track>;
 }

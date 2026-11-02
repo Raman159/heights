@@ -1,21 +1,18 @@
 import React from "react";
-
-export default function WatermarkDivider({ dark = false }) {
+export default function WatermarkDivider() {
   return (
     <div
+      className="relative flex items-center justify-center bg-cream py-8 md:py-12"
       aria-hidden="true"
-      className="mx-auto flex w-full max-w-[1400px] items-center gap-5 px-5 py-5 sm:gap-8 sm:px-10 lg:px-16"
     >
-      <span className={`h-px flex-1 ${dark ? "bg-white/35" : "bg-clay/35"}`} />
+      <span className="h-px flex-1 bg-ink/10" />
       <img
         src="/watermark.png"
         alt=""
         loading="lazy"
-        className={`h-10 w-auto max-w-[80px] object-contain opacity-65 sm:h-14 sm:max-w-[110px] ${
-          dark ? "brightness-0 invert" : ""
-        }`}
+        className="mx-8 h-12 w-12 object-contain opacity-30 md:mx-12 md:h-16 md:w-16"
       />
-      <span className={`h-px flex-1 ${dark ? "bg-white/35" : "bg-clay/35"}`} />
+      <span className="h-px flex-1 bg-ink/10" />
     </div>
   );
 }

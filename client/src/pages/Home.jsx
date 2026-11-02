@@ -3,14 +3,17 @@ import React, { useEffect, useState } from "react";
 import { get } from "../api";
 import useCollection from "../hooks/useCollection";
 
+import SplashScreen from "../components/home/SplashScreen";
 import HeroSection from "../components/home/HeroSection";
 import PhilosophySection from "../components/home/PhilosophySection";
 import ServicesSection from "../components/home/ServicesSection";
+import ExperienceChapters from "../components/home/ExperienceChapters";
 import EditorialSection from "../components/home/EditorialSection";
+import DiningShowcase from "../components/home/DiningShowcase";
+import GallerySection from "../components/home/GallerySection";
 import ReviewsSection from "../components/home/ReviewsSection";
 import OffersSection from "../components/home/OffersSection";
 import HomeCtaSection from "../components/home/HomeCtaSection";
-import WatermarkDivider from "../components/home/WatermarkDivider";
 import Reels from "../components/site/Reels";
 
 const SETTINGS_KEY = "height:public-settings";
@@ -54,40 +57,45 @@ function useHeroSettings() {
   return hero;
 }
 
-export function Home() {
+export function Home({ showSplash }) {
   const offers = useCollection("offers");
   const reviews = useCollection("reviews");
   const hero = useHeroSettings();
 
   return (
-    <main className="overflow-hidden bg-cream text-ink">
-      <HeroSection settings={hero} />
+    <>
+      {/* Splash screen - same logic as working code */}
+      {showSplash && <SplashScreen />}
 
-      <PhilosophySection />
+      {/* Homepage */}
+      <main className="overflow-x-clip bg-cream text-ink">
+        <HeroSection settings={hero} />
 
-      <WatermarkDivider />
+        <PhilosophySection />
 
-      <ServicesSection />
+        <ServicesSection />
 
-      <WatermarkDivider />
+        <ExperienceChapters />
 
-      <EditorialSection />
+        <EditorialSection />
 
-      <WatermarkDivider />
+        <DiningShowcase />
 
-      <ReviewsSection reviews={reviews} />
+        <ReviewsSection reviews={reviews} />
 
-      <WatermarkDivider />
+        <GallerySection />
 
-      <Reels />
+        <section
+          aria-label="Height reels"
+          className="bg-cream py-12 md:py-20"
+        >
+          <Reels />
+        </section>
 
-      <WatermarkDivider />
+        <OffersSection offers={offers} />
 
-      <OffersSection offers={offers} />
-
-      <WatermarkDivider />
-
-      {/* <HomeCtaSection /> */}
-    </main>
+        <HomeCtaSection />
+      </main>
+    </>
   );
 }
