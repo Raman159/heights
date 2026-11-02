@@ -1,5 +1,7 @@
 export const pic = (filename) =>
-  filename?.endsWith(".webp") ? `/media/${filename}` : "/media/spa-lobby.webp";
+  /\.(webp|jpe?g|png)$/i.test(filename ?? "")
+    ? `/media/${filename}`
+    : "/media/spa-lobby.webp";
 export const serviceCards = [
   {
     name: "Restro",
@@ -26,10 +28,22 @@ export const serviceCards = [
     desc: "Enjoy thoughtful care and a little time set aside just for you.",
   },
   {
-    name: "Steam sauna",
+    name: "Steam",
     img: "/media/steam-room.webp",
     href: "/services/steam",
-    desc: "Unwind in soothing warmth and let the day's tension melt away.",
+    desc: "Unwind in soothing warmth and feel the environment.",
+  },
+  {
+    name: "Sauna",
+    img: "/media/sauna-friends.webp",
+    href: "/services/sauna",
+    desc: "Let the day's tension melt away.",
+  },
+  {
+    name: "Ice Bath",
+    img: "/media/sauna-person.webp",
+    href: "/services/icebath",
+    desc: "Chill from the choas with city view.",
   },
   {
     name: "Pool",
@@ -107,6 +121,14 @@ export const services = [
     description:
       "An inviting poolside retreat with an incredible city outlook.",
   },
+  {
+    slug: "icebath",
+    title: "Ice Bath",
+    subtitle: "Freeze your moments",
+    photo: "Icebath.jpg",
+    description:
+      "A refreshing cold-water ritual for an invigorating pause in your wellness routine.",
+  },
 ];
 export const spaGroups = [
   {
@@ -124,11 +146,34 @@ export const membership = [
     name: "Elite",
     includes: "Gym, Steam, Sauna, Jacuzzi, Pool",
     prices: [40000, 80000, 130000, 200000],
+    featured: true, // shows the "Most complete" badge
   },
   {
     name: "Wellness",
     includes: "Gym, Steam, Sauna, Jacuzzi",
     prices: [30000, 70000, 100000, 170000],
   },
-  { name: "Fitness", includes: "Gym", prices: [20000, 40000, 70000, 100000] },
+  {
+    name: "Retreat",
+    includes: "Steam, Sauna, Jacuzzi",
+    prices: [25000, 60000, 90000, 150000],
+  },
+  {
+    name: "Fitness",
+    includes: "Gym",
+    prices: [20000, 40000, 70000, 100000],
+  },
 ];
+ 
+export const dayPass = {
+  services: [
+    { name: "Gym", price: 2000 },
+    { name: "Swimming for Adults", price: 2000 },
+    { name: "Swimming for Kids", price: 1000 },
+  ],
+  packages: [
+    { name: "Steam, Sauna, and Jacuzzi", price: 2000 },
+    { name: "Gym, Steam, Sauna, and Jacuzzi", price: 4000 },
+    { name: "Gym, Steam, Sauna, Jacuzzi, and Pool", price: 5000 },
+  ],
+};

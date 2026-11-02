@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { pic } from "../data";
 import Inquiry from "../components/Forms";
 import Banner from "../components/site/Banner";
-import Card from "../components/site/ExperienceCard";
+import Card from "../components/site/PackageCard";
 import EmptyState from "../components/site/EmptyState";
 import useCollection from "../hooks/useCollection";
 

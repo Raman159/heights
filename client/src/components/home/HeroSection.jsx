@@ -13,11 +13,11 @@ export default function HeroSection({ settings }) {
           className="mx-auto mb-6 h-24 justify-center brightness-0 invert md:mb-10 md:h-40"
           alt="Watermark"
         />
-        <h1 className="max-w-5xl font-display text-[42px] font-light leading-[1.08] tracking-[-.04em] sm:text-6xl md:text-[92px] md:leading-[1.04] md:tracking-[-.06em]">
+        {/* <h1 className="max-w-5xl font-display text-[42px] font-light leading-[1.08] tracking-[-.04em] sm:text-6xl md:text-[92px] md:leading-[1.04] md:tracking-[-.06em]">
           Above the ordinary.
           <br />
           <em className="not-italic text-[#f2d5c6]">Closer to yourself.</em>
-        </h1>
+        </h1> */}
         <p className="eyebrow !text-skin mt-4 max-md:text-[11px] md:mt-5">
           RESTRO • WELLNESS • SPA • FITNESS
         </p>

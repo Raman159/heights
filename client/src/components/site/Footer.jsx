@@ -3,6 +3,7 @@ import { ArrowUpRight, Facebook, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
 import { get } from "../../api";
 import { useToast } from "../Toast";
+import BrandButton from "./BrandButton";
 
 /* Adjust the two import paths above to wherever this file lives.
    (Written for src/components/site/Footer.jsx.) */
@@ -12,6 +13,7 @@ const LINKS = [
   ["Gym", "/gym"],
   ["Wellness", "/wellness"],
   ["Restro", "/restro"],
+  ["Events", "/events"],
   // ["Offers", "/offers"],
   // ["Blog", "/blog"],
   ["Contact Us", "/contact"],
@@ -135,9 +137,9 @@ export default function Footer() {
               </p>
             )}
           </div>
-          <Link to="/contact" className="btn mt-6 inline-flex">
-            Book an Appointment <ArrowUpRight size={16} />
-          </Link>
+          <BrandButton to="/contact" size="large" className="mt-6 py-2">
+            Book an Appointment 
+          </BrandButton>
         </div>
       </div>
 

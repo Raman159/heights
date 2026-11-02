@@ -151,7 +151,7 @@ export function Slider({ children, label }) {
         onPointerUp={stopDrag}
         onPointerCancel={stopDrag}
         onClickCapture={preventDraggedClick}
-        className="relative flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:cursor-grab md:gap-5 md:active:cursor-grabbing md:pb-2"
+        className="relative flex snap-x snap-mandatory gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:cursor-grab md:gap-5 md:active:cursor-grabbing md:pb-2"
       >
         {items}
       </div>

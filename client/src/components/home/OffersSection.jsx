@@ -1,6 +1,6 @@
 import React from "react";
 import { Reveal } from "../Layout";
-import Card from "../site/ExperienceCard";
+import PackageCard from "../site/PackageCard";
 import EmptyState from "../site/EmptyState";
 import { Slider } from "./HomeCarousel";
 
@@ -28,7 +28,7 @@ export default function OffersSection({ offers }) {
                 key={offer.id}
                 className="w-[84%] shrink-0 snap-center md:w-[44%] lg:w-[32%]"
               >
-                <Card
+                <PackageCard
                   item={{ ...offer, subtitle: offer.description }}
                   to={"/offers/" + offer.id}
                 />

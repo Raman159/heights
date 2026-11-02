@@ -36,7 +36,7 @@ export default function Banner({ tag, title, body, image, children }) {
 
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/25 to-black/10"
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-black/50 via-black/20 to-black/5"
       />
 
       {/* <div

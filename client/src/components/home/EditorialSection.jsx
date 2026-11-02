@@ -27,63 +27,61 @@ export default function EditorialSection() {
   const sectionRef = useRef(null);
   const reduceMotion = Boolean(useReducedMotion());
 
-  // 0 when section's TOP reaches 85% of viewport (near its first appearance);
-  // 1 when section's BOTTOM reaches 25% of viewport. Scrolling up reverses it.
+  // Complete the reveal as the section's TOP reaches 25% of the viewport.
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start 85%", "end 25%"],
+    offset: ["start 85%", "start 25%"],
   });
   const progress = useSpring(scrollYProgress, {
-    stiffness: 115,
-    damping: 28,
-    mass: 0.35,
+    stiffness: 200,
+    damping: 32,
+    mass: 0.3,
     restDelta: 0.0005,
   });
-
+  const revealProgress = scrollYProgress;
+  const textRevealProgress = progress;
+  const imageRevealProgress = scrollYProgress;
 
   // Reveal timeline: eyebrow -> heading -> copy -> main image -> floating image.
-  const eyebrowOpacity = useScrub(progress, reduceMotion, [0.02, 0.14], [0, 1]);
-  const eyebrowX = useScrub(progress, reduceMotion, [0.02, 0.16], [-65, 0]);
-  const eyebrowLine = useScrub(progress, reduceMotion, [0.04, 0.24], [0, 1]);
+  const eyebrowOpacity = useScrub(textRevealProgress, reduceMotion, [0.02, 0.14], [0, 1]);
+  const eyebrowX = useScrub(textRevealProgress, reduceMotion, [0.02, 0.16], [-24, 0]);
+  const eyebrowLine = useScrub(textRevealProgress, reduceMotion, [0.04, 0.24], [0, 1]);
 
-  const headingOneY = useScrub(progress, reduceMotion, [0.05, 0.28], [125, 0]);
-  const headingOneOpacity = useScrub(progress, reduceMotion, [0.06, 0.22], [0, 1]);
-  const headingOneSkew = useScrub(progress, reduceMotion, [0.05, 0.28], [-10, 0]);
-  const headingTwoY = useScrub(progress, reduceMotion, [0.13, 0.38], [155, 0]);
-  const headingTwoOpacity = useScrub(progress, reduceMotion, [0.14, 0.32], [0, 1]);
-  const headingTwoSkew = useScrub(progress, reduceMotion, [0.13, 0.38], [-10, 0]);
+  const headingOneY = useScrub(textRevealProgress, reduceMotion, [0.05, 0.28], [36, 0]);
+  const headingOneOpacity = useScrub(textRevealProgress, reduceMotion, [0.06, 0.22], [0, 1]);
+  const headingOneSkew = useScrub(textRevealProgress, reduceMotion, [0.05, 0.28], [-2, 0]);
+  const headingTwoY = useScrub(textRevealProgress, reduceMotion, [0.13, 0.38], [44, 0]);
+  const headingTwoOpacity = useScrub(textRevealProgress, reduceMotion, [0.14, 0.32], [0, 1]);
+  const headingTwoSkew = useScrub(textRevealProgress, reduceMotion, [0.13, 0.38], [-2, 0]);
 
-  const copyOpacity = useScrub(progress, reduceMotion, [0.27, 0.46], [0, 1]);
-  const copyY = useScrub(progress, reduceMotion, [0.27, 0.5], [70, 0]);
-  const copyX = useScrub(progress, reduceMotion, [0.27, 0.5], [-35, 0]);
-  const ctaLine = useScrub(progress, reduceMotion, [0.38, 0.58], [0, 1]);
+  const copyOpacity = useScrub(textRevealProgress, reduceMotion, [0.27, 0.46], [0, 1]);
+  const copyY = useScrub(textRevealProgress, reduceMotion, [0.27, 0.5], [22, 0]);
+  const copyX = useScrub(textRevealProgress, reduceMotion, [0.27, 0.5], [-10, 0]);
+  const ctaLine = useScrub(revealProgress, reduceMotion, [0.38, 0.58], [0, 1]);
 
   // Main image: cinematic bottom-up reveal and depth/scale motion.
-  const mainClip = useScrub(progress, reduceMotion, [0.12, 0.48], [100, 0]);
+  const mainClip = useScrub(imageRevealProgress, reduceMotion, [0.04, 0.24], [100, 0]);
   const mainScale = useScrub(progress, reduceMotion, [0.12, 0.7, 1], [1.32, 1.05, 1.12]);
   const mainY = useScrub(progress, reduceMotion, [0.12, 1], [85, -90]);
-  const mainBrightness = useScrub(progress, reduceMotion, [0.16, 0.55], [0.75, 1]);
-  const mainShellY = useScrub(progress, reduceMotion, [0.12, 0.48], [85, 0]);
-  const mainShellOpacity = useScrub(progress, reduceMotion, [0.12, 0.35], [0, 1]);
+  const mainShellY = useScrub(imageRevealProgress, reduceMotion, [0.04, 0.24], [85, 0]);
+  const mainShellOpacity = useScrub(imageRevealProgress, reduceMotion, [0.04, 0.16], [0, 1]);
 
-  // Secondary frame: delayed fly-in, twist, and counter-parallax.
-  const smallOpacity = useScrub(progress, reduceMotion, [0.36, 0.57], [0, 1]);
-  const smallX = useScrub(progress, reduceMotion, [0.34, 0.66], [-170, 0]);
-  const smallY = useScrub(progress, reduceMotion, [0.34, 0.66, 1], [180, 0, -32]);
-  const smallRotate = useScrub(progress, reduceMotion, [0.34, 0.66], [-15, 0]);
-  const smallScale = useScrub(progress, reduceMotion, [0.34, 0.66], [0.67, 1]);
-  const smallImageY = useScrub(progress, reduceMotion, [0.3, 1], [55, -65]);
+  // Secondary frame: earlier, quicker fly-in, twist, and counter-parallax.
+  const smallOpacity = useScrub(imageRevealProgress, reduceMotion, [0.04, 0.22], [0, 1]);
+  const smallX = useScrub(imageRevealProgress, reduceMotion, [0.04, 0.24], [-70, 0]);
+  const smallY = useScrub(imageRevealProgress, reduceMotion, [0.04, 0.24, 1], [60, 0, -16]);
+  const smallRotate = useScrub(imageRevealProgress, reduceMotion, [0.04, 0.24], [-5, 0]);
+  const smallScale = useScrub(imageRevealProgress, reduceMotion, [0.04, 0.24], [0.92, 1]);
+  const smallImageY = useScrub(imageRevealProgress, reduceMotion, [0.04, 1], [28, -30]);
 
-  const outlineOpacity = useScrub(progress, reduceMotion, [0.46, 0.7], [0, 1]);
-  const outlineX = useScrub(progress, reduceMotion, [0.46, 0.7], [-35, 0]);
-  const ornamentOpacity = useScrub(progress, reduceMotion, [0.48, 0.76], [0, 0.45]);
-  const ornamentRotate = useScrub(progress, reduceMotion, [0.48, 0.95], [-80, 20]);
-  const verticalOpacity = useScrub(progress, reduceMotion, [0.55, 0.78], [0, 1]);
-  const bottomLine = useScrub(progress, reduceMotion, [0.52, 0.82], [0, 1]);
-  const ambientY = useScrub(progress, reduceMotion, [0, 1], [50, -60]);
+  const outlineOpacity = useScrub(revealProgress, reduceMotion, [0.46, 0.7], [0, 1]);
+  const outlineX = useScrub(revealProgress, reduceMotion, [0.46, 0.7], [-18, 0]);
+  const ornamentOpacity = useScrub(revealProgress, reduceMotion, [0.48, 0.76], [0, 0.35]);
+  const ornamentRotate = useScrub(revealProgress, reduceMotion, [0.48, 0.95], [-24, 0]);
+  const verticalOpacity = useScrub(revealProgress, reduceMotion, [0.55, 0.78], [0, 1]);
+  const bottomLine = useScrub(revealProgress, reduceMotion, [0.52, 0.82], [0, 1]);
 
   const mainClipPath = useTransform(mainClip, (v) => `inset(${v}% 0% 0% 0%)`);
-  const imageFilter = useTransform(mainBrightness, (v) => `brightness(${v})`);
 
   const cursorX = useMotionValue(0);
   const cursorY = useMotionValue(0);
@@ -93,24 +91,21 @@ export default function EditorialSection() {
   function moveImage(event) {
     if (reduceMotion) return;
     const r = event.currentTarget.getBoundingClientRect();
-    cursorX.set(((event.clientX - r.left) / r.width - 0.5) * 26);
-    cursorY.set(((event.clientY - r.top) / r.height - 0.5) * 26);
+    cursorX.set(((event.clientX - r.left) / r.width - 0.5) * 12);
+    cursorY.set(((event.clientY - r.top) / r.height - 0.5) * 12);
   }
 
   return (
     <section
       ref={sectionRef}
-      className="relative isolate overflow-hidden bg-cream px-5 py-24 sm:px-10 md:py-36 lg:px-16"
+      className="relative isolate overflow-hidden bg-cream py-6 md:py-24"
     >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <motion.div
-          style={{ y: ambientY }}
-          className="absolute -right-40 top-1/4 h-[600px] w-[600px] rounded-full bg-clay/[0.045] blur-[110px]"
-        />
+      {/* <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -right-40 top-1/4 h-[600px] w-[600px] rounded-full bg-clay/[0.045] blur-[110px]" />
         <div className="absolute left-5 top-10 h-px w-28 bg-clay/25 sm:left-10 lg:left-16" />
-      </div>
+      </div> */}
 
-      <div className="relative mx-auto grid max-w-[1400px] gap-16 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:gap-16">
+      <div className="shell relative grid gap-16 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:gap-16">
         <div className="relative z-20 lg:pr-8">
           <motion.div
             style={{ opacity: eyebrowOpacity, x: eyebrowX }}
@@ -175,17 +170,17 @@ export default function EditorialSection() {
         <div
           onMouseMove={moveImage}
           onMouseLeave={() => { cursorX.set(0); cursorY.set(0); }}
-          className="relative h-[450px] sm:h-[560px] lg:h-[680px]"
+          className="relative h-[360px] sm:h-[460px] lg:h-[580px]"
         >
           <motion.div
             style={{ y: mainShellY, opacity: mainShellOpacity }}
-            className="absolute right-0 top-0 h-[88%] w-[77%]"
+            className="absolute right-0 top-0 h-[94%] w-[80%]"
           >
             <motion.div
               style={{ clipPath: mainClipPath }}
               className="relative h-full w-full overflow-hidden rounded-t-[180px] bg-clay/10 sm:rounded-t-[280px]"
             >
-              <motion.div style={{ y: mainY, scale: mainScale, filter: imageFilter }} className="absolute -inset-y-[20%] inset-x-0">
+              <motion.div style={{ y: mainY, scale: mainScale }} className="absolute -inset-y-[20%] inset-x-0 will-change-transform">
                 <img
                   src="/media/rooftop-view.webp"
                   alt="Height lifestyle and wellness"
@@ -199,7 +194,7 @@ export default function EditorialSection() {
 
           <motion.div
             style={{ opacity: outlineOpacity, x: outlineX }}
-            className="pointer-events-none absolute right-[5%] top-[5%] h-[88%] w-[77%] rounded-t-[180px] border border-clay/30 sm:rounded-t-[280px]"
+            className="pointer-events-none absolute right-[5%] top-[5%] h-[84%] w-[70%] rounded-t-[180px] border border-clay/30 sm:rounded-t-[280px]"
           />
 
           <motion.div
@@ -227,14 +222,14 @@ export default function EditorialSection() {
 
           <motion.div
             style={{ opacity: verticalOpacity }}
-            className="absolute bottom-[12%] right-[-8px] z-20 hidden lg:block"
+            className="absolute bottom-[40%] right-[-8px] z-80 hidden lg:block"
           >
             <span className="block text-[10px] uppercase tracking-[.35em] text-clay/70" style={{ writingMode: "vertical-rl" }}>
               Get the best Height experience
             </span>
           </motion.div>
           <motion.div
-            style={{ scaleX: bottomLine }}
+            style={{ scaleY: bottomLine }}
             className="absolute -bottom-8 right-0 h-px w-[45%] origin-right bg-clay/40"
           />
         </div>

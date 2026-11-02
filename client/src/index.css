@@ -80,7 +80,7 @@ a {
 @layer components {
   .shell {
     /* @apply mx-auto w-full px-[5%]; */
-    @apply mx-auto w-[min(1180px,90%)];
+    @apply mx-auto w-[min(90%)];
   }
   .eyebrow {
     @apply text-xs uppercase tracking-[.27em] font-semibold text-clay;

@@ -239,7 +239,7 @@ export default function Reels() {
   };
 
   return (
-    <section className="reel-section py-14 overflow-hidden">
+    <section className="reel-section py-16 overflow-hidden">
       <style>{`
         /* ---------- section backdrop: warm light pooling behind the cards ---------- */
         .reel-section {
@@ -282,8 +282,8 @@ export default function Reels() {
           --r: 0deg;
           position: relative;
           flex-shrink: 0;
-          width: 210px;
-          height: 385px;
+          width: 225px;
+          height: 410px;
           padding: 5px;
           border-radius: 30px;
           background: linear-gradient(160deg, #fffdf8 0%, #f8ecdc 100%);
@@ -304,7 +304,7 @@ export default function Reels() {
           outline: none;
         }
         @media (min-width: 768px) {
-          .reel-card { width: 250px; height: 440px; }
+          .reel-card { width: 270px; height: 475px; }
         }
 
         /* gold ring, revealed on hover */

@@ -19,6 +19,7 @@ export function Wellness() {
     services[6],
     services[3],
     services[7],
+    services[8],
   ].filter(Boolean);
 
   return (

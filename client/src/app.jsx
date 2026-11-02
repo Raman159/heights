@@ -7,9 +7,11 @@ import { Service } from "./pages/Service";
 import { Spa } from "./pages/Spa";
 import { Gym } from "./pages/Gym";
 import { Restro } from "./pages/Restro";
+import { Events } from "./pages/Events";
 import { Offers } from "./pages/Offers";
 import { Blog } from "./pages/Blog";
 import { Contact } from "./pages/Contact";
+import { Gallery } from "./pages/Gallery";
 import Admin from "./pages/Admin";
 import { ToastProvider } from "./components/Toast";
 
@@ -24,12 +26,14 @@ function AppContent() {
         <Route path="/spa" element={<Spa />} />
         <Route path="/gym" element={<Gym />} />
         <Route path="/restro" element={<Restro />} />
+        <Route path="/events" element={<Events />} />
         <Route path="/services/:slug" element={<Service />} />
         <Route path="/offers" element={<Offers />} />
         <Route path="/offers/:id" element={<Offers />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/gallery" element={<Gallery />} />
         <Route path="*" element={<Contact />} />
       </Routes>
     </Layout>
