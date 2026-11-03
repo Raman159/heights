@@ -4,20 +4,20 @@ import {
   ArrowUpRight,
   Facebook,
   Instagram,
+  MapPin,
+  Clock3,
+  Phone,
+  Mail,
+  ArrowRight,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import {
-  motion,
-  useReducedMotion,
-} from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 import { get } from "../../api";
 import { useToast } from "../Toast";
 import BrandButton from "./BrandButton";
 
-/* ---------------------------------------
-   Navigation
---------------------------------------- */
+const EASE = [0.22, 1, 0.36, 1];
 
 const LINKS = [
   ["Spa", "/spa"],
@@ -28,7 +28,121 @@ const LINKS = [
   ["Contact Us", "/contact"],
 ];
 
-const ease = [0.22, 1, 0.36, 1];
+// Editorial category cards.
+// These are navigation categories, not invented service packages.
+const FEATURES = [
+  {
+    title: "The Art of Relaxation",
+    subtitle: "Explore our spa experiences",
+    image: "/media/spa-treatment.webp",
+    to: "/spa",
+  },
+  {
+    title: "Strength & Movement",
+    subtitle: "Explore gym and fitness",
+    image: "/media/gym-interior.webp",
+    to: "/gym",
+  },
+  {
+    title: "The Dining Experience",
+    subtitle: "Discover our restaurant",
+    image: "/media/terrace-lounge.webp",
+    to: "/restro",
+  },
+  {
+    title: "Moments to Remember",
+    subtitle: "Explore events and celebrations",
+    image: "/media/infinity-pool.webp",
+    to: "/events",
+  },
+];
+
+function RevealBlock({ children, delay = 0, className = "" }) {
+  const reduceMotion = useReducedMotion();
+
+  return (
+    <motion.div
+      initial={{
+        opacity: reduceMotion ? 1 : 0,
+        y: reduceMotion ? 0 : 28,
+      }}
+      whileInView={{
+        opacity: 1,
+        y: 0,
+      }}
+      viewport={{ once: true, amount: 0.12 }}
+      transition={{
+        duration: 0.85,
+        delay,
+        ease: EASE,
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function SectionLabel({ children, line = false }) {
+  return (
+    <div className="flex items-center gap-5">
+      <span className="shrink-0 text-[10px] font-medium uppercase tracking-[0.28em] text-clay sm:text-[11px]">
+        {children}
+      </span>
+
+      {line && (
+        <span
+          aria-hidden="true"
+          className="h-px flex-1 bg-clay/25"
+        />
+      )}
+    </div>
+  );
+}
+
+function FeatureCard({ item, index }) {
+  return (
+    <RevealBlock delay={index * 0.06}>
+      <Link
+        to={item.to}
+        className="group relative block h-[185px] overflow-hidden rounded-[16px] bg-ink sm:h-[210px] lg:h-[clamp(165px,12vw,220px)]"
+        aria-label={item.title}
+      >
+        <img
+          src={item.image}
+          alt=""
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.07]"
+        />
+
+        {/* Editorial image overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/5 transition-colors duration-500 group-hover:from-black/85" />
+
+        {/* Top index */}
+        <div className="absolute right-5 top-5 text-[10px] tracking-[0.18em] text-white/70">
+          0{index + 1}
+        </div>
+
+        {/* Card content */}
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 sm:p-6">
+          <div className="min-w-0">
+            <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-white/70">
+              {item.subtitle}
+            </p>
+
+            <h3 className="max-w-[280px] text-[clamp(1.2rem,1.8vw,1.9rem)] font-light leading-[1.12] tracking-[-0.045em] text-white">
+              {item.title}
+            </h3>
+          </div>
+
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-white/45 text-white transition-all duration-500 group-hover:rotate-45 group-hover:bg-white group-hover:text-ink">
+            <ArrowUpRight size={18} strokeWidth={1.4} />
+          </span>
+        </div>
+      </Link>
+    </RevealBlock>
+  );
+}
 
 export default function Footer() {
   const notify = useToast();
@@ -36,10 +150,7 @@ export default function Footer() {
 
   const [contact, setContact] = useState(null);
 
-  /* ---------------------------------------
-     Backend settings
-  --------------------------------------- */
-
+  // Preserve the existing backend settings call.
   useEffect(() => {
     let mounted = true;
 
@@ -76,194 +187,204 @@ export default function Footer() {
     },
   ].filter((item) => item.href);
 
-  /* ---------------------------------------
-     Animation
-  --------------------------------------- */
-
-  const reveal = {
-    hidden: {
-      opacity: reduceMotion ? 1 : 0,
-      y: reduceMotion ? 0 : 25,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-    },
-  };
-
-  const viewport = {
-    once: false,
-    amount: 0.1,
-  };
-
   return (
-    <footer className="relative overflow-hidden border-t border-ink/10 bg-cream text-ink">
+    <footer className="relative isolate overflow-hidden border-t border-ink/10 bg-cream text-ink">
 
-      {/* MAIN FOOTER */}
-      <div className="shell">
+      {/* Subtle decorative atmosphere */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-40 top-20 -z-10 h-[600px] w-[600px] rounded-full bg-clay/[0.035] blur-[110px]"
+      />
 
-        <div className="grid lg:grid-cols-[42%_58%]">
+      <div className="mx-auto w-full max-w-[1800px] px-5 sm:px-8 lg:px-12 xl:px-16">
 
-          {/* LEFT — LARGE EDITORIAL NAVIGATION */}
-          <div className="border-b border-ink/10 py-16 md:py-20 lg:border-b-0 lg:border-r lg:py-24 lg:pr-14">
+        {/* Top brand signature */}
+        <div className="flex items-center justify-between border-b border-ink/10 py-7 md:py-9">
+          <Link
+            to="/"
+            className="group inline-flex items-center gap-3"
+            aria-label="HEIGHT home"
+          >
+            <img
+              src="/logo.png"
+              alt="HEIGHT Restro & Wellness"
+              className="h-12 w-auto max-w-[120px] object-contain transition-opacity duration-300 group-hover:opacity-70"
+            />
+          </Link>
 
-            <motion.div
-              variants={reveal}
-              initial="hidden"
-              whileInView="visible"
-              viewport={viewport}
-              transition={{
-                duration: 0.8,
-                ease,
+          <div className="flex items-center gap-4">
+            <span className="hidden text-[10px] uppercase tracking-[0.25em] text-ink/50 sm:block">
+              Your destination for more
+            </span>
+
+            <a
+              href="#"
+              onClick={(event) => {
+                event.preventDefault();
+                window.scrollTo({
+                  top: 0,
+                  behavior: reduceMotion ? "auto" : "smooth",
+                });
               }}
+              className="flex size-10 items-center justify-center rounded-full border border-ink/20 transition-colors duration-300 hover:border-clay hover:bg-clay hover:text-white"
+              aria-label="Back to top"
             >
-              <p className="mb-10 text-[11px] uppercase tracking-[.22em] text-ink/45">
-                Menu
-              </p>
-            </motion.div>
+              <ArrowUpRight
+                size={17}
+                strokeWidth={1.5}
+                className="-rotate-45"
+              />
+            </a>
+          </div>
+        </div>
 
-            <nav aria-label="Footer navigation">
-              <ul className="space-y-1 md:space-y-2">
+        {/* Main two-column editorial composition */}
+        <div className="grid lg:grid-cols-[32%_68%] xl:grid-cols-[31%_69%]">
+
+          {/* LEFT: LARGE NAVIGATION */}
+          <div className="relative border-b border-ink/10 py-12 lg:border-b-0 lg:border-r lg:py-16 lg:pr-10 xl:pr-14">
+
+            <RevealBlock>
+              <SectionLabel line>
+                Menu
+              </SectionLabel>
+            </RevealBlock>
+
+            <nav
+              aria-label="Footer navigation"
+              className="mt-9 md:mt-11"
+            >
+              <ul className="space-y-1">
                 {LINKS.map(([name, path], index) => (
                   <motion.li
                     key={path}
                     initial={{
                       opacity: reduceMotion ? 1 : 0,
-                      y: reduceMotion ? 0 : 25,
+                      y: reduceMotion ? 0 : 20,
                     }}
                     whileInView={{
                       opacity: 1,
                       y: 0,
                     }}
                     viewport={{
-                      once: false,
+                      once: true,
                       amount: 0.1,
                     }}
                     transition={{
-                      duration: 0.75,
-                      delay: index * 0.05,
-                      ease,
+                      duration: 0.7,
+                      delay: index * 0.045,
+                      ease: EASE,
                     }}
                   >
                     <Link
                       to={path}
-                      className="group flex w-fit items-center gap-5 py-1 text-[clamp(2.8rem,5vw,5.5rem)] font-light leading-[1.12] tracking-[-.065em] transition-colors duration-300 hover:text-clay"
+                      className="group flex w-full items-center justify-between gap-4 py-1.5 text-[clamp(2.4rem,3.8vw,4.8rem)] font-light leading-[1.08] tracking-[-0.065em] transition-colors duration-500 hover:text-clay"
                     >
-                      <span className="transition-transform duration-500 ease-out group-hover:translate-x-3">
+                      <span className="transition-transform duration-500 group-hover:translate-x-2">
                         {name}
                       </span>
 
                       <ArrowUpRight
                         size={22}
                         strokeWidth={1.2}
-                        className="opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+                        className="shrink-0 -translate-x-3 translate-y-2 text-clay opacity-0 transition-all duration-500 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100"
                       />
                     </Link>
                   </motion.li>
                 ))}
               </ul>
             </nav>
+
+            {/* Small editorial footer note */}
+            <RevealBlock className="mt-14 hidden lg:block xl:mt-20">
+              <div className="h-px w-12 bg-clay/45" />
+
+              <p className="mt-6 max-w-[270px] text-[14px] font-light leading-7 text-ink/60">
+                A place to dine, move, restore and simply be.
+              </p>
+            </RevealBlock>
           </div>
 
-          {/* RIGHT — INFORMATION */}
-          <div className="py-16 md:py-20 lg:py-24 lg:pl-14">
+          {/* RIGHT SIDE */}
+          <div className="min-w-0 py-12 lg:py-16 lg:pl-10 xl:pl-14">
 
-            <div className="grid gap-x-10 gap-y-16 sm:grid-cols-2">
+            {/* Featured editorial cards */}
+            <RevealBlock>
+              <SectionLabel line>
+                Featured Experiences
+              </SectionLabel>
+            </RevealBlock>
 
-              {/* EXPERIENCES */}
-              <motion.div
-                variants={reveal}
-                initial="hidden"
-                whileInView="visible"
-                viewport={viewport}
-                transition={{ duration: 0.85, ease }}
-              >
-                <h3 className="mb-10 text-[11px] font-medium uppercase tracking-[.2em] text-ink/45">
-                  Experiences
-                </h3>
+            <div className="mt-7 grid gap-3 sm:grid-cols-2 md:gap-4">
+              {FEATURES.map((item, index) => (
+                <FeatureCard
+                  key={item.to}
+                  item={item}
+                  index={index}
+                />
+              ))}
+            </div>
 
-                <div className="space-y-4">
-                  {[
-                    ["Restro", "/restro"],
-                    ["Wellness", "/wellness"],
-                    ["Spa", "/spa"],
-                    ["Gym & Fitness", "/gym"],
-                    ["Events", "/events"],
-                  ].map(([name, path]) => (
-                    <Link
-                      key={path}
-                      to={path}
-                      className="group flex w-fit items-center gap-2 text-[15px] text-ink/75 transition-colors duration-300 hover:text-clay"
-                    >
-                      {name}
+            {/* Divider */}
+            <div className="my-10 h-px bg-ink/10 md:my-12" />
 
-                      <ArrowUpRight
-                        size={14}
-                        className="opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      />
-                    </Link>
-                  ))}
-                </div>
-              </motion.div>
+            {/* Contact information */}
+            <div className="grid gap-10 sm:grid-cols-2 sm:gap-10">
 
-              {/* LOCATION */}
-              <motion.div
-                variants={reveal}
-                initial="hidden"
-                whileInView="visible"
-                viewport={viewport}
-                transition={{
-                  duration: 0.85,
-                  delay: 0.05,
-                  ease,
-                }}
-              >
-                <h3 className="mb-10 text-[11px] font-medium uppercase tracking-[.2em] text-ink/45">
-                  Visit us
-                </h3>
+              {/* VISIT US */}
+              <RevealBlock>
+                <SectionLabel>
+                  Visit Us
+                </SectionLabel>
 
-                <div className="space-y-6">
-
+                <div className="mt-7 space-y-6">
                   {contact?.address && (
                     <a
                       href="https://maps.app.goo.gl/QPqg5DpUnAMyYwJd8"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex items-start gap-2 text-[15px] leading-7 text-ink/75 transition-colors hover:text-clay"
+                      className="group flex items-start gap-4 text-[14px] leading-7 text-ink/75 transition-colors hover:text-clay md:text-[15px]"
                     >
-                      <span>{contact.address}</span>
+                      <MapPin
+                        size={18}
+                        strokeWidth={1.4}
+                        className="mt-1 shrink-0 text-clay"
+                      />
+
+                      <span className="flex-1">
+                        {contact.address}
+                      </span>
 
                       <ArrowUpRight
                         size={15}
-                        className="mt-1 shrink-0"
+                        className="mt-1 shrink-0 opacity-50 transition-transform group-hover:-translate-y-1 group-hover:translate-x-1"
                       />
                     </a>
                   )}
 
                   {contact?.opening_hours && (
-                    <p className="whitespace-pre-line text-[15px] leading-8 text-ink/70">
-                      {contact.opening_hours}
-                    </p>
+                    <div className="flex items-start gap-4">
+                      <Clock3
+                        size={18}
+                        strokeWidth={1.4}
+                        className="mt-1 shrink-0 text-clay"
+                      />
+
+                      <p className="whitespace-pre-line text-[14px] leading-8 text-ink/75 md:text-[15px]">
+                        {contact.opening_hours}
+                      </p>
+                    </div>
                   )}
                 </div>
-              </motion.div>
+              </RevealBlock>
 
-              {/* CONTACT */}
-              <motion.div
-                variants={reveal}
-                initial="hidden"
-                whileInView="visible"
-                viewport={viewport}
-                transition={{
-                  duration: 0.85,
-                  ease,
-                }}
-              >
-                <h3 className="mb-9 text-[11px] font-medium uppercase tracking-[.2em] text-ink/45">
-                  Get in touch
-                </h3>
+              {/* GET IN TOUCH */}
+              <RevealBlock delay={0.08}>
+                <SectionLabel>
+                  Get in Touch
+                </SectionLabel>
 
-                <div className="space-y-4">
+                <div className="mt-7 space-y-4">
 
                   {contact?.whatsapp_number && (
                     <a
@@ -274,151 +395,117 @@ export default function Footer() {
                       }
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block w-fit text-[15px] text-ink/75 transition-colors hover:text-clay"
+                      className="flex items-center gap-4 text-[14px] text-ink/75 transition-colors hover:text-clay md:text-[15px]"
                     >
-                      {contact.whatsapp_number}
+                      <Phone
+                        size={18}
+                        strokeWidth={1.4}
+                        className="shrink-0 text-clay"
+                      />
+
+                      <span>
+                        {contact.whatsapp_number}
+                      </span>
                     </a>
                   )}
 
                   {contact?.contact_email && (
                     <a
                       href={`mailto:${contact.contact_email}`}
-                      className="block w-fit break-all text-[15px] text-ink/75 transition-colors hover:text-clay"
+                      className="flex min-w-0 items-center gap-4 text-[14px] text-ink/75 transition-colors hover:text-clay md:text-[15px]"
                     >
-                      {contact.contact_email}
+                      <Mail
+                        size={18}
+                        strokeWidth={1.4}
+                        className="shrink-0 text-clay"
+                      />
+
+                      <span className="break-all">
+                        {contact.contact_email}
+                      </span>
                     </a>
                   )}
                 </div>
 
-                {/* Booking */}
-                <div className="mt-8">
+                {/* Existing appointment route */}
+                <div className="mt-7">
                   <BrandButton
                     to="/contact"
                     size="large"
-                    className="py-2"
+                    tone="clay"
+                    markSize="size-4 md:size-5"
+                    className="max-w-full"
                   >
                     Book an Appointment
                   </BrandButton>
                 </div>
-              </motion.div>
-
-              {/* BRAND / SOCIAL */}
-              <motion.div
-                variants={reveal}
-                initial="hidden"
-                whileInView="visible"
-                viewport={viewport}
-                transition={{
-                  duration: 0.85,
-                  delay: 0.05,
-                  ease,
-                }}
-              >
-                <h3 className="mb-9 text-[11px] font-medium uppercase tracking-[.2em] text-ink/45">
-                  Follow along
-                </h3>
-
-                {social.length > 0 && (
-                  <div className="space-y-4">
-                    {social.map(
-                      ({ label, href, Icon }) => (
-                        <a
-                          key={label}
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="group flex w-fit items-center gap-3 text-[15px] text-ink/75 transition-colors hover:text-clay"
-                        >
-                          <Icon
-                            size={17}
-                            strokeWidth={1.5}
-                          />
-
-                          <span>{label}</span>
-
-                          <ArrowUpRight
-                            size={14}
-                            className="opacity-0 transition-opacity group-hover:opacity-100"
-                          />
-                        </a>
-                      )
-                    )}
-                  </div>
-                )}
-              </motion.div>
+              </RevealBlock>
             </div>
 
-            {/* BRAND MESSAGE */}
-            <motion.div
-              variants={reveal}
-              initial="hidden"
-              whileInView="visible"
-              viewport={viewport}
-              transition={{
-                duration: 0.9,
-                ease,
-              }}
-              className="mt-16 border-t border-ink/10 pt-10 md:mt-20"
-            >
-              <p className="max-w-xl text-[clamp(1.4rem,2vw,2.1rem)] font-light leading-[1.4] tracking-[-.035em] text-ink/80">
-                A place to dine, move, heal,
-                <br />
-                and simply{" "}
-                <em className="text-clay">
-                  be.
-                </em>
-              </p>
-            </motion.div>
+            {/* Bottom right information */}
+            <div className="mt-10 grid gap-8 border-t border-ink/10 pt-8 sm:grid-cols-[1fr_auto] sm:items-end md:mt-12">
+
+              {/* PHILOSOPHY */}
+              <RevealBlock>
+                <SectionLabel>
+                  Our Philosophy
+                </SectionLabel>
+
+                <p className="mt-4 max-w-[490px] text-[15px] font-light leading-7 tracking-[-0.015em] text-ink/70 sm:text-[17px]">
+                  Curated moments of wellness, movement,
+                  dining and celebration.
+                </p>
+              </RevealBlock>
+
+              {/* SOCIAL LINKS */}
+              {social.length > 0 && (
+                <RevealBlock delay={0.08}>
+                  <SectionLabel>
+                    Follow Along
+                  </SectionLabel>
+
+                  <div className="mt-5 flex items-center gap-3">
+                    {social.map(({ label, href, Icon }) => (
+                      <a
+                        key={label}
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={label}
+                        title={label}
+                        className="flex size-10 items-center justify-center rounded-full border border-ink/15 text-ink/75 transition-all duration-300 hover:-translate-y-1 hover:border-clay hover:bg-clay hover:text-white"
+                      >
+                        <Icon
+                          size={18}
+                          strokeWidth={1.6}
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </RevealBlock>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* LARGE BRAND SIGNATURE */}
-      <div className="border-t border-ink/10">
-        <div className="shell">
-          <motion.div
-            initial={{
-              opacity: reduceMotion ? 1 : 0,
-              y: reduceMotion ? 0 : 45,
-            }}
-            whileInView={{
-              opacity: 1,
-              y: 0,
-            }}
-            viewport={{
-              once: false,
-              amount: 0.1,
-            }}
-            transition={{
-              duration: 1.1,
-              ease,
-            }}
-            className="overflow-hidden py-7 text-center md:py-10"
-          >
-          
-          </motion.div>
-        </div>
-      </div>
-
-      {/* BOTTOM COPYRIGHT */}
-      <div className="border-t border-ink/10">
-        <div className="shell flex flex-wrap items-center justify-between gap-5 py-6 text-[11px] text-ink/55">
+        {/* Copyright */}
+        <div className="flex flex-col gap-4 border-t border-ink/10 py-6 text-[11px] text-ink/55 sm:flex-row sm:items-center sm:justify-between">
           <span>
-            © {new Date().getFullYear()} HEIGHT
-            Restro & Wellness. All rights reserved.
+            © {new Date().getFullYear()} HEIGHT Restro & Wellness.
+            All rights reserved.
           </span>
 
           <div className="flex items-center gap-6">
             <Link
               to="/contact"
-              className="transition-colors hover:text-ink"
+              className="transition-colors hover:text-clay"
             >
               Contact
             </Link>
 
             <Link
               to="/terms"
-              className="transition-colors hover:text-ink"
+              className="transition-colors hover:text-clay"
             >
               Terms of Use
             </Link>

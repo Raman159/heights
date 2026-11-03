@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
+import { mediaUrl } from "../../api";
 
 const BG = "#eae5df"; // plain warm stone, sampled from the Damai reference
 const LOGO_TOP = 42; // svh: logo centre (reference sits just above the middle)
@@ -24,10 +25,12 @@ const ROLL_DELAY = -0.2; // seconds after the opening starts before the logo beg
  * With no media, the box is a transparent window onto the homepage.
  */
 export default function SplashScreen({ video, image, logo = "/logo.png" }) {
+  const resolvedVideo = mediaUrl(video);
+  const resolvedImage = mediaUrl(image);
   const reduceMotion = Boolean(useReducedMotion());
   const videoRef = useRef(null);
   const [done, setDone] = useState(false);
-  const hasMedia = Boolean(video || image);
+  const hasMedia = Boolean(resolvedVideo || resolvedImage);
 
   // Box geometry (in vw / svh) measured once from the viewport
   const [g0] = useState(() => {
@@ -182,11 +185,11 @@ export default function SplashScreen({ video, image, logo = "/logo.png" }) {
             className="absolute inset-0 will-change-transform"
             style={{ x: mediaX, y: mediaY, scale: mediaScale }}
           >
-            {video ? (
+            {resolvedVideo ? (
               <video
                 ref={videoRef}
-                src={video}
-                poster={image}
+                src={resolvedVideo}
+                poster={resolvedImage}
                 autoPlay
                 muted
                 loop
@@ -194,7 +197,7 @@ export default function SplashScreen({ video, image, logo = "/logo.png" }) {
                 className="size-full object-cover"
               />
             ) : (
-              <img src={image} alt="" className="size-full object-cover" />
+              <img src={resolvedImage} alt="" className="size-full object-cover" />
             )}
           </motion.div>
         </motion.div>

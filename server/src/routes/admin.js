@@ -1,10 +1,13 @@
 import { Router } from "express";
+import multer from "multer";
 import admin from "../middleware/admin.js";
 import asyncRoute from "../middleware/asyncRoute.js";
 import { uploadMiddleware } from "../middleware/upload.js";
-import { rows } from "../db.js";
+import { pool, rows } from "../db.js";
 import {
   clean,
+  galleryCategories,
+  orderedTables,
   requiredFields,
   settingFields,
   tableFields,
@@ -16,7 +19,16 @@ router.use(admin);
 
 router.post("/upload", (req, res) =>
   uploadMiddleware.single("file")(req, res, (error) => {
-    if (error) return res.status(400).json({ error: error.message });
+    if (error) {
+      if (error instanceof multer.MulterError) {
+        const status = error.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+        return res.status(status).json({ error: error.message });
+      }
+      if (error.status === 415)
+        return res.status(415).json({ error: error.message });
+      console.error("[admin/upload] Upload failed:", error);
+      return res.status(500).json({ error: "Upload failed" });
+    }
     if (!req.file) return res.status(400).json({ error: "No file received" });
     res.json({ url: "/uploads/" + req.file.filename });
   }),
@@ -55,7 +67,11 @@ router.get(
     const table = req.params.table;
     validateTable(table);
     res.json(
-      await rows("SELECT * FROM `" + table + "` ORDER BY id DESC LIMIT 500"),
+      await rows(
+        orderedTables.includes(table)
+          ? "SELECT * FROM `" + table + "` ORDER BY sort_order ASC, id DESC LIMIT 500"
+          : "SELECT * FROM `" + table + "` ORDER BY id DESC LIMIT 500",
+      ),
     );
   }),
 );
@@ -72,6 +88,7 @@ router.post(
         .filter((key) => Object.hasOwn(req.body, key))
         .map((key) => [key, clean(req.body[key])]),
     );
+    validateGalleryCategory(table, data);
     for (const key of requiredFields[table])
       if (!data[key])
         return res.status(400).json({ error: key + " required" });
@@ -91,6 +108,66 @@ router.post(
       Object.values(data),
     );
     res.status(201).json({ id: result.insertId });
+  }),
+);
+
+router.put(
+  "/:table/:id/order",
+  asyncRoute(async (req, res) => {
+    const table = req.params.table;
+    validateTable(table);
+    if (!orderedTables.includes(table))
+      return res.status(400).json({ error: "This section cannot be reordered" });
+
+    const id = Number(req.params.id);
+    if (!Number.isSafeInteger(id) || id < 1)
+      return res.status(400).json({ error: "Invalid id" });
+    const targetId = Number(req.body.targetId);
+    if (!Number.isSafeInteger(targetId) || targetId < 1)
+      return res.status(400).json({ error: "A valid targetId is required" });
+    if (!["before", "after"].includes(req.body.position))
+      return res.status(400).json({ error: "Position must be before or after" });
+
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      const [records] = await connection.execute(
+        "SELECT id FROM `" + table + "` ORDER BY sort_order ASC, id DESC FOR UPDATE",
+      );
+      const index = records.findIndex((record) => Number(record.id) === id);
+      let targetIndex = records.findIndex(
+        (record) => Number(record.id) === targetId,
+      );
+      if (index === -1 || targetIndex === -1) {
+        await connection.rollback();
+        return res.status(404).json({ error: "Record not found" });
+      }
+      if (index === targetIndex) {
+        await connection.rollback();
+        return res.json({ ok: true });
+      }
+
+      const [record] = records.splice(index, 1);
+      if (index < targetIndex) targetIndex -= 1;
+      records.splice(
+        targetIndex + (req.body.position === "after" ? 1 : 0),
+        0,
+        record,
+      );
+      for (const [position, record] of records.entries()) {
+        await connection.execute(
+          "UPDATE `" + table + "` SET sort_order=? WHERE id=?",
+          [position, record.id],
+        );
+      }
+      await connection.commit();
+      res.json({ ok: true });
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
   }),
 );
 
@@ -116,6 +193,7 @@ router.put(
         .filter((key) => Object.hasOwn(req.body, key))
         .map((key) => [key, clean(req.body[key])]),
     );
+    validateGalleryCategory(table, data);
     if (!Object.keys(data).length)
       return res.status(400).json({ error: "No changes" });
     validateLengths(data);
@@ -157,6 +235,15 @@ function validateLengths(data) {
     if (String(value).length > maxLength)
       throw Object.assign(new Error("Value too long: " + key), { status: 400 });
   }
+}
+
+function validateGalleryCategory(table, data) {
+  if (table !== "gallery") return;
+  if (
+    data.category !== undefined &&
+    !galleryCategories.includes(data.category)
+  )
+    throw Object.assign(new Error("Invalid gallery category"), { status: 400 });
 }
 
 export default router;

@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BrandButton from "./BrandButton";
+import { mediaUrl } from "../../api";
 
 export default function PackageCard({ item, to }) {
   return (
@@ -10,7 +11,7 @@ export default function PackageCard({ item, to }) {
     >
       {/* Image */}
       <img
-        src={item.image_url}
+        src={mediaUrl(item.image_url)}
         alt={item.title}
         className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
       />

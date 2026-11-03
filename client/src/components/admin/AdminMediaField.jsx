@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { ImagePlus, LoaderCircle, Upload, X } from "lucide-react";
-import { upload } from "../../api";
+import { mediaUrl, upload } from "../../api";
 import { useToast } from "../Toast";
 
 export default function AdminMediaField({ label, value, onChange, mediaType = "image" }) {
@@ -8,6 +8,7 @@ export default function AdminMediaField({ label, value, onChange, mediaType = "i
   const input = useRef(null);
   const [busy, setBusy] = useState(false);
   const isVideo = mediaType === "video";
+  const isAudio = mediaType === "audio";
 
   async function handleFile(file) {
     if (!file) return;
@@ -30,9 +31,11 @@ export default function AdminMediaField({ label, value, onChange, mediaType = "i
       {value ? (
         <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
           {isVideo ? (
-            <video src={value} controls className="max-h-64 w-full bg-black object-contain" />
+            <video src={mediaUrl(value)} controls className="max-h-64 w-full bg-black object-contain" />
+          ) : isAudio ? (
+            <audio src={mediaUrl(value)} controls className="w-full p-4" />
           ) : (
-            <img src={value} alt="" className="h-48 w-full object-cover" />
+            <img src={mediaUrl(value)} alt="" className="h-48 w-full object-cover" />
           )}
           <div className="flex items-center justify-between gap-3 border-t border-slate-200 bg-white px-3 py-2">
             <span className="truncate text-xs text-slate-500">{value.split("/").pop()}</span>
@@ -50,7 +53,9 @@ export default function AdminMediaField({ label, value, onChange, mediaType = "i
         >
           {busy ? <LoaderCircle className="animate-spin text-[#9a6854]" size={22} /> : <ImagePlus className="text-[#9a6854]" size={22} />}
           <span className="mt-2 text-sm font-semibold text-slate-700">{busy ? "Uploading…" : "Choose a file to upload"}</span>
-          <span className="mt-1 text-xs text-slate-500">{isVideo ? "MP4 or WebM, up to 80 MB" : "PNG, JPG or WebP"}</span>
+          <span className="mt-1 text-xs text-slate-500">
+            {isVideo ? "MP4 or WebM, up to 80 MB" : isAudio ? "MP3 audio, up to 80 MB" : "PNG, JPG or WebP"}
+          </span>
         </button>
       )}
       {value && (
@@ -61,7 +66,7 @@ export default function AdminMediaField({ label, value, onChange, mediaType = "i
       <input
         ref={input}
         type="file"
-        accept={isVideo ? "video/mp4,video/webm" : "image/png,image/jpeg,image/webp"}
+        accept={isVideo ? "video/mp4,video/webm" : isAudio ? ".mp3,audio/mpeg,audio/mp3,audio/x-mpeg,audio/x-mpeg-3,audio/x-mp3" : "image/png,image/jpeg,image/webp"}
         className="hidden"
         onChange={(event) => handleFile(event.target.files?.[0])}
       />

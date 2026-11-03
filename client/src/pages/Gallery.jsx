@@ -1,51 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { ArrowDown, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { pic } from "../data";
+import { mediaUrl } from "../api";
+import useCollection from "../hooks/useCollection";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
 
-const CATEGORIES = ["All", "Dining", "Wellness", "Fitness", "Spaces"];
-
-const CATEGORY_IMAGES = {
-  All: "rooftop-view.webp",
-  Dining: "breakfast-spread.webp",
-  Wellness: "spa-treatment.webp",
-  Fitness: "gym-interior.webp",
-  Spaces: "restaurant-lounge.webp",
-};
-
-const PHOTOS = [
-  { title: "Rooftop, above the city", image: "rooftop-view.webp", category: "Spaces", aspect: "aspect-[4/5]" },
-  { title: "A quieter kind of morning", image: "breakfast-spread.webp", category: "Dining", aspect: "aspect-square" },
-  { title: "Room to find your rhythm", image: "gym-interior.webp", category: "Fitness", aspect: "aspect-[3/4]" },
-  { title: "Poolside pause", image: "infinity-pool.webp", category: "Wellness", aspect: "aspect-[4/5]" },
-  { title: "An evening at the table", image: "restaurant-dining.webp", category: "Dining", aspect: "aspect-[3/4]" },
-  { title: "A moment to unwind", image: "spa-treatment.webp", category: "Wellness", aspect: "aspect-square" },
-  { title: "The view from above", image: "rooftop-swimming.webp", category: "Spaces", aspect: "aspect-[4/5]" },
-  { title: "Made for movement", image: "gym-training.webp", category: "Fitness", aspect: "aspect-square" },
-  { title: "Settle in", image: "restaurant-lounge.webp", category: "Spaces", aspect: "aspect-[3/4]" },
-  { title: "A restorative ritual", image: "massage-room.webp", category: "Wellness", aspect: "aspect-[4/5]" },
-  { title: "Fresh from the kitchen", image: "healthy-bowl.webp", category: "Dining", aspect: "aspect-square" },
-  { title: "Find your pace", image: "gym-cardio.webp", category: "Fitness", aspect: "aspect-[3/4]" },
-  { title: "Warmth, and a little stillness", image: "wooden-sauna.webp", category: "Wellness", aspect: "aspect-square" },
-  { title: "Gather around", image: "terrace-lounge.webp", category: "Spaces", aspect: "aspect-[4/5]" },
-  { title: "A table worth lingering at", image: "pizza-table.webp", category: "Dining", aspect: "aspect-[3/4]" },
-  { title: "A refreshing reset", image: "pool-guests.webp", category: "Wellness", aspect: "aspect-[4/5]" },
-  { title: "Strength in every session", image: "gym-dumbbells.webp", category: "Fitness", aspect: "aspect-square" },
-  { title: "The art of a good meal", image: "sushi-platter.webp", category: "Dining", aspect: "aspect-[4/5]" },
-  { title: "A softer place to land", image: "spa-lobby.webp", category: "Spaces", aspect: "aspect-square" },
-  { title: "Slow down. Breathe in.", image: "steam-relaxation.webp", category: "Wellness", aspect: "aspect-[3/4]" },
-  { title: "A little something sweet", image: "chocolate-drink.webp", category: "Dining", aspect: "aspect-square" },
-  { title: "Ready when you are", image: "gym-treadmills.webp", category: "Fitness", aspect: "aspect-[4/5]" },
+const CATEGORY_ORDER = ["Dining", "Wellness", "Fitness", "Spaces"];
+const PHOTO_ASPECTS = [
+  "aspect-[4/5]",
+  "aspect-square",
+  "aspect-[3/4]",
+  "aspect-[4/5]",
 ];
 
 export function Gallery() {
+  const gallery = useCollection("gallery");
   const [category, setCategory] = useState("All");
   const [activePhoto, setActivePhoto] = useState(null);
+  const allPhotos = gallery || [];
+  const categories = [
+    "All",
+    ...CATEGORY_ORDER.filter((item) =>
+      allPhotos.some((photo) => photo.category === item),
+    ),
+  ];
   const photos =
     category === "All"
-      ? PHOTOS
-      : PHOTOS.filter((photo) => photo.category === category);
+      ? allPhotos
+      : allPhotos.filter((photo) => photo.category === category);
   const selectedPhoto = activePhoto === null ? null : photos[activePhoto];
 
   useEffect(() => {
@@ -85,7 +67,7 @@ export function Gallery() {
         tag="A GLIMPSE OF HEIGHT"
         title="A closer look at Height."
         body="From slow mornings to evenings above the city, explore the spaces and moments that make Height feel like your own."
-        image={pic("rooftop-view.webp")}
+        image={allPhotos[0]?.image_url}
       >
         <a
           href="#gallery"
@@ -108,7 +90,7 @@ export function Gallery() {
             aria-label="Filter gallery by category"
             className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:mb-14 md:flex md:flex-wrap md:justify-center md:gap-4"
           >
-            {CATEGORIES.map((item) => {
+            {categories.map((item) => {
               const isActive = category === item;
 
               return (
@@ -129,7 +111,11 @@ export function Gallery() {
                   }
                 >
                   <img
-                    src={pic(CATEGORY_IMAGES[item])}
+                    src={mediaUrl(
+                      allPhotos.find((photo) =>
+                        item === "All" || photo.category === item,
+                      )?.image_url,
+                    )}
                     alt=""
                     loading="lazy"
                     decoding="async"
@@ -155,18 +141,18 @@ export function Gallery() {
           <div className="columns-2 gap-4 space-y-4 sm:columns-3 lg:columns-4 lg:gap-5 lg:space-y-5">
             {photos.map((photo, index) => (
               <button
-                key={photo.image}
+                key={photo.id}
                 type="button"
                 onClick={() => setActivePhoto(index)}
                 aria-label={`View ${photo.title}`}
                 className="group relative mb-4 block w-full break-inside-avoid overflow-hidden bg-skin/30 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-clay lg:mb-5"
               >
                 <img
-                  src={pic(photo.image)}
+                  src={mediaUrl(photo.image_url)}
                   alt={photo.title}
                   loading="lazy"
                   decoding="async"
-                  className={`${photo.aspect} w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none`}
+                  className={`${PHOTO_ASPECTS[index % PHOTO_ASPECTS.length]} w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none`}
                 />
                 <span
                   aria-hidden="true"
@@ -182,6 +168,11 @@ export function Gallery() {
                 </span>
               </button>
             ))}
+            {!photos.length && (
+              <p className="col-span-full py-12 text-center text-muted">
+                {gallery === null ? "Loading gallery…" : "No gallery images yet."}
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -214,7 +205,7 @@ export function Gallery() {
           </button>
           <figure className="flex max-h-full max-w-6xl flex-col items-center">
             <img
-              src={pic(selectedPhoto.image)}
+              src={mediaUrl(selectedPhoto.image_url)}
               alt={selectedPhoto.title}
               className="max-h-[78vh] max-w-full object-contain"
             />

@@ -71,7 +71,7 @@ export function Home({ showSplash }) {
       <main className="overflow-x-clip bg-cream text-ink">
         <HeroSection settings={hero} />
 
-        <PhilosophySection />
+        <PhilosophySection audio={hero?.home_audio} />
 
         <ServicesSection />
 

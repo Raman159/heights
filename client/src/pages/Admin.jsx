@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { get, post, setToken } from "../api";
+import { get, logoutSession, post, setToken } from "../api";
 import { useToast } from "../components/Toast";
 import AdminLogin from "../components/admin/AdminLogin";
 import AdminOverview from "../components/admin/AdminOverview";
@@ -9,7 +9,7 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminSettings from "../components/admin/AdminSettings";
 import AdminSecurity from "../components/admin/AdminSecurity";
 
-const sections = ["offers", "posts", "reviews", "videos", "inquiries", "settings", "security"];
+const sections = ["offers", "posts", "reviews", "videos", "gallery", "inquiries", "settings", "security"];
 
 export default function Admin() {
   const notify = useToast();
@@ -23,7 +23,15 @@ export default function Admin() {
   const logout = useCallback(() => {
     setToken("");
     setLogged(false);
-  }, []);
+    logoutSession().catch((error) => notify(error.message, "error"));
+  }, [notify]);
+
+  useEffect(() => {
+    const handleExpiredSession = () => logout();
+    window.addEventListener("height:auth-expired", handleExpiredSession);
+    return () =>
+      window.removeEventListener("height:auth-expired", handleExpiredSession);
+  }, [logout]);
 
   const load = useCallback(async () => {
     if (!logged) return;
@@ -31,12 +39,12 @@ export default function Admin() {
     setItems(section === "overview" ? {} : []);
     try {
       if (section === "overview") {
-        const [offers, posts, reviews, videos, inquiries] = await Promise.all(
-          ["offers", "posts", "reviews", "videos", "inquiries"].map((name) =>
+        const [offers, posts, reviews, videos, gallery, inquiries] = await Promise.all(
+          ["offers", "posts", "reviews", "videos", "gallery", "inquiries"].map((name) =>
             get("/admin/" + name),
           ),
         );
-        setItems({ offers, posts, reviews, videos, inquiries });
+        setItems({ offers, posts, reviews, videos, gallery, inquiries });
       } else if (section === "settings") {
         setItems(await get("/admin/settings"));
       } else if (section !== "security") {

@@ -1,12 +1,15 @@
 import React, { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { GripVertical, Trash2 } from "lucide-react";
 import { del, post, put } from "../../api";
 import { useToast } from "../Toast";
 import AdminFormFields, { fieldDefinitions } from "./AdminFormFields";
 
 const blank = (section) =>
   Object.fromEntries(
-    (fieldDefinitions[section] || []).map((key) => [key, ""])
+    (fieldDefinitions[section] || []).map((key) => [
+      key,
+      key === "category" ? "Spaces" : "",
+    ])
   );
 
 export default function AdminResourcePage({
@@ -20,6 +23,9 @@ export default function AdminResourcePage({
 
   const [current, setCurrent] = useState(blank(section));
   const [saving, setSaving] = useState(false);
+  const [reordering, setReordering] = useState(false);
+  const [draggedId, setDraggedId] = useState(null);
+  const [dropTargetId, setDropTargetId] = useState(null);
 
   const title = (record) =>
     record.title || record.author || record.name || "Untitled record";
@@ -69,6 +75,24 @@ export default function AdminResourcePage({
     }
   }
 
+  async function move(record, target, position) {
+    if (!record || !target || record.id === target.id) return;
+    setReordering(true);
+    try {
+      await put("/admin/" + section + "/" + record.id + "/order", {
+        targetId: target.id,
+        position,
+      });
+      onChanged();
+    } catch (error) {
+      notify(error.message, "error");
+    } finally {
+      setReordering(false);
+      setDraggedId(null);
+      setDropTargetId(null);
+    }
+  }
+
   return (
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(280px,0.8fr)_minmax(0,1.5fr)]">
 
@@ -89,16 +113,54 @@ export default function AdminResourcePage({
           {entries.map((record) => (
             <div
               key={record.id}
-              className={
-                "flex items-center gap-2 rounded-xl border p-3 transition " +
-                (current.id === record.id
-                  ? "border-[#9a6854]/40 bg-[#faf7f5]"
-                  : "border-slate-100 hover:border-slate-300")
+                draggable={!reordering}
+                onDragStart={(event) => {
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData("text/plain", String(record.id));
+                  setDraggedId(record.id);
+                }}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "move";
+                  setDropTargetId(record.id);
+                }}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  const sourceId = Number(event.dataTransfer.getData("text/plain"));
+                  const source = entries.find((entry) => entry.id === sourceId);
+                  const bounds = event.currentTarget.getBoundingClientRect();
+                  const position =
+                    event.clientY < bounds.top + bounds.height / 2
+                      ? "before"
+                      : "after";
+                  setDropTargetId(null);
+                  move(source, record, position);
+                }}
+                onDragEnd={() => {
+                  setDraggedId(null);
+                  setDropTargetId(null);
+                }}
+                className={
+                  "flex items-center gap-2 rounded-xl border p-3 transition " +
+                  (draggedId === record.id ? "cursor-grabbing opacity-40 " : "cursor-grab ") +
+                  (dropTargetId === record.id && draggedId !== record.id
+                    ? "border-[#9a6854] bg-[#faf7f5] "
+                    : "") +
+                  (current.id === record.id
+                    ? "border-[#9a6854]/40 bg-[#faf7f5]"
+                    : "border-slate-100 hover:border-slate-300")
               }
-            >
-              <button
-                type="button"
-                onClick={() => setCurrent(record)}
+              >
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 text-slate-400"
+                  title="Drag to reorder"
+                >
+                  <GripVertical size={17} />
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrent(record)}
                 className="min-w-0 flex-1 text-left"
               >
                 <span className="block truncate text-sm font-semibold">

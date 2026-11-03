@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Video,
   Inbox,
+  Images,
 } from "lucide-react";
 
 const links = [
@@ -18,6 +19,7 @@ const links = [
   ["posts", "Blog posts", FileText],
   ["reviews", "Reviews", MessageSquareQuote],
   ["videos", "Videos", Video],
+  ["gallery", "Gallery", Images],
   ["inquiries", "Inquiries", Inbox],
   ["settings", "Website settings", Settings2],
   ["security", "Security", ShieldCheck],

@@ -2,6 +2,7 @@ import React, { memo, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import useCollection from "../../hooks/useCollection";
 import EmptyState from "./EmptyState";
+import { mediaUrl } from "../../api";
 
 const ReelCard = memo(function ReelCard({ reel, onOpen, paused }) {
   const elementRef = useRef(null);
@@ -39,12 +40,12 @@ const ReelCard = memo(function ReelCard({ reel, onOpen, paused }) {
       onClick={onOpen}
     >
       {reel.thumbnail_url && (
-        <img src={reel.thumbnail_url} alt="HEIGHT experience" loading="lazy" draggable={false} />
+        <img src={mediaUrl(reel.thumbnail_url)} alt="HEIGHT experience" loading="lazy" draggable={false} />
       )}
       {visible && reel.video_url && (
         <video
           ref={playerRef}
-          src={reel.video_url}
+          src={mediaUrl(reel.video_url)}
           autoPlay
           muted
           loop
@@ -261,8 +262,8 @@ export default function Reels() {
             <video
               key={selectedReel.video_url}
               className="height-reel-popup__video"
-              src={selectedReel.video_url}
-              poster={selectedReel.thumbnail_url || undefined}
+              src={mediaUrl(selectedReel.video_url)}
+              poster={mediaUrl(selectedReel.thumbnail_url) || undefined}
               autoPlay
               controls
               playsInline

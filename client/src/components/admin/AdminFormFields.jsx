@@ -6,6 +6,7 @@ export const fieldDefinitions = {
   posts: ["title", "slug", "excerpt", "body", "image_url"],
   reviews: ["author", "quote"],
   videos: ["title", "video_url", "thumbnail_url"],
+  gallery: ["title", "category", "image_url"],
 };
 
 const labels = {
@@ -17,12 +18,14 @@ const labels = {
 
 export default function AdminFormFields({ section, value, onChange, includeSettings = false }) {
   const fields = includeSettings
-    ? ["hero_video", "hero_image", "whatsapp_number", "contact_email", "address", "opening_hours"]
+    ? ["hero_video", "hero_image", "home_audio", "whatsapp_number", "contact_email", "address", "opening_hours"]
     : fieldDefinitions[section] || [];
   return (
     <div className="grid gap-5 md:grid-cols-2">
       {fields.map((name) => {
-        const label = labels[name] || name.replaceAll("_", " ").replace(/^\w/, (letter) => letter.toUpperCase());
+        const label = name === "image_url" && section === "gallery"
+          ? "Gallery image"
+          : labels[name] || name.replaceAll("_", " ").replace(/^\w/, (letter) => letter.toUpperCase());
         if (["image_url", "thumbnail_url", "hero_image"].includes(name)) {
           return (
             <div key={name} className="md:col-span-2">
@@ -30,11 +33,32 @@ export default function AdminFormFields({ section, value, onChange, includeSetti
             </div>
           );
         }
-        if (["video_url", "hero_video"].includes(name)) {
+        if (["video_url", "hero_video", "home_audio"].includes(name)) {
           return (
             <div key={name} className="md:col-span-2">
-              <AdminMediaField label={label} mediaType="video" value={value[name] || ""} onChange={(next) => onChange(name, next)} />
+              <AdminMediaField
+                label={label}
+                mediaType={name === "home_audio" ? "audio" : "video"}
+                value={value[name] || ""}
+                onChange={(next) => onChange(name, next)}
+              />
             </div>
+          );
+        }
+        if (name === "category") {
+          return (
+            <label key={name} className="block text-sm font-medium text-slate-700">
+              Category
+              <select
+                className="admin-field mt-2"
+                value={value[name] ?? "Spaces"}
+                onChange={(event) => onChange(name, event.target.value)}
+              >
+                {["Dining", "Wellness", "Fitness", "Spaces"].map((category) => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </select>
+            </label>
           );
         }
         const multiline = ["description", "body", "quote", "excerpt", "address", "opening_hours"].includes(name);

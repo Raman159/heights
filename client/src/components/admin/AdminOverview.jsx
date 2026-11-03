@@ -1,11 +1,12 @@
 import React from "react";
-import { ArrowRight, BadgePercent, FileText, Inbox, MessageSquareQuote, Video } from "lucide-react";
+import { ArrowRight, BadgePercent, FileText, Inbox, MessageSquareQuote, Video, Images } from "lucide-react";
 
 const cards = [
   ["offers", "Offers", BadgePercent, "Current promotions"],
   ["posts", "Blog posts", FileText, "Published stories"],
   ["reviews", "Reviews", MessageSquareQuote, "Guest testimonials"],
   ["videos", "Videos", Video, "Media library"],
+  ["gallery", "Gallery", Images, "Website photography"],
 ];
 
 export default function AdminOverview({ stats, onSelect }) {

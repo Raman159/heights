@@ -24,26 +24,34 @@ export const allowedTables = [
   "posts",
   "reviews",
   "videos",
+  "gallery",
   "inquiries",
 ];
 
 export const tableFields = {
-  offers: ["title", "description", "image_url", "link_url", "sort_order"],
-  posts: ["title", "slug", "excerpt", "body", "image_url", "sort_order"],
-  reviews: ["author", "quote", "sort_order"],
-  videos: ["title", "video_url", "thumbnail_url", "sort_order"],
+  offers: ["title", "description", "image_url", "link_url"],
+  posts: ["title", "slug", "excerpt", "body", "image_url"],
+  reviews: ["author", "quote"],
+  videos: ["title", "video_url", "thumbnail_url"],
+  gallery: ["title", "image_url", "category"],
 };
+
+export const orderedTables = Object.keys(tableFields);
 
 export const requiredFields = {
   offers: ["title"],
   posts: ["title", "slug"],
   reviews: ["author", "quote"],
   videos: [],
+  gallery: ["title", "image_url", "category"],
 };
+
+export const galleryCategories = ["Dining", "Wellness", "Fitness", "Spaces"];
 
 export const settingFields = [
   "hero_video",
   "hero_image",
+  "home_audio",
   "whatsapp_number",
   "contact_email",
   "address",

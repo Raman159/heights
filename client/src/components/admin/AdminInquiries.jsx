@@ -48,6 +48,7 @@ export default function AdminInquiries({ records, loading, onChanged }) {
               <div className="mt-5 grid gap-2 text-sm sm:grid-cols-2">
                 <p><span className="text-slate-400">Email </span>{record.email}</p>
                 <p><span className="text-slate-400">Phone </span>{record.phone}</p>
+                <p><span className="text-slate-400">People </span>{record.number_of_people || 1}</p>
                 {record.service && <p><span className="text-slate-400">Service </span>{record.service}</p>}
                 {record.preferred_date && <p><span className="text-slate-400">Preferred date </span>{record.preferred_date}</p>}
               </div>

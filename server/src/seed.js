@@ -22,6 +22,7 @@ async function seed() {
 
     const defaults = {
       hero_video: "",
+      home_audio: "",
       whatsapp_number: "",
       contact_email: "",
       address: "",

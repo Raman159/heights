@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { pic } from "../../data";
+import { mediaUrl } from "../../api";
 
 export default function Card({ item, to }) {
   const href = to || "/services/" + item.slug;
@@ -19,7 +20,7 @@ export default function Card({ item, to }) {
         <img
           loading="lazy"
           decoding="async"
-          src={item.image_url || pic(item.photo || item.title)}
+          src={mediaUrl(item.image_url || pic(item.photo || item.title))}
           alt={item.title}
           className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
         />

@@ -18,6 +18,7 @@ export default function Inquiry({
     name: "",
     email: "",
     phone: "",
+    number_of_people: "1",
     service,
     preferred_date: "",
     message: "",
@@ -28,18 +29,35 @@ export default function Inquiry({
   const change = (e) =>
     setValues((previous) => ({
       ...previous,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.name === "phone"
+          ? e.target.value.replace(/\D/g, "").slice(0, 10)
+          : e.target.value,
     }));
 
   async function submit(e) {
     e.preventDefault();
-    if (values.name.trim().length < 2) {
-      notify("Name must be at least 2 characters.", "error");
+    const name = values.name.trim();
+    if (
+      name.length < 2 ||
+      !/^[\p{L}\p{M}][\p{L}\p{M} .'\u2019-]*$/u.test(name)
+    ) {
+      notify("Enter a valid name using letters and common name punctuation.", "error");
       return;
     }
 
     if (!/^[0-9]{10}$/.test(values.phone)) {
       notify("Phone number must contain exactly 10 digits.", "error");
+      return;
+    }
+
+    const peopleCount = Number(values.number_of_people);
+    if (
+      !Number.isSafeInteger(peopleCount) ||
+      peopleCount < 1 ||
+      peopleCount > 4294967295
+    ) {
+      notify("Number of people must be a positive whole number.", "error");
       return;
     }
 
@@ -64,6 +82,7 @@ export default function Inquiry({
         name: "",
         email: "",
         phone: "",
+        number_of_people: "1",
         service,
         preferred_date: "",
         message: "",
@@ -91,6 +110,7 @@ export default function Inquiry({
           <input
             className="field mt-2"
             name="name"
+            autoComplete="name"
             maxLength={120}
             minLength={2}
             required
@@ -105,6 +125,7 @@ export default function Inquiry({
             className="field mt-2"
             name="email"
             type="email"
+            autoComplete="email"
             maxLength={190}
             required
             value={values.email}
@@ -120,8 +141,9 @@ export default function Inquiry({
             className="field mt-2"
             name="phone"
             type="tel"
+            autoComplete="tel"
             inputMode="numeric"
-            pattern="[0-9]{10}"
+            pattern="\d{10}"
             minLength={10}
             maxLength={10}
             title="Enter exactly 10 digits."
@@ -129,6 +151,22 @@ export default function Inquiry({
             value={values.phone}
             onChange={change}
             placeholder="98XXXXXXXX"
+          />
+        </label>
+
+        <label className="text-sm">
+          Number of people *
+          <input
+            className="field mt-2"
+            name="number_of_people"
+            type="number"
+            inputMode="numeric"
+            min="1"
+            max="4294967295"
+            step="1"
+            required
+            value={values.number_of_people}
+            onChange={change}
           />
         </label>
 
@@ -150,6 +188,7 @@ export default function Inquiry({
         <input
           className="field mt-2"
           name="service"
+          type="text"
           maxLength={120}
           value={values.service}
           onChange={change}

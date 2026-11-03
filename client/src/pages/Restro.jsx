@@ -5,7 +5,35 @@ import { pic } from "../data";
 import { Reveal } from "../components/Layout";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
-import Card from "../components/site/ExperienceCard";
+import FeatureAccordion from "../components/site/FeatureAccordion";
+import PackageCard from "../components/site/PackageCard";
+
+const SPACE_ITEMS = [
+  {
+    id: "terrace",
+    title: "Terrace",
+    description: "Explore and enquire",
+    image: "/media/terrace-lounge.webp",
+  },
+  {
+    id: "indoor-dining",
+    title: "Indoor dining",
+    description: "Explore and enquire",
+    image: "/media/restaurant-interior.webp",
+  },
+  {
+    id: "bar-area",
+    title: "Bar Area",
+    description: "Explore and enquire",
+    image: "/media/bar-counter.webp",
+  },
+  {
+    id: "pool-side",
+    title: "Pool Side",
+    description: "Explore and enquire",
+    image: "/media/rooftop-poolside.webp",
+  },
+];
 
 export function Restro() {
   const [activeMenu, setActiveMenu] = useState(null);
@@ -58,24 +86,15 @@ export function Restro() {
             },
           ].map((menu) => (
             <Reveal key={menu.title}>
-              <div className="panel">
-                <img
-                  src={pic(menu.image)}
-                  className="w-full h-64"
-                  alt={menu.title}
-                />
-                <div className="p-8">
-                  <h3 className="text-2xl">{menu.title}</h3>
-                  <p className="text-muted my-3">{menu.description}</p>
-                  <button
-                    type="button"
-                    onClick={() => setActiveMenu(menu)}
-                    className="text-clay font-semibold"
-                  >
-                    View menu →
-                  </button>
-                </div>
-              </div>
+              <PackageCard
+                item={{
+                  ...menu,
+                  image_url: pic(menu.image),
+                  subtitle: menu.description,
+                }}
+                onClick={() => setActiveMenu(menu)}
+                actionLabel="View menu"
+              />
             </Reveal>
           ))}
         </div>
@@ -83,27 +102,13 @@ export function Restro() {
       <section className="py-24 bg-[#f5e8df]">
         <div className="shell">
           <SectionHead eyebrow="Choose your corner" title="Our space" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {["Terrace", "Indoor dining", "Bar Area", "Pool Side"].map(
-              (n, i) => (
-                <Card
-                  key={n}
-                  item={{
-                    title: n,
-                    photo: [
-                      "terrace-lounge.webp",
-                      "restaurant-interior.webp",
-                      "bar-counter.webp",
-                      "rooftop-poolside.webp",
-                    ][i],
-                    subtitle: "Explore and enquire",
-                  }}
-                  to="/contact"
-                />
-              ),
-            )}
-          </div>
         </div>
+        <FeatureAccordion
+          items={SPACE_ITEMS}
+          getTo={() => "/contact"}
+          actionLabel="Explore and enquire"
+          eyebrow="HEIGHT RESTRO"
+        />
       </section>
       <section className="shell py-24">
         <SectionHead eyebrow="From our kitchen" title="Chef’s special" />
@@ -124,42 +129,7 @@ export function Restro() {
           ))}
         </div>
       </section>
-      <section className="py-24 bg-cream">
-        <div className="shell">
-          <SectionHead eyebrow="Celebrate together" title="Events at HEIGHT" />
-          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
-            {[
-              "Buffet Dinner",
-              "Set Menu",
-              "Table Setup",
-              "Conference Hall",
-              "Private Room",
-            ].map((n, i) => (
-              <div className="panel" key={n}>
-                <img
-                  src={pic(
-                    [
-                      "restaurant-dining.webp",
-                      "restaurant-lounge.webp",
-                      "lounge-seating.webp",
-                      "restaurant-interior.webp",
-                      "terrace-lounge.webp",
-                    ][i],
-                  )}
-                  alt={n}
-                  className="w-full h-40"
-                />
-                <p className="p-4 text-center">{n}</p>
-              </div>
-            ))}
-          </div>
-          <div className="text-center">
-            <Link to="/contact?service=Event%20booking" className="btn">
-              Enquire Now →
-            </Link>
-          </div>
-        </div>
-      </section>
+      
       {activeMenu && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-3 backdrop-blur-sm sm:p-6"

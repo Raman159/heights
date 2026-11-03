@@ -14,6 +14,7 @@ import { Contact } from "./pages/Contact";
 import { Gallery } from "./pages/Gallery";
 import Admin from "./pages/Admin";
 import { ToastProvider } from "./components/Toast";
+import { OurTeam } from "./pages/OurTeam";
 
 function AppContent() {
   const location = useLocation();
@@ -39,6 +40,7 @@ function AppContent() {
         <Route path="/blog/:slug" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/gallery" element={<Gallery />} />
+        <Route path="/our-team" element={<OurTeam />} />
         <Route path="*" element={<Contact />} />
       </Routes>
     </Layout>

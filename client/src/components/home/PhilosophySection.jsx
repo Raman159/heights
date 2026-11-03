@@ -6,6 +6,7 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
+import { mediaUrl } from "../../api";
 
 const BARS = [0, 1, 2, 3, 4];
 
@@ -46,9 +47,10 @@ function SoundBars({ playing, reduced }) {
   );
 }
 
-export default function PhilosophySection() {
+export default function PhilosophySection({ audio }) {
   const sectionRef = useRef(null);
   const audioRef = useRef(null);
+  const audioSource = mediaUrl(audio);
   const fadeRef = useRef(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioError, setAudioError] = useState("");
@@ -117,6 +119,13 @@ export default function PhilosophySection() {
     };
   }, []);
 
+  useEffect(() => {
+    cancelAnimationFrame(fadeRef.current);
+    audioRef.current?.pause();
+    setIsPlaying(false);
+    setAudioError("");
+  }, [audioSource]);
+
   const toggleAudio = async () => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -176,65 +185,65 @@ export default function PhilosophySection() {
           style={{ opacity: copyOpacity, y: copyY }}
           className="mt-10 flex flex-col items-center"
         >
-          <audio
-            ref={audioRef}
-            src="/media/audio.mp3"
-            loop
-            preload="none"
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onError={(e) => {
-              const code = e.currentTarget.error?.code;
-              console.error(
-                "[PhilosophySection] audio failed to load. MediaError code:",
-                code,
-                "(4 = file not found or unsupported format)",
-                e.currentTarget.currentSrc,
-              );
-              setIsPlaying(false);
-              setAudioError("The audio file could not be loaded.");
-            }}
-          />
+          {audioSource && (
+            <>
+              <audio
+                ref={audioRef}
+                src={audioSource}
+                loop
+                preload="none"
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onError={(event) => {
+                  console.error(
+                    "[PhilosophySection] audio failed to load:",
+                    event.currentTarget.currentSrc,
+                  );
+                  setIsPlaying(false);
+                  setAudioError("The audio file could not be loaded.");
+                }}
+              />
 
-          <button
-            type="button"
-            onClick={toggleAudio}
-            aria-label="Philosophy audio"
-            aria-pressed={isPlaying}
-            className={[
-              "group relative inline-flex items-center gap-5 rounded-full border py-3.5 pl-7 pr-7 text-ink",
-              "transition-[transform,box-shadow,border-color,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
-              "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.985]",
-              "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-clay",
-              "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
-              isPlaying
-                ? "border-clay/60 bg-white shadow-[0_20px_44px_-20px_rgba(70,56,47,0.5),inset_0_1px_0_rgba(255,255,255,0.9)]"
-                : "border-clay/30 bg-white/70 shadow-[0_8px_24px_-14px_rgba(70,56,47,0.5),inset_0_1px_0_rgba(255,255,255,0.9)] hover:border-clay/70 hover:bg-white hover:shadow-[0_16px_34px_-16px_rgba(70,56,47,0.45),inset_0_1px_0_rgba(255,255,255,0.9)]",
-            ].join(" ")}
-          >
-            {/* label */}
-            <span className="min-w-[10.5rem] text-left">
-              <motion.span
-                key={isPlaying ? "t-on" : "t-off"}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: "easeOut" }}
-                className="block text-[0.95rem] font-semibold leading-tight"
+              <button
+                type="button"
+                onClick={toggleAudio}
+                aria-label="Philosophy audio"
+                aria-pressed={isPlaying}
+                className={[
+                  "group relative inline-flex items-center gap-5 rounded-full border py-3.5 pl-7 pr-7 text-ink",
+                  "transition-[transform,box-shadow,border-color,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+                  "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.985]",
+                  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-clay",
+                  "motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+                  isPlaying
+                    ? "border-clay/60 bg-white shadow-[0_20px_44px_-20px_rgba(70,56,47,0.5),inset_0_1px_0_rgba(255,255,255,0.9)]"
+                    : "border-clay/30 bg-white/70 shadow-[0_8px_24px_-14px_rgba(70,56,47,0.5),inset_0_1px_0_rgba(255,255,255,0.9)] hover:border-clay/70 hover:bg-white hover:shadow-[0_16px_34px_-16px_rgba(70,56,47,0.45),inset_0_1px_0_rgba(255,255,255,0.9)]",
+                ].join(" ")}
               >
-                {isPlaying ? "Pause the moment" : "Tap for calmness"}
-              </motion.span>
-              <span className="mt-1 block text-[0.68rem] uppercase tracking-[0.18em] text-clay">
-                {isPlaying ? "Now playing" : "Press to listen"}
-              </span>
-            </span>
+                <span className="min-w-[10.5rem] text-left">
+                  <motion.span
+                    key={isPlaying ? "t-on" : "t-off"}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="block text-[0.95rem] font-semibold leading-tight"
+                  >
+                    {isPlaying ? "Pause the moment" : "Tap for calmness"}
+                  </motion.span>
+                  <span className="mt-1 block text-[0.68rem] uppercase tracking-[0.18em] text-clay">
+                    {isPlaying ? "Now playing" : "Press to listen"}
+                  </span>
+                </span>
 
-            <SoundBars playing={isPlaying} reduced={reducedMotion} />
-          </button>
+                <SoundBars playing={isPlaying} reduced={reducedMotion} />
+              </button>
 
-          {audioError && (
-            <p role="status" className="mt-3 text-sm text-red-700">
-              {audioError}
-            </p>
+              {audioError && (
+                <p role="status" className="mt-3 text-sm text-red-700">
+                  {audioError}
+                </p>
+              )}
+            </>
           )}
         </motion.div>
       </div>

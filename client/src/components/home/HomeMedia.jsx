@@ -1,12 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
+import { mediaUrl } from "../../api";
+
 export function HeroMedia({ image, video }) {
   const wrapRef = useRef(null);
   const videoRef = useRef(null);
   const [allowVideo, setAllowVideo] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [inView, setInView] = useState(true);
+  const resolvedImage = mediaUrl(image);
+  const resolvedVideo = mediaUrl(video);
+
   useEffect(() => {
-    [image, video].forEach((url) => {
+    [resolvedImage, resolvedVideo].forEach((url) => {
       if (!url) return;
       try {
         const origin = new URL(url, window.location.href).origin;
@@ -23,9 +28,10 @@ export function HeroMedia({ image, video }) {
         document.head.appendChild(link);
       } catch {}
     });
-  }, [image, video]);
+  }, [resolvedImage, resolvedVideo]);
+
   useEffect(() => {
-    if (!video) {
+    if (!resolvedVideo) {
       setAllowVideo(false);
       setPlaying(false);
       return;
@@ -47,7 +53,8 @@ export function HeroMedia({ image, video }) {
     }
     const id = setTimeout(start, 400);
     return () => clearTimeout(id);
-  }, [video]);
+  }, [resolvedVideo]);
+
   useEffect(() => {
     const el = wrapRef.current;
     if (!el || !("IntersectionObserver" in window)) return;
@@ -58,28 +65,30 @@ export function HeroMedia({ image, video }) {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
     if (inView) el.play().catch(() => {});
     else el.pause();
   }, [inView, allowVideo]);
+
   return (
     <div ref={wrapRef} className="absolute inset-0 overflow-hidden">
-      {image && (
+      {resolvedImage && (
         <img
-          src={image}
+          src={resolvedImage}
           alt=""
           fetchPriority="high"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover"
         />
       )}
-      {allowVideo && video && (
+      {allowVideo && resolvedVideo && (
         <video
-          key={video}
+          key={resolvedVideo}
           ref={videoRef}
-          src={video}
+          src={resolvedVideo}
           autoPlay
           muted
           loop
@@ -99,7 +108,7 @@ export function EditorialPhoto({ src, alt, className = "", eager = false }) {
     return <div aria-hidden="true" className={`bg-clay/10 ${className}`} />;
   return (
     <img
-      src={src}
+      src={mediaUrl(src)}
       alt={alt}
       loading={eager ? "eager" : "lazy"}
       decoding="async"

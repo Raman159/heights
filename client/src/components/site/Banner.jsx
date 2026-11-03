@@ -1,4 +1,6 @@
 import React from "react";
+import { mediaUrl } from "../../api";
+
 export default function Banner({ tag, title, body, image, children }) {
   return (
     <section className="banner relative isolate flex min-h-[640px] h-[92svh] w-full overflow-hidden bg-neutral-900 text-white">
@@ -29,7 +31,7 @@ export default function Banner({ tag, title, body, image, children }) {
       `}</style>
 
       <img
-        src={image}
+        src={mediaUrl(image)}
         alt=""
         className="banner-img absolute inset-0 -z-20 h-full w-full object-cover"
       />

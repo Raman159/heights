@@ -1,8 +1,29 @@
 Options -MultiViews
 RewriteEngine On
 
+<IfModule mod_mime.c>
+  AddType application/javascript .js .mjs
+  AddType text/css .css
+  AddType application/json .json .map
+  AddType image/avif .avif
+  AddType image/gif .gif
+  AddType image/x-icon .ico
+  AddType image/png .png
+  AddType image/jpeg .jpg .jpeg
+  AddType image/webp .webp
+  AddType image/svg+xml .svg
+  AddType video/mp4 .mp4
+  AddType video/webm .webm
+  AddType audio/mpeg .mp3
+  AddType font/woff2 .woff2
+</IfModule>
+
+RewriteRule ^(?:api|uploads|assets)(?:/|$) - [L,NC]
+
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
+
+RewriteRule \.(?:js|mjs|css|map|json|png|jpe?g|gif|avif|webp|svg|ico|mp4|webm|mp3|woff2?)$ - [L,NC]
 
 RewriteRule ^ index.html [L]
