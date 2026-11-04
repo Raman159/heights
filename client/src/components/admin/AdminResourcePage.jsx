@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { GripVertical, Trash2 } from "lucide-react";
-import { del, post, put } from "../../api";
+import { del, get, post, put } from "../../api";
 import { useToast } from "../Toast";
+import AdminConfirmDialog from "./AdminConfirmDialog";
 import AdminFormFields, { fieldDefinitions } from "./AdminFormFields";
 
 const blank = (section) =>
@@ -20,12 +21,22 @@ export default function AdminResourcePage({
 }) {
   const notify = useToast();
   const entries = Array.isArray(records) ? records : [];
+  const [categories, setCategories] = useState([]);
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const [current, setCurrent] = useState(blank(section));
   const [saving, setSaving] = useState(false);
   const [reordering, setReordering] = useState(false);
   const [draggedId, setDraggedId] = useState(null);
   const [dropTargetId, setDropTargetId] = useState(null);
+
+  useEffect(() => {
+    if (section !== "spa_treatments") return;
+    get("/admin/spa_categories")
+      .then(setCategories)
+      .catch((error) => notify(error.message, "error"));
+  }, [section, notify]);
 
   const title = (record) =>
     record.title || record.full_name || record.author || record.name || "Untitled record";
@@ -58,20 +69,23 @@ export default function AdminResourcePage({
     }
   }
 
-  async function remove(id) {
-    if (!window.confirm("Delete this record?")) return;
-
+  async function confirmDelete() {
+    if (!pendingDelete || deleting) return;
+    setDeleting(true);
     try {
-      await del("/admin/" + section + "/" + id);
+      await del("/admin/" + section + "/" + pendingDelete.id);
 
-      if (current.id === id) {
+      if (current.id === pendingDelete.id) {
         setCurrent(blank(section));
       }
 
       notify("Record deleted");
+      setPendingDelete(null);
       onChanged();
     } catch (error) {
       notify(error.message, "error");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -180,7 +194,7 @@ export default function AdminResourcePage({
               <button
                 type="button"
                 aria-label={"Delete " + title(record)}
-                onClick={() => remove(record.id)}
+                onClick={() => setPendingDelete(record)}
                 className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-700"
               >
                 <Trash2 size={15} />
@@ -210,6 +224,7 @@ export default function AdminResourcePage({
           <AdminFormFields
             section={section}
             value={current}
+            categories={categories}
             onChange={(name, value) =>
               setCurrent((previous) => ({
                 ...previous,
@@ -230,7 +245,7 @@ export default function AdminResourcePage({
             {current.id && (
               <button
                 type="button"
-                onClick={() => remove(current.id)}
+                onClick={() => setPendingDelete(current)}
                 className="admin-danger-button"
               >
                 <Trash2 size={16} />
@@ -240,6 +255,14 @@ export default function AdminResourcePage({
           </div>
         </form>
       </section>
+      <AdminConfirmDialog
+        open={Boolean(pendingDelete)}
+        title="Delete content entry?"
+        message={`“${pendingDelete ? title(pendingDelete) : ""}” will be permanently deleted.`}
+        busy={deleting}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

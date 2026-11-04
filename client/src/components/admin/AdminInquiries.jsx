@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { Check, Trash2 } from "lucide-react";
 import { del, put } from "../../api";
 import { useToast } from "../Toast";
+import AdminConfirmDialog from "./AdminConfirmDialog";
 
 export default function AdminInquiries({ records, loading, onChanged }) {
   const notify = useToast();
   const entries = Array.isArray(records) ? records : [];
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function markHandled(record) {
     try {
@@ -17,14 +20,18 @@ export default function AdminInquiries({ records, loading, onChanged }) {
     }
   }
 
-  async function remove(id) {
-    if (!window.confirm("Delete this inquiry?")) return;
+  async function confirmDelete() {
+    if (!pendingDelete || deleting) return;
+    setDeleting(true);
     try {
-      await del("/admin/inquiries/" + id);
+      await del("/admin/inquiries/" + pendingDelete.id);
       notify("Inquiry deleted");
+      setPendingDelete(null);
       onChanged();
     } catch (error) {
       notify(error.message, "error");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -55,7 +62,7 @@ export default function AdminInquiries({ records, loading, onChanged }) {
               {record.message && <p className="mt-4 whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">{record.message}</p>}
               <div className="mt-5 flex gap-3 border-t border-slate-100 pt-4">
                 <button onClick={() => markHandled(record)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#95614e] hover:text-[#182b2a]"><Check size={16} /> {record.status === "handled" ? "Reopen" : "Mark handled"}</button>
-                <button onClick={() => remove(record.id)} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-red-700"><Trash2 size={15} /> Delete</button>
+                <button onClick={() => setPendingDelete(record)} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-red-700"><Trash2 size={15} /> Delete</button>
               </div>
             </article>
           ))}
@@ -63,6 +70,14 @@ export default function AdminInquiries({ records, loading, onChanged }) {
       ) : (
         <p className="rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-slate-500">{loading ? "Loading…" : "No inquiries to show yet."}</p>
       )}
+      <AdminConfirmDialog
+        open={Boolean(pendingDelete)}
+        title="Delete inquiry?"
+        message={`The inquiry from ${pendingDelete?.name || "this guest"} will be permanently deleted.`}
+        busy={deleting}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

@@ -58,7 +58,7 @@ const ReelCard = memo(function ReelCard({ reel, onOpen, paused }) {
   );
 });
 
-export default function Reels() {
+export default function Reels({ background } = {}) {
   const videos = useCollection("videos");
   const scrollerRef = useRef(null);
   const scrollPosition = useRef(0);
@@ -197,7 +197,11 @@ export default function Reels() {
   };
 
   return (
-    <section className="height-reels" aria-label="Moments at HEIGHT">
+    <section
+      className="height-reels"
+      aria-label="Moments at HEIGHT"
+      style={background ? { background } : undefined}
+    >
       <style>{`
         .height-reels { overflow: hidden; padding: clamp(64px,7vw,104px) 0; background: #f6f2ec; color: #28231e; }
         .height-reels__heading { display:flex; align-items:end; justify-content:space-between; gap:24px; margin-bottom:20px; }

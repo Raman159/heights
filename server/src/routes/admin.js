@@ -46,7 +46,15 @@ router.put(
   "/settings",
   asyncRoute(async (req, res) => {
     for (const key of settingFields) {
-      if (typeof req.body[key] === "string" && req.body[key].length <= 1024) {
+      if (Object.hasOwn(req.body, key)) {
+        const maxLength = key === "spa_intro" ? 5000 : 1024;
+        if (typeof req.body[key] !== "string" || req.body[key].length > maxLength)
+          return res.status(400).json({ error: "Invalid value: " + key });
+      }
+    }
+
+    for (const key of settingFields) {
+      if (Object.hasOwn(req.body, key)) {
         if (key === "hero_image" && !req.body[key].trim()) {
           await rows("DELETE FROM settings WHERE `key`=?", [key]);
           continue;
@@ -88,6 +96,7 @@ router.post(
         .filter((key) => Object.hasOwn(req.body, key))
         .map((key) => [key, clean(req.body[key])]),
     );
+    await validateContent(table, data);
     validateGalleryCategory(table, data);
     for (const key of requiredFields[table])
       if (!data[key])
@@ -193,6 +202,7 @@ router.put(
         .filter((key) => Object.hasOwn(req.body, key))
         .map((key) => [key, clean(req.body[key])]),
     );
+    await validateContent(table, data);
     validateGalleryCategory(table, data);
     if (!Object.keys(data).length)
       return res.status(400).json({ error: "No changes" });
@@ -228,9 +238,16 @@ function validateLengths(data) {
   for (const [key, value] of Object.entries(data)) {
     const maxLength = {
       body: 50000,
-      description: 3000,
+      spa_intro: 5000,
+      description: 12000,
+      benefits: 5000,
+      pricing: 5000,
       quote: 3000,
       biography: 3000,
+      title: 200,
+      slug: 200,
+      subtitle: 200,
+      name: 200,
       full_name: 200,
       department: 160,
       designation: 200,
@@ -239,6 +256,49 @@ function validateLengths(data) {
     if (String(value).length > maxLength)
       throw Object.assign(new Error("Value too long: " + key), { status: 400 });
   }
+}
+
+async function validateContent(table, data) {
+  if (table === "spa_treatments") {
+    if (data.category_id !== undefined) {
+      const categoryId = Number(data.category_id);
+      if (!Number.isSafeInteger(categoryId) || categoryId < 1)
+        throw Object.assign(new Error("A valid category is required"), { status: 400 });
+      const categories = await rows("SELECT id FROM spa_categories WHERE id=?", [categoryId]);
+      if (!categories.length)
+        throw Object.assign(new Error("Spa category not found"), { status: 400 });
+      data.category_id = categoryId;
+    }
+
+    if (data.pricing !== undefined && data.pricing !== "") {
+      let pricing;
+      try {
+        pricing = JSON.parse(data.pricing);
+      } catch {
+        throw Object.assign(new Error("Pricing must be a valid JSON array"), { status: 400 });
+      }
+      if (
+        !Array.isArray(pricing) ||
+        pricing.some(
+          (option) =>
+            !option ||
+            typeof option.duration !== "string" ||
+            !option.duration.trim() ||
+            option.duration.length > 40 ||
+            !Number.isFinite(Number(option.price)) ||
+            Number(option.price) <= 0,
+        )
+      )
+        throw Object.assign(new Error("Pricing must contain durations and positive prices"), { status: 400 });
+    }
+  }
+
+  if (
+    ["services", "spa_treatments"].includes(table) &&
+    data.slug !== undefined &&
+    !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug)
+  )
+    throw Object.assign(new Error("Slug must contain lowercase letters, numbers, and hyphens"), { status: 400 });
 }
 
 function validateGalleryCategory(table, data) {

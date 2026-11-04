@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { post } from "../api";
 import { useToast } from "./Toast";
+import BrandButton from "./site/BrandButton";
 
 export default function Inquiry({
   service = "",
@@ -211,9 +212,9 @@ export default function Inquiry({
         />
       </label>
 
-      <button type="submit" disabled={busy} className="btn w-fit">
-        {busy ? "Sending..." : "Send Enquiry"} →
-      </button>
+      <BrandButton type="submit" disabled={busy} size="small">
+        {busy ? "Sending..." : "Send Enquiry"}
+      </BrandButton>
     </form>
   );
 }

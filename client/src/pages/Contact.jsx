@@ -4,6 +4,7 @@ import { get } from "../api";
 import Inquiry from "../components/Forms";
 import Banner from "../components/site/Banner";
 import { useToast } from "../components/Toast";
+import { getTenDigitPhoneNumber, parsePhoneNumbers } from "../utils/phoneNumbers";
 
 export function Contact() {
   const params = new URLSearchParams(location.search);
@@ -22,7 +23,7 @@ export function Contact() {
       contact.contact_email ||
       contact.address ||
       contact.opening_hours);
-  const whatsappLink = contact?.whatsapp_number?.replace(/\D/g, "");
+  const phoneNumbers = parsePhoneNumbers(contact?.whatsapp_number);
 
   return (
     <>
@@ -43,13 +44,24 @@ export function Contact() {
           <div className="mt-8 space-y-4 text-muted">
             {contact?.whatsapp_number && (
               <p>
-                <span className="font-semibold text-ink">Phone: </span>
-                <a
-                  href={whatsappLink ? `https://wa.me/${whatsappLink}` : undefined}
-                  className="hover:text-clay"
-                >
-                  {contact.whatsapp_number}
-                </a>
+                <span className="font-semibold text-ink">Phone:</span>
+                {phoneNumbers.map((number, index) => {
+                  const digits = getTenDigitPhoneNumber(number);
+                  return (
+                    <span key={`${number}-${index}`} className="block">
+                      {digits ? (
+                        <a
+                          href={`https://wa.me/${digits}`}
+                          className="hover:text-clay"
+                        >
+                          {number}
+                        </a>
+                      ) : (
+                        <span>{number}</span>
+                      )}
+                    </span>
+                  );
+                })}
               </p>
             )}
             {contact?.contact_email && (
@@ -71,8 +83,10 @@ export function Contact() {
             )}
             {contact?.opening_hours && (
               <p>
-                <span className="font-semibold text-ink">Opening hours: </span>
-                {contact.opening_hours}
+                <span className="font-semibold text-ink">Opening hours:</span>
+                <span className="block whitespace-pre-line">
+                  {contact.opening_hours}
+                </span>
               </p>
             )}
             {contact && !hasContactDetails && (

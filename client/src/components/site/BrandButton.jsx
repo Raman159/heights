@@ -62,6 +62,7 @@ export default function BrandButton({
   const markClass = `
     shrink-0
     object-contain
+    scale-110
     ${markSize || defaultMarkSize}
     ${selectedTone.mark}
   `;
@@ -83,8 +84,11 @@ export default function BrandButton({
         <span
           className={`
             block
-            transition-transform
-            duration-700
+            transition-none
+            group-hover/brand-button:transition-transform
+            group-hover/brand-button:duration-700
+            group-focus-visible/brand-button:transition-transform
+            group-focus-visible/brand-button:duration-700
             ${ROLL_EASE}
             group-hover/brand-button:-translate-y-full
             group-focus-visible/brand-button:-translate-y-full
@@ -100,8 +104,11 @@ export default function BrandButton({
           className={`
             absolute left-0 top-0
             block translate-y-full
-            transition-transform
-            duration-700
+            transition-none
+            group-hover/brand-button:transition-transform
+            group-hover/brand-button:duration-700
+            group-focus-visible/brand-button:transition-transform
+            group-focus-visible/brand-button:duration-700
             ${ROLL_EASE}
             group-hover/brand-button:translate-y-0
             group-focus-visible/brand-button:translate-y-0

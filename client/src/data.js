@@ -2,6 +2,43 @@ export const pic = (filename) =>
   /\.(webp|jpe?g|png)$/i.test(filename ?? "")
     ? `/media/${filename}`
     : "/media/spa-lobby.webp";
+
+
+export const Experience = [
+  {
+    title: "Pool",
+    lead: "THE AQUATIC ESCAPE ROOFTOP LIVING",
+    name: "Pool",
+    img: "/media/infinity-pool.webp",
+    href: "/services/pool",
+    desc: "Take a refreshing swim and enjoy a peaceful pause above the city.",
+  },
+  {
+    title: "Gym & Fitness",
+    lead: "Move with intention.",
+    name: "Gym",
+    img: "/media/gym-interior.webp",
+    href: "/gym",
+    desc: "Move at your own pace in a welcoming space for strength, energy, and everyday wellbeing.",
+  },
+  {
+    title: "Restaurant",
+    lead: "Savour the moment.",
+    name: "Restaurant",
+    img: "/media/restaurant-interior.webp",
+    href: "/restro",
+    desc: "A rooftop restaurant with a 360° view of the city, serving a variety of cuisines and beverages.",
+  },
+  {
+    title: "Bar",
+    lead: "Stay a little longer.",
+    name: "Bar",
+    img: "/media/bar-counter.webp",
+    href: "/restro",
+    desc: "Settle in for crafted drinks and relaxed rooftop evenings.",
+  },
+];
+
 export const serviceCards = [
   {
     name: "Restro",
@@ -24,7 +61,7 @@ export const serviceCards = [
   {
     name: "Salon",
     img: "/media/salon-chairs.webp",
-    href: "/services/salon1",
+    href: "/services/salon",
     desc: "Enjoy thoughtful care and a little time set aside just for you.",
   },
   {
@@ -56,89 +93,6 @@ export const serviceCards = [
     img: "/media/jacuzzi-bath.webp",
     href: "/services/jacuzzi",
     desc: "Sink into warm bubbles for an easy, unhurried moment of relaxation.",
-  },
-];
-export const services = [
-  {
-    slug: "spa",
-    title: "Spa",
-    subtitle: "Restore your balance",
-    photo: "spa-lobby.webp",
-    description:
-      "A sanctuary for mindful restoration, oil-based therapy, dry massage and beautifully considered rituals.",
-  },
-  {
-    slug: "gym",
-    title: "Gym",
-    subtitle: "Move with intention",
-    photo: "gym-interior.webp",
-    description:
-      "A purposeful fitness destination with flexible memberships and space to pursue your goals.",
-  },
-  {
-    slug: "restro",
-    title: "Restro",
-    subtitle: "Dine above the everyday",
-    photo: "restaurant-interior.webp",
-    description:
-      "Multi-cuisine dining, vibrant hospitality and memorable moments with an elevated view.",
-  },
-  {
-    slug: "salon",
-    title: "Salon",
-    subtitle: "A little time for yourself",
-    photo: "salon-chairs.webp",
-    description:
-      "Thoughtful personal care and salon experiences designed around you.",
-  },
-  {
-    slug: "steam",
-    title: "Steam",
-    subtitle: "Unwind in warmth",
-    photo: "steam-room.webp",
-    description:
-      "A soothing steam experience to complement your wellness routine.",
-  },
-  {
-    slug: "sauna",
-    title: "Sauna",
-    subtitle: "Deep calm, gentle heat",
-    photo: "wooden-sauna.webp",
-    description: "Step into restorative warmth and allow your pace to soften.",
-  },
-  {
-    slug: "jacuzzi",
-    title: "Jacuzzi",
-    subtitle: "Pause in comfort",
-    photo: "jacuzzi-bath.webp",
-    description: "Unwind and reconnect with an indulgent hydrotherapy escape.",
-  },
-  {
-    slug: "pool",
-    title: "Swimming Pool",
-    subtitle: "Your elevated escape",
-    photo: "infinity-pool.webp",
-    description:
-      "An inviting poolside retreat with an incredible city outlook.",
-  },
-  {
-    slug: "icebath",
-    title: "Ice Bath",
-    subtitle: "Freeze your moments",
-    photo: "Icebath.jpg",
-    description:
-      "A refreshing cold-water ritual for an invigorating pause in your wellness routine.",
-  },
-];
-export const spaGroups = [
-  {
-    name: "Oil Based Massage",
-    items: ["Ayurvedic", "Deep Tissue", "Aroma Therapy", "Shirodhara"],
-  },
-  { name: "Dry Based Massage", items: ["Japanese Shiatsu", "Thai Therapy"] },
-  {
-    name: "Mini Massage",
-    items: ["Facial", "Back", "Head and Shoulder", "Foot / Palm"],
   },
 ];
 export const membership = [

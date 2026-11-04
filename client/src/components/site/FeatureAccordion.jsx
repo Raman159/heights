@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 
 import { mediaUrl } from "../../api";
 import PackageCard from "./PackageCard";
+import BrandButton from "./BrandButton";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -135,15 +136,14 @@ export default function FeatureAccordion({
                         {description}
                       </p>
                     )}
-                    <span className="mt-7 inline-flex min-h-11 items-center gap-6 border-b border-white/70 pb-2 text-[11px] font-medium uppercase tracking-[.2em]">
+                    <BrandButton
+                      as="span"
+                      tone="glass"
+                      size="small"
+                      className="mt-7"
+                    >
                       {actionLabel}
-                      <span
-                        aria-hidden="true"
-                        className="text-lg transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
-                      >
-                        ↗
-                      </span>
-                    </span>
+                    </BrandButton>
                   </div>
                 </div>
 

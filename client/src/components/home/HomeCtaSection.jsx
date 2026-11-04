@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import BrandButton from "../site/BrandButton";
 
 export default function HomeCtaSection({
   imageSrc = "/media/terrace-lounge.webp",
@@ -160,51 +160,14 @@ export default function HomeCtaSection({
             </h2>
 
             {/* Contact button */}
-            <Link
+            <BrandButton
               to="/contact"
-              className="
-                group
-                mt-10
-                inline-flex
-                min-h-[56px]
-                items-center
-                justify-center
-                gap-8
-                rounded-full
-                border
-                border-white/75
-                bg-white/10
-                px-8
-                text-[11px]
-                font-medium
-                uppercase
-                tracking-[0.18em]
-                text-white
-                backdrop-blur-sm
-                transition-all
-                duration-500
-                hover:border-white
-                hover:bg-white
-                hover:text-[#29231f]
-                md:mt-14
-              "
+              size="large"
+              tone="glass"
+              className="mt-10 border border-white/75 bg-white/10 uppercase tracking-[0.18em] hover:border-white hover:bg-white hover:text-[#29231f] md:mt-14"
             >
               Book an Experience
-
-              <span
-                className="
-                  text-lg
-                  leading-none
-                  transition-transform
-                  duration-500
-                  group-hover:translate-x-1
-                  group-hover:-translate-y-1
-                "
-                aria-hidden="true"
-              >
-                ↗
-              </span>
-            </Link>
+            </BrandButton>
           </div>
         </div>
       </div>

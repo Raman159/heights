@@ -1,6 +1,5 @@
 
 import React, { useRef } from "react";
-import { Link } from "react-router-dom";
 import {
   motion,
   useReducedMotion,
@@ -10,6 +9,7 @@ import {
 
 import { serviceCards } from "../../data";
 import { SectionRule } from "./SectionDetails";
+import BrandButton from "../site/BrandButton";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -69,10 +69,10 @@ export default function DiningShowcase() {
           viewport={viewport}
           transition={{ duration: 0.8, ease }}
         >
-          <SectionRule
+          {/* <SectionRule
             number="05"
             title="Dining & gathering"
-          />
+          /> */}
         </motion.div>
 
         {/* Main content */}
@@ -132,33 +132,20 @@ export default function DiningShowcase() {
               }}
               className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-3"
             >
-              <a
-                href={dining[0].href}
-                className="group inline-flex min-h-11 items-center gap-4 border-b border-clay text-[11px] uppercase tracking-[.2em] text-clay"
+              <BrandButton
+              href={dining[0].href}
+              size="small"
               >
-                Explore dining
+              Explore dining
+              </BrandButton>
 
-                <span
-                  aria-hidden="true"
-                  className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-                >
-                  ↗
-                </span>
-              </a>
-
-              <Link
-                to="/contact"
-                className="group inline-flex min-h-11 items-center gap-3 text-[11px] uppercase tracking-[.2em] text-ink"
+              <BrandButton
+              to="/contact"
+              size="small"
+              tone="dark"
               >
-                Reservations
-
-                <span
-                  aria-hidden="true"
-                  className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1"
-                >
-                  ↗
-                </span>
-              </Link>
+              Reservations
+              </BrandButton>
             </motion.div>
           </div>
 

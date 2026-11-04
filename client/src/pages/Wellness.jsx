@@ -1,10 +1,10 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { ArrowUpRight } from "lucide-react";
-import { pic, services } from "../data";
+import React, { useEffect, useState } from "react";
+import { get, mediaUrl } from "../api";
 import { Reveal } from "../components/Layout";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
+import BrandButton from "../components/site/BrandButton";
+import { useToast } from "../components/Toast";
 
 const pillars = [
   { word: "Restore", text: "Slow down with touch-led rituals." },
@@ -13,14 +13,33 @@ const pillars = [
 ];
 
 export function Wellness() {
-  const list = [
-    services[4],
-    services[5],
-    services[6],
-    services[3],
-    services[7],
-    services[8],
-  ].filter(Boolean);
+  const notify = useToast();
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    get("/public/services")
+      .then((result) => {
+        if (active) setServices(result);
+      })
+      .catch((requestError) => {
+        if (!active) return;
+        setError(true);
+        notify(requestError.message, "error");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [notify]);
+
+  const list = services.filter(
+    (service) => !["spa", "gym", "restro"].includes(service.slug),
+  );
 
   return (
     <>
@@ -28,7 +47,7 @@ export function Wellness() {
         tag="WELLNESS AT HEIGHT"
         title="Find your moment of calm."
         body="Restore your senses, recharge your energy and find time for yourself."
-        image={pic("infinity-pool.webp")}
+        image="/media/infinity-pool.webp"
       />
 
       {/* Intro + pillars */}
@@ -58,6 +77,12 @@ export function Wellness() {
       {/* Experiences */}
       <section className="bg-cream py-14 md:py-24">
         <div className="shell space-y-16 md:space-y-28">
+          {loading && <p className="text-center text-muted">Loading experiences…</p>}
+          {error && (
+            <p className="text-center text-muted">
+              Wellness experiences could not be loaded. Please try again later.
+            </p>
+          )}
           {list.map((s, i) => {
             const flip = i % 2 === 1;
             return (
@@ -81,7 +106,7 @@ export function Wellness() {
                   />
                   <div className="relative aspect-[4/5] overflow-hidden rounded-t-full bg-skin/30 md:aspect-[5/6]">
                     <img
-                      src={pic(s.photo)}
+                      src={mediaUrl(s.image_url)}
                       loading="lazy"
                       decoding="async"
                       alt={s.title}
@@ -108,10 +133,9 @@ export function Wellness() {
                   <p className="mx-auto mb-8 max-w-md text-base leading-8 text-muted md:mx-0 md:max-w-none">
                     {s.description}
                   </p>
-                  <Link className="btn-outline" to={"/services/" + s.slug}>
+                  <BrandButton to={"/services/" + s.slug} size="small" tone="dark">
                     Discover {s.title}
-                    <ArrowUpRight size={16} />
-                  </Link>
+                  </BrandButton>
                 </div>
               </Reveal>
             );
@@ -124,12 +148,14 @@ export function Wellness() {
         <div className="shell text-center">
           <p className="eyebrow !text-skin mb-4 md:mb-5">Begin your ritual</p>
           <h2 className="h2 mb-7 md:mb-6">Your calm is waiting at Height.</h2>
-          <Link
-            className="mx-auto block w-full max-w-xs rounded-full bg-white px-8 py-4 text-center font-semibold text-ink transition-transform active:scale-[0.98] md:inline-block md:w-auto md:max-w-none"
+          <BrandButton
             to="/contact"
+            tone="light"
+            size="small"
+            className="mx-auto mt-2"
           >
-            Book your experience →
-          </Link>
+            Book your experience
+          </BrandButton>
         </div>
       </section>
     </>

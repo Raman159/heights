@@ -57,14 +57,14 @@ function AnimatedNavLink({ to, children }) {
         <>
           <span className="relative block overflow-hidden leading-[1.5]">
             <span
-              className={`block transition-transform duration-700 ${EASE} group-hover/link:-translate-y-full`}
+              className={`block transition-none group-hover/link:transition-transform group-hover/link:duration-700 ${EASE} group-hover/link:-translate-y-full`}
             >
               {children}
             </span>
 
             <span
               aria-hidden="true"
-              className={`absolute left-0 top-0 block translate-y-full transition-transform duration-700 ${EASE} group-hover/link:translate-y-0`}
+              className={`absolute left-0 top-0 block translate-y-full transition-none group-hover/link:transition-transform group-hover/link:duration-700 ${EASE} group-hover/link:translate-y-0`}
             >
               {children}
             </span>

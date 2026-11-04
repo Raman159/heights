@@ -1,6 +1,5 @@
 
 import React, { useRef } from "react";
-import { Link } from "react-router-dom";
 import {
   motion,
   useReducedMotion,
@@ -8,6 +7,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { SectionRule } from "./SectionDetails";
+import BrandButton from "../site/BrandButton";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -63,10 +63,7 @@ export default function EditorialSection() {
           viewport={viewport}
           transition={{ duration: 0.8, ease }}
         >
-          <SectionRule
-            number="04"
-            title="The Height feeling"
-          />
+          
         </motion.div>
 
         {/* Main split layout */}
@@ -139,19 +136,14 @@ export default function EditorialSection() {
               }}
               className="mt-9 md:mt-11"
             >
-              <Link
+              <BrandButton
                 to="/contact"
-                className="group inline-flex min-h-12 items-center gap-8 border-b border-clay pb-2 text-[11px] font-medium uppercase tracking-[.2em] text-clay transition-colors duration-300 hover:text-ink"
+                size="small"
+                tone="dark"
+                className="mt-2"
               >
                 Discover the experience
-
-                <span
-                  aria-hidden="true"
-                  className="text-lg transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1"
-                >
-                  ↗
-                </span>
-              </Link>
+              </BrandButton>
             </motion.div>
           </div>
 

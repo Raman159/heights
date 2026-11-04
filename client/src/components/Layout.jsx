@@ -4,6 +4,7 @@ import { get } from "../api";
 import { useToast } from "./Toast";
 import Footer from "./site/Footer";
 import Navbar from "./site/Navbar";
+import { getTenDigitPhoneNumber, parsePhoneNumbers } from "../utils/phoneNumbers";
 export function Reveal({ children, className = "" }) {
   useEffect(() => {
     const ob = new IntersectionObserver(
@@ -35,9 +36,11 @@ export default function Layout({ children }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [loc.pathname]);
-  const whatsappDigits = whatsappNumber.replace(/\D/g, "");
+  const whatsappDigits = parsePhoneNumbers(whatsappNumber)
+    .map(getTenDigitPhoneNumber)
+    .find(Boolean);
   const whatsappHref =
-    whatsappDigits.length >= 7 && whatsappDigits.length <= 15
+    whatsappDigits
       ? `https://wa.me/${whatsappDigits}?text=${encodeURIComponent("Hello! I would like to inquire about your services.")}`
       : "/contact";
   return (
@@ -47,10 +50,10 @@ export default function Layout({ children }) {
       <Footer />
       <a
         href={whatsappHref}
-        target={whatsappDigits.length >= 7 ? "_blank" : undefined}
-        rel={whatsappDigits.length >= 7 ? "noreferrer" : undefined}
+        target={whatsappDigits ? "_blank" : undefined}
+        rel={whatsappDigits ? "noreferrer" : undefined}
         aria-label={
-          whatsappDigits.length >= 7 ? "Chat on WhatsApp" : "Contact HEIGHT"
+          whatsappDigits ? "Chat on WhatsApp" : "Contact HEIGHT"
         }
         className="fixed bottom-5 right-4 z-50 grid size-14 place-items-center rounded-full bg-[#25d366] text-white shadow-lg transition-transform hover:scale-105"
       >

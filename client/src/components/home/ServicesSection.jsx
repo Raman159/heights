@@ -97,7 +97,7 @@ export default function ServicesSection() {
           viewport={viewport}
           transition={{ duration: 0.85, ease }}
         >
-          <SectionRule number="02" title="The experiences" />
+          {/* <SectionRule number="02" title="The experiences" /> */}
         </motion.div>
 
         {/* Section introduction */}

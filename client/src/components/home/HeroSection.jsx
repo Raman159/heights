@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { HeroMedia } from "./HomeMedia";
 
 export default function HeroSection({ settings }) {
@@ -25,20 +24,6 @@ export default function HeroSection({ settings }) {
         {/* <p className="eyebrow !text-skin mt-4 max-md:text-[11px] md:mt-5">
           RESTRO • WELLNESS • SPA • FITNESS
         </p> */}
-        <div className="mx-auto mt-7 flex max-w-xs flex-col gap-3 md:hidden">
-          <Link
-            to="/contact"
-            className="rounded-full bg-white px-6 py-3 text-center text-sm font-semibold text-ink shadow-lg shadow-black/20 transition-transform active:scale-[0.98]"
-          >
-            Plan your visit
-          </Link>
-          <a
-            href="#services"
-            className="rounded-full border border-white/50 bg-white/10 px-6 py-3 text-center text-sm font-medium text-white backdrop-blur-sm transition-transform active:scale-[0.98]"
-          >
-            Explore services
-          </a>
-        </div>
       </div>
     </section>
   );

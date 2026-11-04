@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { get } from "../../api";
+import { getTenDigitPhoneNumber, parsePhoneNumbers } from "../../utils/phoneNumbers";
 import { useToast } from "../Toast";
 import BrandButton from "./BrandButton";
 
@@ -171,8 +172,7 @@ export default function Footer() {
     };
   }, [notify]);
 
-  const whatsapp = contact?.whatsapp_number
-    ?.replace(/\D/g, "");
+  const phoneNumbers = parsePhoneNumbers(contact?.whatsapp_number);
 
   const social = [
     {
@@ -284,10 +284,9 @@ export default function Footer() {
                         {name}
                       </span>
 
-                      <ArrowUpRight
-                        size={22}
-                        strokeWidth={1.2}
-                        className="shrink-0 -translate-x-3 translate-y-2 text-clay opacity-0 transition-all duration-500 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100"
+                      <span
+                        aria-hidden="true"
+                        className="size-2 shrink-0 -translate-x-3 translate-y-2 rounded-full bg-clay opacity-0 transition-all duration-500 group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100"
                       />
                     </Link>
                   </motion.li>
@@ -387,26 +386,36 @@ export default function Footer() {
                 <div className="mt-7 space-y-4">
 
                   {contact?.whatsapp_number && (
-                    <a
-                      href={
-                        whatsapp
-                          ? `https://wa.me/${whatsapp}`
-                          : undefined
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-4 text-[14px] text-ink/75 transition-colors hover:text-clay md:text-[15px]"
-                    >
+                    <div className="flex items-start gap-4 text-[14px] text-ink/75 md:text-[15px]">
                       <Phone
                         size={18}
                         strokeWidth={1.4}
-                        className="shrink-0 text-clay"
+                        className="mt-1 shrink-0 text-clay"
                       />
-
-                      <span>
-                        {contact.whatsapp_number}
-                      </span>
-                    </a>
+                      <div className="space-y-2">
+                        {phoneNumbers.map((number, index) => {
+                          const digits = getTenDigitPhoneNumber(number);
+                          return digits ? (
+                            <a
+                              key={`${number}-${index}`}
+                              href={`https://wa.me/${digits}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block transition-colors hover:text-clay"
+                            >
+                              {number}
+                            </a>
+                          ) : (
+                            <span
+                              key={`${number}-${index}`}
+                              className="block"
+                            >
+                              {number}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
 
                   {contact?.contact_email && (

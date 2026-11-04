@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 import FeatureAccordion from "../site/FeatureAccordion";
 import EmptyState from "../site/EmptyState";
+import BrandButton from "../site/BrandButton";
 import { SectionRule, SectionIntro } from "./SectionDetails";
 
 const ease = [0.22, 1, 0.36, 1];
@@ -10,22 +11,9 @@ const ITEMS_PER_PAGE = 3;
 
 export default function OffersSection({ offers }) {
   const reduceMotion = useReducedMotion();
-  const [page, setPage] = useState(0);
 
   const safeOffers = Array.isArray(offers) ? offers : [];
-  const totalPages = Math.ceil(safeOffers.length / ITEMS_PER_PAGE);
-
-  const currentPage = Math.min(page, Math.max(0, totalPages - 1));
-
-  const visibleOffers = safeOffers.slice(
-    currentPage * ITEMS_PER_PAGE,
-    (currentPage + 1) * ITEMS_PER_PAGE,
-  );
-
-  const changePage = (nextPage) => {
-    if (nextPage < 0 || nextPage >= totalPages) return;
-    setPage(nextPage);
-  };
+  const visibleOffers = safeOffers.slice(0, ITEMS_PER_PAGE);
 
   const reveal = {
     hidden: {
@@ -54,7 +42,7 @@ export default function OffersSection({ offers }) {
           viewport={viewport}
           transition={{ duration: 0.85, ease }}
         >
-          <SectionRule number="08" title="Membership & offers" />
+          {/* <SectionRule number="08" title="Membership & offers" /> */}
         </motion.div>
 
         <motion.div
@@ -94,78 +82,21 @@ export default function OffersSection({ offers }) {
                 ease,
               }}
             >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={currentPage}
-                  initial={reduceMotion ? false : { opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -30 }}
-                  transition={{
-                    duration: reduceMotion ? 0 : 0.45,
-                    ease,
-                  }}
-                >
-                  <FeatureAccordion
-                    items={visibleOffers}
-                    getTo={(offer) => `/offers/${offer.id}`}
-                    actionLabel="More info"
-                    eyebrow="A HEIGHT EXPERIENCE"
-                  />
-                </motion.div>
-              </AnimatePresence>
+              <FeatureAccordion
+                items={visibleOffers}
+                getTo={(offer) => `/offers/${offer.id}`}
+                actionLabel="More info"
+                eyebrow="A HEIGHT EXPERIENCE"
+              />
+
+              {safeOffers.length > ITEMS_PER_PAGE && (
+                <div className="mt-8 flex justify-center">
+                  <BrandButton to="/offers" size="small" tone="clay">
+                    View more offers
+                  </BrandButton>
+                </div>
+              )}
             </motion.div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-9 flex flex-wrap items-center justify-between gap-5 border-t border-clay/20 pt-6">
-                <span className="text-[11px] uppercase tracking-[.18em] text-clay">
-                  {String(currentPage + 1).padStart(2, "0")}
-                  {" / "}
-                  {String(totalPages).padStart(2, "0")}
-                </span>
-
-                {/* Page dots */}
-                <div className="flex flex-wrap items-center gap-2">
-                  {Array.from({ length: totalPages }, (_, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => changePage(index)}
-                      aria-label={`Go to page ${index + 1}`}
-                      aria-current={currentPage === index ? "page" : undefined}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        currentPage === index
-                          ? "w-8 bg-clay"
-                          : "w-2 bg-clay/25 hover:bg-clay/60"
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                {/* Previous / Next */}
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    disabled={currentPage === 0}
-                    onClick={() => changePage(currentPage - 1)}
-                    aria-label="Previous offers"
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-clay/35 text-clay transition-colors hover:bg-clay hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-                  >
-                    ←
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={currentPage === totalPages - 1}
-                    onClick={() => changePage(currentPage + 1)}
-                    aria-label="Next offers"
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-clay/35 text-clay transition-colors hover:bg-clay hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-                  >
-                    →
-                  </button>
-                </div>
-              </div>
-            )}
           </>
         )}
       </div>

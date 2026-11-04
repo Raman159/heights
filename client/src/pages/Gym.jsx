@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 import { pic, membership, dayPass } from "../data";
+import BrandButton from "../components/site/BrandButton";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
 
@@ -164,12 +164,13 @@ function TierCard({ m }) {
         })}
       </div>
 
-      <Link
+      <BrandButton
         to={"/contact?service=" + encodeURIComponent(m.name + " membership")}
-        className="btn mt-auto justify-center text-center"
+        size="small"
+        className="mt-auto w-full justify-center text-center"
       >
-        Book Now →
-      </Link>
+        Book Now
+      </BrandButton>
     </article>
   );
 }
@@ -252,12 +253,12 @@ export function Gym() {
               One-on-one personal training: <b>Rs. 30,000</b> extra per month on
               any membership.
             </p>
-            <Link
+            <BrandButton
               to={"/contact?service=" + encodeURIComponent("1-Day Pass")}
-              className="btn"
+              size="small"
             >
-              Book a day pass →
-            </Link>
+              Book a day pass
+            </BrandButton>
           </div>
         </Reveal>
       </section>

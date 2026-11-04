@@ -1,15 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { pic } from "../data";
+import BrandButton from "../components/site/BrandButton";
 import Banner from "../components/site/Banner";
+import Reels from "../components/site/Reels";
 import SectionHead from "../components/site/SectionHead";
 
 const EVENTS = [
   { name: "Buffet Dinner", img: "restaurant-dining.webp" },
   { name: "Set Menu", img: "restaurant-lounge.webp" },
-  { name: "Table Setup", img: "lounge-seating.webp" },
+  // { name: "Table Setup", img: "lounge-seating.webp" },
   { name: "Conference Hall", img: "restaurant-interior.webp" },
-  { name: "Private Room", img: "terrace-lounge.webp" },
+  { name: "Meeting Room", img: "terrace-lounge.webp" },
 ];
 
 const DISPLAY = "var(--font-display, inherit)";
@@ -75,7 +77,7 @@ export function Events() {
           <Arcs className="mx-auto mb-6 h-12 w-24" />
           <SectionHead eyebrow="Celebrate together" title="Events at HEIGHT" />
 
-          <div className="mb-20 mt-16 grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mb-20 mt-16 grid gap-x-6 gap-y-14 md:grid-cols-2 lg:grid-cols-4">
             {EVENTS.map((e, i) => <EventArch key={e.name} e={e} i={i} />)}
           </div>
 
@@ -83,14 +85,16 @@ export function Events() {
           <div className="relative text-center">
             <div aria-hidden="true" className="mx-auto h-28 w-56 rounded-t-full border border-b-0 border-black/20" />
             <div className="-mt-10">
-              <Link to="/contact?service=Event%20booking" className="btn">
-                Enquire Now →
-              </Link>
+              <BrandButton to="/contact?service=Event%20booking" size="small">
+                Enquire Now
+              </BrandButton>
             </div>
           </div>
         </div>
       </section>
-
+      <section aria-label="Event reels">
+        <Reels background="linear-gradient(180deg, #FBF7EB 0%, #F3E9DF 50%, #FBF7EB 100%)" />
+      </section>
       <section className="shell relative min-h-[30vh] overflow-hidden py-24">
         {/* Concentric rings */}
         <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 -z-10 -translate-x-1/2 -translate-y-1/2">
@@ -102,6 +106,7 @@ export function Events() {
         </div>
         <SectionHead eyebrow="Events at HEIGHT" title="A place to come together" />
       </section>
+
     </>
   );
 }

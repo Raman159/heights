@@ -10,7 +10,7 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminSettings from "../components/admin/AdminSettings";
 import AdminSecurity from "../components/admin/AdminSecurity";
 
-const sections = ["offers", "posts", "reviews", "videos", "gallery", "menus", "team_members", "inquiries", "settings", "security"];
+const sections = ["offers", "posts", "reviews", "videos", "gallery", "menus", "team_members", "services", "spa_categories", "spa_treatments", "inquiries", "settings", "security"];
 
 export default function Admin() {
   const notify = useToast();

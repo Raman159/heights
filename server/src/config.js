@@ -27,6 +27,9 @@ export const allowedTables = [
   "gallery",
   "menus",
   "team_members",
+  "services",
+  "spa_categories",
+  "spa_treatments",
   "inquiries",
 ];
 
@@ -47,6 +50,17 @@ export const tableFields = {
     "linkedin_url",
     "email",
   ],
+  services: ["title", "slug", "subtitle", "description", "image_url"],
+  spa_categories: ["name", "description"],
+  spa_treatments: [
+    "category_id",
+    "title",
+    "slug",
+    "description",
+    "benefits",
+    "pricing",
+    "image_url",
+  ],
 };
 
 export const orderedTables = Object.keys(tableFields);
@@ -59,6 +73,9 @@ export const requiredFields = {
   gallery: ["title", "image_url", "category"],
   menus: ["title", "file_url"],
   team_members: ["full_name", "department", "designation"],
+  services: ["title", "slug"],
+  spa_categories: ["name"],
+  spa_treatments: ["category_id", "title", "slug"],
 };
 
 export const galleryCategories = [
@@ -81,6 +98,12 @@ export const settingFields = [
   "contact_email",
   "address",
   "opening_hours",
+  "spa_title",
+  "spa_tagline",
+  "spa_intro_heading",
+  "spa_intro",
+  "spa_hero_image",
+  "spa_intro_image",
 ];
 
 export const clean = (value) =>

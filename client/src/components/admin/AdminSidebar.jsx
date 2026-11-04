@@ -13,6 +13,7 @@ import {
   Images,
   Utensils,
   UsersRound,
+  Sparkles,
 } from "lucide-react";
 
 const links = [
@@ -24,8 +25,11 @@ const links = [
   ["gallery", "Gallery", Images],
   ["menus", "Restaurant menus", Utensils],
   ["team_members", "Our team", UsersRound],
+  ["services", "Service pages", Sparkles],
+  ["spa_categories", "Spa categories", Sparkles],
+  ["spa_treatments", "Spa treatments", Sparkles],
   ["inquiries", "Inquiries", Inbox],
-  ["settings", "Website settings", Settings2],
+  ["settings", "Homepage Settings", Settings2],
   ["security", "Security", ShieldCheck],
 ];
 

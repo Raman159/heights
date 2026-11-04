@@ -1,85 +1,14 @@
 
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { serviceCards } from "../../data";
+import { Experience } from "../../data";
 import { SectionRule } from "./SectionDetails";
-
-const definitions = [
-  {
-    title: "Wellness",
-    key: /wellness|spa|massage|sauna|jacuzzi/i,
-    lead: "Make time to reconnect.",
-  },
-  {
-    title: "Gym & Fitness",
-    key: /gym|fitness|training|workout/i,
-    lead: "Move with intention.",
-  },
-  {
-    title: "Restaurant",
-    key: /restaurant|restro|dining|food/i,
-    lead: "Savour the moment.",
-  },
-  {
-    title: "Bar",
-    key: /\bbar\b|lounge|cocktail|mixology|nightlife|drinks/i,
-    lead: "Stay a little longer.",
-  },
-];
 
 const ease = [0.22, 1, 0.36, 1];
 
 export default function ExperienceChapters() {
   const reduceMotion = useReducedMotion();
-
-  const used = new Set();
-
-  const categories = definitions.map((item) => {
-    // Prefer an exact category match in the service name.
-    let service = serviceCards.find(
-      (s) =>
-        s.img &&
-        !used.has(s.name) &&
-        item.key.test(s.name || "")
-    );
-
-    // Check descriptions if no name matches.
-    if (!service) {
-      service = serviceCards.find(
-        (s) =>
-          s.img &&
-          !used.has(s.name) &&
-          item.key.test(s.desc || "")
-      );
-    }
-
-    // Ensure Bar appears even if no dedicated Bar
-    // service exists in serviceCards.
-    if (!service && item.title === "Bar") {
-      service =
-        serviceCards.find(
-          (s) =>
-            s.img &&
-            /restaurant|restro|lounge|dining/i.test(
-              s.name || ""
-            )
-        ) || serviceCards.find((s) => s.img);
-    }
-
-    if (service) used.add(service.name);
-
-    return service
-      ? {
-          ...item,
-          service,
-          fallback:
-            item.title === "Bar" &&
-            !item.key.test(
-              `${service.name || ""} ${service.desc || ""}`
-            ),
-        }
-      : null;
-  }).filter(Boolean);
+  const categories = Experience.filter((item) => item.title && item.img && item.href);
 
   const reveal = {
     hidden: {
@@ -113,11 +42,7 @@ export default function ExperienceChapters() {
           viewport={viewport}
           transition={{ duration: 0.8, ease }}
         >
-          <SectionRule
-            number="03"
-            title="Distinctive experiences"
-            light
-          />
+          
         </motion.div>
 
         <div className="mb-10 grid gap-5 lg:grid-cols-[1.4fr_.6fr] lg:items-end">
@@ -149,7 +74,7 @@ export default function ExperienceChapters() {
         {/* Compact experience grid */}
         <div className="grid gap-y-10 md:grid-cols-2 md:gap-x-8 md:gap-y-14">
           {categories.map(
-            ({ title, lead, service, fallback }, i) => (
+            ({ title, lead, name, img, href, desc }, i) => (
               <motion.div
                 key={title}
                 className={i % 2 ? "md:mt-10" : ""}
@@ -172,18 +97,14 @@ export default function ExperienceChapters() {
                 }}
               >
                 <a
-                  href={service.href}
+                  href={href}
                   className="group block focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#f2d5c6]"
                 >
                   {/* Image */}
                   <div className="relative h-[280px] overflow-hidden sm:h-[350px] lg:h-[420px]">
                     <img
-                      src={service.img}
-                      alt={
-                        fallback
-                          ? `${title} experience`
-                          : service.name
-                      }
+                      src={img}
+                      alt={name || title}
                       loading="lazy"
                       className="h-full w-full object-cover transition-transform duration-[1100ms] group-hover:scale-[1.04] motion-reduce:transition-none"
                     />
@@ -217,7 +138,7 @@ export default function ExperienceChapters() {
 
                   {/* Description */}
                   <p className="mt-3 max-w-lg text-sm leading-7 text-white/65">
-                    {fallback ? lead : service.desc}
+                    {desc}
                   </p>
                 </a>
               </motion.div>

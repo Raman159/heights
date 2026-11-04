@@ -105,6 +105,43 @@ CREATE TABLE
         INDEX team_members_sort_order_idx (sort_order, id)
     );
 
+CREATE TABLE IF NOT EXISTS services (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(200) NOT NULL UNIQUE,
+    subtitle VARCHAR(200),
+    description TEXT,
+    image_url VARCHAR(1024),
+    sort_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX services_sort_order_idx(sort_order, id)
+);
+
+CREATE TABLE IF NOT EXISTS spa_categories (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(200) NOT NULL UNIQUE,
+    description TEXT,
+    sort_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX spa_categories_sort_order_idx(sort_order, id)
+);
+
+CREATE TABLE IF NOT EXISTS spa_treatments (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    category_id INT UNSIGNED NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(200) NOT NULL UNIQUE,
+    description TEXT,
+    benefits TEXT,
+    pricing LONGTEXT,
+    image_url VARCHAR(1024),
+    sort_order INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX spa_treatments_category_sort_idx(category_id, sort_order, id),
+    CONSTRAINT spa_treatments_category_fk
+        FOREIGN KEY (category_id) REFERENCES spa_categories(id) ON DELETE CASCADE
+);
+
 INSERT INTO menus (title, description, image_url, file_url)
 SELECT 'Breakfast Menu', 'Start your day with breakfast at HEIGHT.', '/media/breakfast-plate.webp', '/Menu/Breakfast%20Menu.pdf'
 WHERE NOT EXISTS (SELECT 1 FROM menus WHERE file_url = '/Menu/Breakfast%20Menu.pdf');

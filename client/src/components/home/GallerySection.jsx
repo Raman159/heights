@@ -39,7 +39,7 @@ export default function GallerySection() {
           variants={reveal}
           transition={{ duration: 0.9, ease }}
         >
-          <SectionRule number="07" title="A glimpse of Height" />
+          {/* <SectionRule number="07" title="A glimpse of Height" /> */}
         </motion.div>
 
         <div className="mb-12 flex items-end justify-between gap-6">

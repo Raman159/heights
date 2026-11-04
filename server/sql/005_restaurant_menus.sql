@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS menus (
   INDEX menus_sort_order_idx(sort_order, id)
 );
 
+
 INSERT INTO menus (title, description, image_url, file_url)
 SELECT 'Breakfast Menu', 'Start your day with breakfast at HEIGHT.', '/media/breakfast-plate.webp', '/Menu/Breakfast%20Menu.pdf'
 WHERE NOT EXISTS (SELECT 1 FROM menus WHERE file_url = '/Menu/Breakfast%20Menu.pdf');

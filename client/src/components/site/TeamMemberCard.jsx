@@ -48,9 +48,9 @@ export default function TeamMemberCard({ member, index = 0, className = "" }) {
         <span className="border border-white/30 bg-white/10 px-3 py-1.5 text-[10px] uppercase tracking-[.18em] backdrop-blur-md">
           {department}
         </span>
-        <span className="font-mono text-[11px] tracking-[.2em] text-white/80">
+        {/* <span className="font-mono text-[11px] tracking-[.2em] text-white/80">
           {number}
-        </span>
+        </span> */}
       </div>
 
       {/* Resting caption: fades out on hover */}

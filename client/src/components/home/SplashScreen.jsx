@@ -6,8 +6,8 @@ const BG = "#eae5df"; // plain warm stone, sampled from the Damai reference
 const LOGO_TOP = 42; // svh: logo centre (reference sits just above the middle)
 const SMOOTH = [0.22, 1, 0.36, 0.5]; // gentle landing
 const OPEN = [0.76, 0, 0.24, 1]; // slow start, slow finish
-const OPEN_TIME = 2.1; // seconds the screen takes to open
-const ROLL_DELAY = -0.2; // seconds after the opening starts before the logo begins rolling up
+const OPEN_TIME = 1.8; // seconds the screen takes to open
+const ROLL_DELAY = -0.15; // seconds after the opening starts before the logo begins rolling up
 // The roll-up ends exactly when the screen finishes opening.
 
 /**
@@ -152,10 +152,10 @@ export default function SplashScreen({ video, image, logo = "/logo.png" }) {
     });
 
     (async () => {
-      await play(logoOpacity, 1, { duration: d(1.2), ease: "easeOut" });
+      await play(logoOpacity, 1, { duration: d(1), ease: "easeOut" });
       await mediaReady;
-      await play(rise, 1, { delay: d(0.3), duration: d(1.8), ease: SMOOTH }); // slide up from below
-      await Promise.all([pageLoaded, sleep(1)]); // pause
+      await play(rise, 1, { delay: d(0.2), duration: d(1.5), ease: SMOOTH }); // slide up from below
+      await Promise.all([pageLoaded, sleep(0.6)]); // pause
       // Open the screen and roll the logo up together, on the same easing
       await Promise.all([
         play(p, 1, { duration: d(OPEN_TIME), ease: OPEN }),
@@ -224,6 +224,27 @@ export default function SplashScreen({ video, image, logo = "/logo.png" }) {
           />
         </div>
       </motion.div>
+
+      {/* <motion.div
+        aria-hidden="true"
+        className="absolute inset-x-0 bottom-[max(1.5rem,env(safe-area-inset-bottom))] z-10 flex flex-col items-center gap-1 text-[#46382f] md:hidden"
+        animate={reduceMotion ? undefined : { y: [0, -5, 0] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          className="size-5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          aria-hidden="true"
+        >
+          <path d="M12 19V5m0 0L6.5 10.5M12 5l5.5 5.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        <span className="text-[10px] font-medium uppercase tracking-[.22em]">
+          Swipe up
+        </span>
+      </motion.div> */}
     </div>
   );
 }

@@ -18,6 +18,17 @@ export const fieldDefinitions = {
     "linkedin_url",
     "email",
   ],
+  services: ["title", "slug", "subtitle", "description", "image_url"],
+  spa_categories: ["name", "description"],
+  spa_treatments: [
+    "category_id",
+    "title",
+    "slug",
+    "description",
+    "benefits",
+    "pricing",
+    "image_url",
+  ],
 };
 
 const labels = {
@@ -33,11 +44,34 @@ const labels = {
   instagram_url: "Instagram URL",
   linkedin_url: "LinkedIn URL",
   email: "Email address",
+  category_id: "Spa category",
+  slug: "Page URL slug",
+  pricing: "Duration and price options (JSON)",
 };
 
-export default function AdminFormFields({ section, value, onChange, includeSettings = false }) {
+export default function AdminFormFields({
+  section,
+  value,
+  onChange,
+  includeSettings = false,
+  categories = [],
+}) {
   const fields = includeSettings
-    ? ["hero_video", "hero_image", "home_audio", "whatsapp_number", "contact_email", "address", "opening_hours"]
+    ? [
+        "hero_video",
+        "hero_image",
+        "home_audio",
+        "whatsapp_number",
+        "contact_email",
+        "address",
+        "opening_hours",
+        "spa_title",
+        "spa_tagline",
+        "spa_intro_heading",
+        "spa_intro",
+        "spa_hero_image",
+        "spa_intro_image",
+      ]
     : fieldDefinitions[section] || [];
   return (
     <div className="grid min-w-0 gap-5 md:grid-cols-2 [&>*]:min-w-0">
@@ -49,9 +83,38 @@ export default function AdminFormFields({ section, value, onChange, includeSetti
               ? "Menu cover image"
               : name === "image_url" && section === "team_members"
                 ? "Team member photo"
+                : name === "image_url" && section === "spa_treatments"
+                  ? "Treatment image"
+                  : name === "image_url" && section === "services"
+                    ? "Service image"
+                    : name === "spa_hero_image"
+                      ? "Spa hero image"
+                      : name === "spa_intro_image"
+                        ? "Spa introduction image"
               : labels[name] ||
                 name.replaceAll("_", " ").replace(/^\w/, (letter) => letter.toUpperCase());
-        if (["image_url", "thumbnail_url", "hero_image"].includes(name)) {
+        if (
+          name === "category_id" &&
+          section === "spa_treatments"
+        ) {
+          return (
+            <label key={name} className="block text-sm font-medium text-slate-700">
+              {label}
+              <select
+                className="admin-field mt-2"
+                required
+                value={value[name] ?? ""}
+                onChange={(event) => onChange(name, event.target.value)}
+              >
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>{category.name}</option>
+                ))}
+              </select>
+            </label>
+          );
+        }
+        if (["image_url", "thumbnail_url", "hero_image", "spa_hero_image", "spa_intro_image"].includes(name)) {
           return (
             <div key={name} className="md:col-span-2">
               <AdminMediaField label={label} value={value[name] || ""} onChange={(next) => onChange(name, next)} />
@@ -98,10 +161,33 @@ export default function AdminFormFields({ section, value, onChange, includeSetti
             </label>
           );
         }
-        const multiline = ["description", "body", "quote", "excerpt", "address", "opening_hours", "biography"].includes(name);
+        const multiline = [
+          "description",
+          "body",
+          "quote",
+          "excerpt",
+          "address",
+          "opening_hours",
+          "biography",
+          "whatsapp_number",
+          "spa_intro",
+          "benefits",
+          "pricing",
+        ].includes(name);
         return (
           <label key={name} className={"block text-sm font-medium text-slate-700 " + (multiline ? "md:col-span-2" : "")}>
             {label}
+            {name === "whatsapp_number" && (
+              <span className="mt-1 block text-xs font-normal text-slate-500">
+                Enter multiple numbers separated by commas or new lines. Only 10-digit numbers link to WhatsApp.
+              </span>
+            )}
+            {name === "pricing" && (
+              <span className="mt-1 block text-xs font-normal text-slate-500">
+                Use JSON, for example:{" "}
+                <code>{"[{\"duration\":\"60 mins\",\"price\":4000}]"}</code>
+              </span>
+            )}
             {multiline ? (
               <textarea
                 className="admin-field mt-2 min-h-28 resize-y"

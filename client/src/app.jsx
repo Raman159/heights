@@ -5,6 +5,7 @@ import { Home } from "./pages/Home";
 import { Wellness } from "./pages/Wellness";
 import { Service } from "./pages/Service";
 import { Spa } from "./pages/Spa";
+import { SpaTreatment } from "./pages/SpaTreatment";
 import { Gym } from "./pages/Gym";
 import { Restro } from "./pages/Restro";
 import { Events } from "./pages/Events";
@@ -30,6 +31,7 @@ function AppContent() {
         <Route path="/" element={<Home showSplash={showHomeSplash} />} />
         <Route path="/wellness" element={<Wellness />} />
         <Route path="/spa" element={<Spa />} />
+        <Route path="/spa/:slug" element={<SpaTreatment />} />
         <Route path="/gym" element={<Gym />} />
         <Route path="/restro" element={<Restro />} />
         <Route path="/events" element={<Events />} />

@@ -75,11 +75,11 @@ export default function ReviewsSection({ reviews }) {
           viewport={viewport}
           transition={{ duration: 0.8, ease }}
         >
-          <SectionRule
+          {/* <SectionRule
             number="06"
             title="Words from our guests"
             light
-          />
+          /> */}
         </motion.div>
 
         {/* Heading */}
