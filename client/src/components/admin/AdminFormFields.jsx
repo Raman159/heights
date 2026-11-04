@@ -7,6 +7,17 @@ export const fieldDefinitions = {
   reviews: ["author", "quote"],
   videos: ["title", "video_url", "thumbnail_url"],
   gallery: ["title", "category", "image_url"],
+  menus: ["title", "description", "image_url", "file_url"],
+  team_members: [
+    "full_name",
+    "department",
+    "designation",
+    "biography",
+    "image_url",
+    "instagram_url",
+    "linkedin_url",
+    "email",
+  ],
 };
 
 const labels = {
@@ -14,6 +25,14 @@ const labels = {
   thumbnail_url: "Video thumbnail",
   video_url: "Video file",
   link_url: "Destination link",
+  file_url: "Menu PDF",
+  full_name: "Full name",
+  department: "Department",
+  designation: "Job title",
+  biography: "Biography",
+  instagram_url: "Instagram URL",
+  linkedin_url: "LinkedIn URL",
+  email: "Email address",
 };
 
 export default function AdminFormFields({ section, value, onChange, includeSettings = false }) {
@@ -21,11 +40,17 @@ export default function AdminFormFields({ section, value, onChange, includeSetti
     ? ["hero_video", "hero_image", "home_audio", "whatsapp_number", "contact_email", "address", "opening_hours"]
     : fieldDefinitions[section] || [];
   return (
-    <div className="grid gap-5 md:grid-cols-2">
+    <div className="grid min-w-0 gap-5 md:grid-cols-2 [&>*]:min-w-0">
       {fields.map((name) => {
-        const label = name === "image_url" && section === "gallery"
-          ? "Gallery image"
-          : labels[name] || name.replaceAll("_", " ").replace(/^\w/, (letter) => letter.toUpperCase());
+        const label =
+          name === "image_url" && section === "gallery"
+            ? "Gallery image"
+            : name === "image_url" && section === "menus"
+              ? "Menu cover image"
+              : name === "image_url" && section === "team_members"
+                ? "Team member photo"
+              : labels[name] ||
+                name.replaceAll("_", " ").replace(/^\w/, (letter) => letter.toUpperCase());
         if (["image_url", "thumbnail_url", "hero_image"].includes(name)) {
           return (
             <div key={name} className="md:col-span-2">
@@ -45,6 +70,18 @@ export default function AdminFormFields({ section, value, onChange, includeSetti
             </div>
           );
         }
+        if (name === "file_url" && section === "menus") {
+          return (
+            <div key={name} className="md:col-span-2">
+              <AdminMediaField
+                label={labels[name]}
+                mediaType="pdf"
+                value={value[name] || ""}
+                onChange={(next) => onChange(name, next)}
+              />
+            </div>
+          );
+        }
         if (name === "category") {
           return (
             <label key={name} className="block text-sm font-medium text-slate-700">
@@ -54,14 +91,14 @@ export default function AdminFormFields({ section, value, onChange, includeSetti
                 value={value[name] ?? "Spaces"}
                 onChange={(event) => onChange(name, event.target.value)}
               >
-                {["Dining", "Wellness", "Fitness", "Spaces"].map((category) => (
+                {["Dining", "Wellness", "Fitness", "Spaces", "Indian Cuisine", "Japanese Cuisine", "Thai Cuisine", "Nepalese Cuisine", "Chef Special"].map((category) => (
                   <option key={category} value={category}>{category}</option>
                 ))}
               </select>
             </label>
           );
         }
-        const multiline = ["description", "body", "quote", "excerpt", "address", "opening_hours"].includes(name);
+        const multiline = ["description", "body", "quote", "excerpt", "address", "opening_hours", "biography"].includes(name);
         return (
           <label key={name} className={"block text-sm font-medium text-slate-700 " + (multiline ? "md:col-span-2" : "")}>
             {label}
@@ -75,7 +112,7 @@ export default function AdminFormFields({ section, value, onChange, includeSetti
             ) : (
               <input
                 className="admin-field mt-2"
-                type={name === "contact_email" ? "email" : "text"}
+                type={name === "contact_email" || name === "email" ? "email" : "text"}
                 value={value[name] ?? ""}
                 onChange={(event) => onChange(name, event.target.value)}
               />

@@ -41,6 +41,10 @@ test("preserves supported image and video types and rejects unsupported files", 
     ".mp4",
   );
   assert.equal(
+    getUploadExtension({ mimetype: "application/pdf", originalname: "menu.pdf" }),
+    ".pdf",
+  );
+  assert.equal(
     getUploadExtension({
       mimetype: "application/octet-stream",
       originalname: "unknown.bin",

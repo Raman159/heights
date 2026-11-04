@@ -226,12 +226,16 @@ router.delete(
 
 function validateLengths(data) {
   for (const [key, value] of Object.entries(data)) {
-    const maxLength =
-      key === "body"
-        ? 50000
-        : key === "description" || key === "quote"
-          ? 3000
-          : 1024;
+    const maxLength = {
+      body: 50000,
+      description: 3000,
+      quote: 3000,
+      biography: 3000,
+      full_name: 200,
+      department: 160,
+      designation: 200,
+      email: 254,
+    }[key] || 1024;
     if (String(value).length > maxLength)
       throw Object.assign(new Error("Value too long: " + key), { status: 400 });
   }

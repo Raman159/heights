@@ -78,6 +78,46 @@ CREATE TABLE
     );
 
 CREATE TABLE
+    IF NOT EXISTS menus (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(200) NOT NULL,
+        description TEXT,
+        image_url VARCHAR(1024),
+        file_url VARCHAR(1024) NOT NULL,
+        sort_order INT NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX menus_sort_order_idx (sort_order, id)
+    );
+
+CREATE TABLE
+    IF NOT EXISTS team_members (
+        id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+        full_name VARCHAR(200) NOT NULL,
+        department VARCHAR(160) NOT NULL,
+        designation VARCHAR(200) NOT NULL,
+        biography TEXT,
+        image_url VARCHAR(1024),
+        instagram_url VARCHAR(1024),
+        linkedin_url VARCHAR(1024),
+        email VARCHAR(254),
+        sort_order INT NOT NULL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX team_members_sort_order_idx (sort_order, id)
+    );
+
+INSERT INTO menus (title, description, image_url, file_url)
+SELECT 'Breakfast Menu', 'Start your day with breakfast at HEIGHT.', '/media/breakfast-plate.webp', '/Menu/Breakfast%20Menu.pdf'
+WHERE NOT EXISTS (SELECT 1 FROM menus WHERE file_url = '/Menu/Breakfast%20Menu.pdf');
+
+INSERT INTO menus (title, description, image_url, file_url)
+SELECT 'Menu by Height', 'Explore our food menu for lunch and dinner.', '/media/nepali-thali.webp', '/Menu/Menu%20by%20Height.pdf'
+WHERE NOT EXISTS (SELECT 1 FROM menus WHERE file_url = '/Menu/Menu%20by%20Height.pdf');
+
+INSERT INTO menus (title, description, image_url, file_url)
+SELECT 'Drinks Menu', 'Non-alcoholic and alcoholic beverages.', '/media/orange-mocktail.webp', '/Menu/Drinks%20Menu.pdf'
+WHERE NOT EXISTS (SELECT 1 FROM menus WHERE file_url = '/Menu/Drinks%20Menu.pdf');
+
+CREATE TABLE
     IF NOT EXISTS inquiries (
         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
         type VARCHAR(40) NOT NULL,

@@ -22,11 +22,13 @@ const extensions = {
   "application/mp3": ".mp3",
   "video/mp4": ".mp4",
   "video/webm": ".webm",
+  "application/pdf": ".pdf",
 };
 
 export function getUploadExtension(file) {
   const nameExtension = path.extname(file?.originalname || "").toLowerCase();
   if (nameExtension === ".mp3") return ".mp3";
+  if (nameExtension === ".pdf") return ".pdf";
 
   const mimeType = String(file?.mimetype || "")
     .split(";")[0]
@@ -45,7 +47,7 @@ export const uploadMiddleware = multer({
   fileFilter: (req, file, callback) => {
     if (!getUploadExtension(file)) {
       const error = new Error(
-        "Unsupported file type. Use PNG, JPG, WebP, MP3, MP4, or WebM.",
+        "Unsupported file type. Use PNG, JPG, WebP, PDF, MP3, MP4, or WebM.",
       );
       error.status = 415;
       return callback(error);

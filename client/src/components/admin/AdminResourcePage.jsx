@@ -28,7 +28,7 @@ export default function AdminResourcePage({
   const [dropTargetId, setDropTargetId] = useState(null);
 
   const title = (record) =>
-    record.title || record.author || record.name || "Untitled record";
+    record.title || record.full_name || record.author || record.name || "Untitled record";
 
   async function save(event) {
     event.preventDefault();
@@ -94,7 +94,7 @@ export default function AdminResourcePage({
   }
 
   return (
-    <div className="grid items-start gap-6 xl:grid-cols-[minmax(280px,0.8fr)_minmax(0,1.5fr)]">
+    <div className="grid min-w-0 grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(280px,0.8fr)_minmax(0,1.5fr)]">
 
       {/* Scrollable sidebar */}
       <aside className="rounded-2xl border border-slate-200 bg-white xl:sticky xl:top-6">
@@ -171,6 +171,8 @@ export default function AdminResourcePage({
                   {record.slug ||
                     record.status ||
                     record.video_url ||
+                    record.file_url ||
+                    record.designation ||
                     "Content entry"}
                 </span>
               </button>
@@ -193,7 +195,7 @@ export default function AdminResourcePage({
       </aside>
 
       {/* Main form */}
-      <section className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 md:p-7">
+      <section className="min-w-0 max-w-full rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 md:p-7">
         <div className="mb-6 border-b border-slate-100 pb-5">
           <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#a66d59]">
             {section}

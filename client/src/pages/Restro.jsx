@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { X } from "lucide-react";
+import { mediaUrl } from "../api";
 import { pic } from "../data";
+import useCollection from "../hooks/useCollection";
 import { Reveal } from "../components/Layout";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
 import FeatureAccordion from "../components/site/FeatureAccordion";
-import PackageCard from "../components/site/PackageCard";
+
+const CUISINES = [
+  { title: "Indian Cuisine", fallback: "/media/curry-bowl.webp" },
+  { title: "Japanese Cuisine", fallback: "/media/sushi-platter.webp" },
+  { title: "Thai Cuisine", fallback: "/media/noodle-bowl.webp" },
+  { title: "Nepalese Cuisine", fallback: "/media/nepali-thali.webp" },
+];
 
 const SPACE_ITEMS = [
   {
@@ -36,7 +43,12 @@ const SPACE_ITEMS = [
 ];
 
 export function Restro() {
+  const menus = useCollection("menus");
+  const gallery = useCollection("gallery");
   const [activeMenu, setActiveMenu] = useState(null);
+  const chefSpecials = (gallery || []).filter(
+    (item) => item.category === "Chef Special",
+  );
 
   useEffect(() => {
     if (!activeMenu) return undefined;
@@ -65,38 +77,75 @@ export function Restro() {
           title="Discover a taste of HEIGHT"
         />
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {[
-            {
-              title: "Breakfast Menu",
-              description: "Start your day with breakfast at HEIGHT.",
-              image: "breakfast-plate.webp",
-              file: "/Menu/Breakfast%20Menu.pdf",
-            },
-            {
-              title: "Menu by Height",
-              description: "Explore our food menu for lunch and dinner.",
-              image: "nepali-thali.webp",
-              file: "/Menu/Menu%20by%20Height.pdf",
-            },
-            {
-              title: "Drinks Menu",
-              description: "Non-alcoholic and alcoholic beverages.",
-              image: "orange-mocktail.webp",
-              file: "/Menu/Drinks%20Menu.pdf",
-            },
-          ].map((menu) => (
-            <Reveal key={menu.title}>
-              <PackageCard
-                item={{
-                  ...menu,
-                  image_url: pic(menu.image),
-                  subtitle: menu.description,
-                }}
+          {menus?.filter((menu) => menu.file_url).map((menu) => (
+            <Reveal key={menu.id}>
+              <button
+                type="button"
                 onClick={() => setActiveMenu(menu)}
-                actionLabel="View menu"
-              />
+                className="group relative block aspect-[3/4] w-full overflow-hidden text-left"
+                aria-label={`View ${menu.title}`}
+              >
+                {menu.image_url ? (
+                  <img
+                    src={mediaUrl(menu.image_url)}
+                    alt=""
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-[#182b2a]" />
+                )}
+                <div className="absolute inset-0 bg-black/35 transition-colors duration-500 group-hover:bg-black/55" />
+                <div className="relative z-10 flex h-full flex-col items-center px-8 py-10 text-center text-white">
+                  <div className="flex flex-1 flex-col justify-center">
+                    <h3 className="font-display text-4xl font-light leading-tight">{menu.title}</h3>
+                    {menu.description && <p className="mt-4 text-base text-white/85">{menu.description}</p>}
+                  </div>
+                  <span className="rounded-full border border-white/60 px-5 py-2 text-xs uppercase tracking-[.15em] transition-colors group-hover:bg-white group-hover:text-ink">
+                    View menu
+                  </span>
+                </div>
+              </button>
             </Reveal>
           ))}
+          {menus === null && (
+            <p className="col-span-full py-8 text-center text-muted">
+              Loading menus…
+            </p>
+          )}
+          {menus?.length === 0 && (
+            <p className="col-span-full py-8 text-center text-muted">
+              Menus will be available here soon.
+            </p>
+          )}
+        </div>
+      </section>
+      <section className="bg-cream py-24">
+        <div className="shell">
+          <SectionHead
+            eyebrow="A world of flavour"
+            title="Explore our multi cuisine"
+            body="Four distinct culinary traditions, brought together at HEIGHT."
+          />
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {CUISINES.map((cuisine) => {
+              const photo = gallery?.find((item) => item.category === cuisine.title);
+              return (
+                <article key={cuisine.title} className="group relative aspect-[4/5] overflow-hidden bg-skin">
+                  <img
+                    src={mediaUrl(photo?.image_url || cuisine.fallback)}
+                    alt={photo?.title || cuisine.title}
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                  <h3 className="absolute inset-x-5 bottom-6 font-display text-3xl font-light text-white">
+                    {cuisine.title}
+                  </h3>
+                </article>
+              );
+            })}
+          </div>
         </div>
       </section>
       <section className="py-24 bg-[#f5e8df]">
@@ -113,20 +162,25 @@ export function Restro() {
       <section className="shell py-24">
         <SectionHead eyebrow="From our kitchen" title="Chef’s special" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            "breakfast-spread.webp",
-            "grilled-wrap.webp",
-            "rice-curry.webp",
-            "plated-fish.webp",
-          ].map((p) => (
-            <img
-              key={p}
-              loading="lazy"
-              src={pic(p)}
-              alt="Chef special"
-              className="rounded-[2rem] h-60 w-full"
-            />
-          ))}
+          {chefSpecials.map((item) => (
+              <img
+                key={item.id}
+                loading="lazy"
+                src={mediaUrl(item.image_url)}
+                alt={item.title}
+                className="h-60 w-full rounded-[2rem] object-cover"
+              />
+            ))}
+          {gallery !== null && chefSpecials.length === 0 && (
+            <p className="col-span-full py-8 text-center text-muted">
+              Chef specials will be featured here soon.
+            </p>
+          )}
+          {gallery === null && (
+            <p className="col-span-full py-8 text-center text-muted">
+              Loading chef specials…
+            </p>
+          )}
         </div>
       </section>
       
@@ -158,7 +212,7 @@ export function Restro() {
             </header>
             <iframe
               title={activeMenu.title}
-              src={activeMenu.file + "#toolbar=0&navpanes=0&scrollbar=0"}
+              src={mediaUrl(activeMenu.file_url) + "#toolbar=0&navpanes=0&scrollbar=0"}
               className="min-h-0 w-full flex-1 bg-slate-100"
             />
           </section>

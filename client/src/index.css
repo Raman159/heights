@@ -228,9 +228,21 @@ a {
 }
 .admin-app {
   font-family: "Avenir", sans-serif;
+  box-sizing: border-box;
+}
+.admin-app *,
+.admin-app *::before,
+.admin-app *::after {
+  box-sizing: inherit;
 }
 .admin-app .admin-field {
-  @apply block w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#a66d59] focus:ring-2 focus:ring-[#a66d59]/10;
+  @apply block w-full min-w-0 max-w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#a66d59] focus:ring-2 focus:ring-[#a66d59]/10;
+}
+.admin-app input,
+.admin-app textarea,
+.admin-app select {
+  min-width: 0;
+  max-width: 100%;
 }
 .admin-app .admin-primary-button {
   @apply inline-flex items-center gap-2 rounded-xl bg-[#182b2a] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#29403e] disabled:cursor-not-allowed disabled:opacity-60;

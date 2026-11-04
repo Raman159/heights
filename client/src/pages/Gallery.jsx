@@ -5,7 +5,17 @@ import useCollection from "../hooks/useCollection";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
 
-const CATEGORY_ORDER = ["Dining", "Wellness", "Fitness", "Spaces"];
+const CATEGORY_ORDER = [
+  "Dining",
+  "Indian Cuisine",
+  "Japanese Cuisine",
+  "Thai Cuisine",
+  "Nepalese Cuisine",
+  "Chef Special",
+  "Wellness",
+  "Fitness",
+  "Spaces",
+];
 const PHOTO_ASPECTS = [
   "aspect-[4/5]",
   "aspect-square",

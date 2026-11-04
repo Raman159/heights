@@ -25,6 +25,8 @@ export const allowedTables = [
   "reviews",
   "videos",
   "gallery",
+  "menus",
+  "team_members",
   "inquiries",
 ];
 
@@ -34,6 +36,17 @@ export const tableFields = {
   reviews: ["author", "quote"],
   videos: ["title", "video_url", "thumbnail_url"],
   gallery: ["title", "image_url", "category"],
+  menus: ["title", "description", "image_url", "file_url"],
+  team_members: [
+    "full_name",
+    "department",
+    "designation",
+    "biography",
+    "image_url",
+    "instagram_url",
+    "linkedin_url",
+    "email",
+  ],
 };
 
 export const orderedTables = Object.keys(tableFields);
@@ -44,9 +57,21 @@ export const requiredFields = {
   reviews: ["author", "quote"],
   videos: [],
   gallery: ["title", "image_url", "category"],
+  menus: ["title", "file_url"],
+  team_members: ["full_name", "department", "designation"],
 };
 
-export const galleryCategories = ["Dining", "Wellness", "Fitness", "Spaces"];
+export const galleryCategories = [
+  "Dining",
+  "Wellness",
+  "Fitness",
+  "Spaces",
+  "Indian Cuisine",
+  "Japanese Cuisine",
+  "Thai Cuisine",
+  "Nepalese Cuisine",
+  "Chef Special",
+];
 
 export const settingFields = [
   "hero_video",

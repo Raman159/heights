@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, BadgePercent, FileText, Inbox, MessageSquareQuote, Video, Images } from "lucide-react";
+import { ArrowRight, BadgePercent, FileText, Inbox, MessageSquareQuote, Video, Images, Utensils, UsersRound } from "lucide-react";
 
 const cards = [
   ["offers", "Offers", BadgePercent, "Current promotions"],
@@ -7,6 +7,8 @@ const cards = [
   ["reviews", "Reviews", MessageSquareQuote, "Guest testimonials"],
   ["videos", "Videos", Video, "Media library"],
   ["gallery", "Gallery", Images, "Website photography"],
+  ["menus", "Restaurant menus", Utensils, "Food and drinks menus"],
+  ["team_members", "Our team", UsersRound, "Team profiles"],
 ];
 
 export default function AdminOverview({ stats, onSelect }) {

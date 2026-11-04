@@ -1,86 +1,27 @@
 import React from "react";
 import { pic } from "../data";
+import { mediaUrl } from "../api";
+import useCollection from "../hooks/useCollection";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
 import TeamMemberCard from "../components/site/TeamMemberCard";
 
-const TEAM_MEMBERS = [
-  {
-      id: "aarav-shrestha",
-      fullName: "Aarav Shrestha",
-      department: "Culinary",
-      designation: "Head Chef",
-      biography:
-        "A thoughtful approach to seasonal ingredients and nourishing food shapes every plate from our kitchen.",
-      image: pic("../../public/media/breakfast-plate.webp"),
-      socials: [
-        { type: "instagram", href: "https://instagram.com/aarav.height" },
-        { type: "linkedin", href: "https://linkedin.com/in/aarav-shrestha" },
-        { type: "email", href: "mailto:aarav@height.example" },
-      ],
-      
-},
-  {
-      id: "aarav-shrestha",
-      fullName: "Aarav Shrestha",
-      department: "Culinary",
-      designation: "Head Chef",
-      biography:
-        "A thoughtful approach to seasonal ingredients and nourishing food shapes every plate from our kitchen.",
-      image: pic("../../public/media/breakfast-plate.webp"),
-      socials: [
-        { type: "instagram", href: "https://instagram.com/aarav.height" },
-        { type: "linkedin", href: "https://linkedin.com/in/aarav-shrestha" },
-        { type: "email", href: "mailto:aarav@height.example" },
-      ],
-
-},
-  {
-      id: "aarav-shrestha",
-      fullName: "Aarav Shrestha",
-      department: "Culinary",
-      designation: "Head Chef",
-      biography:
-        "A thoughtful approach to seasonal ingredients and nourishing food shapes every plate from our kitchen.",
-      image: pic("../../public/media/breakfast-plate.webp"),
-      socials: [
-        { type: "instagram", href: "https://instagram.com/aarav.height" },
-        { type: "linkedin", href: "https://linkedin.com/in/aarav-shrestha" },
-        { type: "email", href: "mailto:aarav@height.example" },
-      ],
-
-},
-  {
-    id: "mira-karki",
-    fullName: "Mira Karki",
-    department: "Guest Experience",
-    designation: "Guest Experience Lead",
-    biography:
-      "Mira brings warmth and care to every detail, helping guests feel welcome from the moment they arrive.",
-    image: pic("../../public/media/breakfast-plate.webp"),
-    socials: [
-      { type: "instagram", href: "https://instagram.com/mira.height" },
-      { type: "linkedin", href: "https://linkedin.com/in/mira-karki" },
-      { type: "email", href: "mailto:mira@height.example" },
-    ],
-  },
-  {
-    id: "suman-rai",
-    fullName: "Suman Rai",
-    department: "Fitness & Wellness",
-    designation: "Wellness Coach",
-    biography:
-      "Suman helps people build a balanced movement practice with thoughtful guidance and a focus on lasting wellbeing.",
-    image: pic("../../public/media/breakfast-plate.webp"),
-    socials: [
-      { type: "instagram", href: "https://instagram.com/suman.height" },
-      { type: "linkedin", href: "https://linkedin.com/in/suman-rai" },
-      { type: "email", href: "mailto:suman@height.example" },
-    ],
-  },
-];
-
 export function OurTeam() {
+  const teamMembers = useCollection("team_members");
+  const members = (teamMembers || []).map((member) => ({
+    id: member.id,
+    fullName: member.full_name,
+    department: member.department,
+    designation: member.designation,
+    biography: member.biography,
+    image: mediaUrl(member.image_url) || pic("spa-lobby.webp"),
+    socials: [
+      member.instagram_url && { type: "instagram", href: member.instagram_url },
+      member.linkedin_url && { type: "linkedin", href: member.linkedin_url },
+      member.email && { type: "email", href: `mailto:${member.email}` },
+    ].filter(Boolean),
+  }));
+
   return (
     <>
       <Banner
@@ -99,9 +40,19 @@ export function OurTeam() {
           />
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {TEAM_MEMBERS.map((member, i) => (
+            {members.map((member, i) => (
               <TeamMemberCard key={member.id} member={member} index={i} />
             ))}
+            {teamMembers === null && (
+              <p className="col-span-full py-12 text-center text-muted">
+                Loading our team…
+              </p>
+            )}
+            {teamMembers?.length === 0 && (
+              <p className="col-span-full py-12 text-center text-muted">
+                Our team profiles will be here soon.
+              </p>
+            )}
           </div>
         </div>
       </section>

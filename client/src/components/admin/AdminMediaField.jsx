@@ -9,6 +9,7 @@ export default function AdminMediaField({ label, value, onChange, mediaType = "i
   const [busy, setBusy] = useState(false);
   const isVideo = mediaType === "video";
   const isAudio = mediaType === "audio";
+  const isPdf = mediaType === "pdf";
 
   async function handleFile(file) {
     if (!file) return;
@@ -34,6 +35,15 @@ export default function AdminMediaField({ label, value, onChange, mediaType = "i
             <video src={mediaUrl(value)} controls className="max-h-64 w-full bg-black object-contain" />
           ) : isAudio ? (
             <audio src={mediaUrl(value)} controls className="w-full p-4" />
+          ) : isPdf ? (
+            <a
+              href={mediaUrl(value)}
+              target="_blank"
+              rel="noreferrer"
+              className="block p-5 text-sm font-semibold text-[#95614e] underline"
+            >
+              Open uploaded PDF
+            </a>
           ) : (
             <img src={mediaUrl(value)} alt="" className="h-48 w-full object-cover" />
           )}
@@ -54,7 +64,7 @@ export default function AdminMediaField({ label, value, onChange, mediaType = "i
           {busy ? <LoaderCircle className="animate-spin text-[#9a6854]" size={22} /> : <ImagePlus className="text-[#9a6854]" size={22} />}
           <span className="mt-2 text-sm font-semibold text-slate-700">{busy ? "Uploading…" : "Choose a file to upload"}</span>
           <span className="mt-1 text-xs text-slate-500">
-            {isVideo ? "MP4 or WebM, up to 80 MB" : isAudio ? "MP3 audio, up to 80 MB" : "PNG, JPG or WebP"}
+            {isVideo ? "MP4 or WebM, up to 80 MB" : isAudio ? "MP3 audio, up to 80 MB" : isPdf ? "PDF, up to 80 MB" : "PNG, JPG or WebP"}
           </span>
         </button>
       )}
@@ -66,7 +76,7 @@ export default function AdminMediaField({ label, value, onChange, mediaType = "i
       <input
         ref={input}
         type="file"
-        accept={isVideo ? "video/mp4,video/webm" : isAudio ? ".mp3,audio/mpeg,audio/mp3,audio/x-mpeg,audio/x-mpeg-3,audio/x-mp3" : "image/png,image/jpeg,image/webp"}
+        accept={isVideo ? "video/mp4,video/webm" : isAudio ? ".mp3,audio/mpeg,audio/mp3,audio/x-mpeg,audio/x-mpeg-3,audio/x-mp3" : isPdf ? "application/pdf,.pdf" : "image/png,image/jpeg,image/webp"}
         className="hidden"
         onChange={(event) => handleFile(event.target.files?.[0])}
       />
