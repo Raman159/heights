@@ -102,14 +102,23 @@ export default function Inquiry({
         "grid gap-4 " +
         (compact
           ? ""
-          : "bg-white p-6 md:p-10 rounded-[2rem] shadow-sm")
+          : "rounded-[2rem] border border-ink/5 bg-white/80 p-6 shadow-[0_30px_80px_-55px_rgba(48,39,37,.4)] md:p-10")
       }
     >
+      <div className="mb-3 border-b border-ink/10 pb-6">
+        <p className="eyebrow">A note to our team</p>
+        <h2 className="font-display mt-3 text-3xl font-light leading-[1.1] tracking-[-.04em] md:text-[2.4rem]">
+          Tell us what you have in mind.
+        </h2>
+        <p className="mt-4 max-w-lg text-[1.05rem] font-light leading-8 text-ink/70">
+          Share a few details and we’ll be in touch to help plan your experience.
+        </p>
+      </div>
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="text-sm">
+        <label className="font-display text-base font-light tracking-wide text-ink">
           Full Name *
           <input
-            className="field mt-2"
+            className="field mt-2 font-sans text-sm font-normal tracking-normal"
             name="name"
             autoComplete="name"
             maxLength={120}
@@ -120,10 +129,10 @@ export default function Inquiry({
           />
         </label>
 
-        <label className="text-sm">
+        <label className="font-display text-base font-light tracking-wide text-ink">
           Email *
           <input
-            className="field mt-2"
+            className="field mt-2 font-sans text-sm font-normal tracking-normal"
             name="email"
             type="email"
             autoComplete="email"
@@ -136,10 +145,10 @@ export default function Inquiry({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <label className="text-sm">
+        <label className="font-display text-base font-light tracking-wide text-ink">
           Phone *
           <input
-            className="field mt-2"
+            className="field mt-2 font-sans text-sm font-normal tracking-normal"
             name="phone"
             type="tel"
             autoComplete="tel"
@@ -155,10 +164,10 @@ export default function Inquiry({
           />
         </label>
 
-        <label className="text-sm">
+        <label className="font-display text-base font-light tracking-wide text-ink">
           Number of people *
           <input
-            className="field mt-2"
+            className="field mt-2 font-sans text-sm font-normal tracking-normal"
             name="number_of_people"
             type="number"
             inputMode="numeric"
@@ -171,11 +180,11 @@ export default function Inquiry({
           />
         </label>
 
-        <label className="text-sm">
+        <label className="font-display text-base font-light tracking-wide text-ink">
           Preferred date
           <input
             type="date"
-            className="field mt-2"
+            className="field mt-2 font-sans text-sm font-normal tracking-normal"
             name="preferred_date"
             min={minDate}
             value={values.preferred_date}
@@ -184,10 +193,10 @@ export default function Inquiry({
         </label>
       </div>
 
-      <label className="text-sm">
+      <label className="font-display text-base font-light tracking-wide text-ink">
         Service or package
         <input
-          className="field mt-2"
+          className="field mt-2 font-sans text-sm font-normal tracking-normal"
           name="service"
           type="text"
           maxLength={120}
@@ -197,10 +206,10 @@ export default function Inquiry({
         />
       </label>
 
-      <label className="text-sm">
+      <label className="font-display text-base font-light tracking-wide text-ink">
         Your message *
         <textarea
-          className="field mt-2"
+          className="field mt-2 font-sans text-sm font-normal leading-7 tracking-normal"
           name="message"
           maxLength={2000}
           minLength={10}

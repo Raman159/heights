@@ -236,6 +236,7 @@ router.delete(
 
 function validateLengths(data) {
   for (const [key, value] of Object.entries(data)) {
+    if (value === null) continue;
     const maxLength = {
       body: 50000,
       spa_intro: 5000,
@@ -259,6 +260,43 @@ function validateLengths(data) {
 }
 
 async function validateContent(table, data) {
+  if (table === "offers") {
+    const priceFields = ["original_price", "discounted_price"];
+    for (const key of priceFields) {
+      if (data[key] === "") data[key] = null;
+    }
+
+    const hasOriginalPrice =
+      data.original_price !== undefined && data.original_price !== null;
+    const hasDiscountedPrice =
+      data.discounted_price !== undefined && data.discounted_price !== null;
+    if (hasOriginalPrice !== hasDiscountedPrice)
+      throw Object.assign(
+        new Error("Enter both original and discounted prices"),
+        { status: 400 },
+      );
+    if (hasOriginalPrice) {
+      const validPrice = (value) =>
+        /^\d{1,8}(?:\.\d{1,2})?$/.test(String(value)) &&
+        Number(value) > 0;
+      if (
+        !validPrice(data.original_price) ||
+        !validPrice(data.discounted_price)
+      )
+        throw Object.assign(
+          new Error("Prices must be positive values with up to two decimals"),
+          { status: 400 },
+        );
+      if (Number(data.discounted_price) >= Number(data.original_price))
+        throw Object.assign(
+          new Error("Discounted price must be less than the original price"),
+          { status: 400 },
+        );
+      data.original_price = Number(data.original_price).toFixed(2);
+      data.discounted_price = Number(data.discounted_price).toFixed(2);
+    }
+  }
+
   if (table === "spa_treatments") {
     if (data.category_id !== undefined) {
       const categoryId = Number(data.category_id);

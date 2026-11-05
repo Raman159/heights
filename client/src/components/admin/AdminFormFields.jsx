@@ -2,7 +2,14 @@ import React from "react";
 import AdminMediaField from "./AdminMediaField";
 
 export const fieldDefinitions = {
-  offers: ["title", "description", "image_url", "link_url"],
+  offers: [
+    "title",
+    "description",
+    "image_url",
+    "link_url",
+    "original_price",
+    "discounted_price",
+  ],
   posts: ["title", "slug", "excerpt", "body", "image_url"],
   reviews: ["author", "quote"],
   videos: ["title", "video_url", "thumbnail_url"],
@@ -47,32 +54,40 @@ const labels = {
   category_id: "Spa category",
   slug: "Page URL slug",
   pricing: "Duration and price options (JSON)",
+  original_price: "Original price (Rs.)",
+  discounted_price: "Discounted price (Rs.)",
 };
+
+export const spaSettingFields = [
+  "spa_title",
+  "spa_tagline",
+  "spa_intro_heading",
+  "spa_intro",
+  "spa_hero_image",
+  "spa_intro_image",
+];
+
+export const websiteSettingFields = [
+  "hero_video",
+  "hero_image",
+  "home_audio",
+  "whatsapp_number",
+  "contact_email",
+  "address",
+  "opening_hours",
+];
 
 export default function AdminFormFields({
   section,
   value,
   onChange,
   includeSettings = false,
+  settingsFields,
   categories = [],
 }) {
-  const fields = includeSettings
-    ? [
-        "hero_video",
-        "hero_image",
-        "home_audio",
-        "whatsapp_number",
-        "contact_email",
-        "address",
-        "opening_hours",
-        "spa_title",
-        "spa_tagline",
-        "spa_intro_heading",
-        "spa_intro",
-        "spa_hero_image",
-        "spa_intro_image",
-      ]
-    : fieldDefinitions[section] || [];
+  const fields = settingsFields || (includeSettings
+    ? [...websiteSettingFields, ...spaSettingFields]
+    : fieldDefinitions[section] || []);
   return (
     <div className="grid min-w-0 gap-5 md:grid-cols-2 [&>*]:min-w-0">
       {fields.map((name) => {
@@ -182,6 +197,11 @@ export default function AdminFormFields({
                 Enter multiple numbers separated by commas or new lines. Only 10-digit numbers link to WhatsApp.
               </span>
             )}
+            {name === "original_price" && (
+              <span className="mt-1 block text-xs font-normal text-slate-500">
+                Enter both prices; the discounted price must be lower.
+              </span>
+            )}
             {name === "pricing" && (
               <span className="mt-1 block text-xs font-normal text-slate-500">
                 Use JSON, for example:{" "}
@@ -198,7 +218,27 @@ export default function AdminFormFields({
             ) : (
               <input
                 className="admin-field mt-2"
-                type={name === "contact_email" || name === "email" ? "email" : "text"}
+                type={
+                  ["original_price", "discounted_price"].includes(name)
+                    ? "number"
+                    : name === "contact_email" || name === "email"
+                      ? "email"
+                      : "text"
+                }
+                min={
+                  ["original_price", "discounted_price"].includes(name)
+                    ? "0.01"
+                    : undefined
+                }
+                step={
+                  ["original_price", "discounted_price"].includes(name)
+                    ? "0.01"
+                    : undefined
+                }
+                required={
+                  section === "offers" &&
+                  ["original_price", "discounted_price"].includes(name)
+                }
                 value={value[name] ?? ""}
                 onChange={(event) => onChange(name, event.target.value)}
               />

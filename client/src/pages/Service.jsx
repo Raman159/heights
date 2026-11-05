@@ -53,6 +53,7 @@ export function Service() {
         title={service.title}
         body={service.description}
         image={image}
+        compact
       />
       <section className="shell py-24 grid md:grid-cols-2 gap-16 items-center">
         <Reveal>

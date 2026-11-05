@@ -34,7 +34,14 @@ export const allowedTables = [
 ];
 
 export const tableFields = {
-  offers: ["title", "description", "image_url", "link_url"],
+  offers: [
+    "title",
+    "description",
+    "image_url",
+    "link_url",
+    "original_price",
+    "discounted_price",
+  ],
   posts: ["title", "slug", "excerpt", "body", "image_url"],
   reviews: ["author", "quote"],
   videos: ["title", "video_url", "thumbnail_url"],

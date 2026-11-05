@@ -163,14 +163,26 @@ export function Restro() {
         <SectionHead eyebrow="From our kitchen" title="Chef’s special" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {chefSpecials.map((item) => (
-              <img
+            <article
                 key={item.id}
-                loading="lazy"
-                src={mediaUrl(item.image_url)}
-                alt={item.title}
-                className="h-60 w-full rounded-[2rem] object-cover"
-              />
-            ))}
+                tabIndex={0}
+                className="group relative h-60 overflow-hidden rounded-[2rem] bg-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-clay"
+            >
+                <img
+                  loading="lazy"
+                  src={mediaUrl(item.image_url)}
+                  alt={item.title}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100"
+                />
+                <h3 className="absolute inset-x-4 bottom-4 translate-y-2 text-center text-lg font-medium text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                  {item.title}
+                </h3>
+            </article>
+          ))}
           {gallery !== null && chefSpecials.length === 0 && (
             <p className="col-span-full py-8 text-center text-muted">
               Chef specials will be featured here soon.

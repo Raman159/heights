@@ -10,7 +10,7 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminSettings from "../components/admin/AdminSettings";
 import AdminSecurity from "../components/admin/AdminSecurity";
 
-const sections = ["offers", "posts", "reviews", "videos", "gallery", "menus", "team_members", "services", "spa_categories", "spa_treatments", "inquiries", "settings", "security"];
+const sections = ["offers", "posts", "reviews", "videos", "gallery", "menus", "team_members", "services", "spa_content", "spa_categories", "spa_treatments", "inquiries", "settings", "security"];
 
 export default function Admin() {
   const notify = useToast();
@@ -47,7 +47,7 @@ export default function Admin() {
           ),
         );
         setItems({ offers, posts, reviews, videos, gallery, menus, team_members, inquiries });
-      } else if (section === "settings") {
+      } else if (section === "settings" || section === "spa_content") {
         setItems(await get("/admin/settings"));
       } else if (section !== "security") {
         setItems(await get("/admin/" + section));
@@ -89,6 +89,8 @@ export default function Admin() {
     ? "Overview"
     : section === "security"
       ? "Security"
+      : section === "spa_content"
+        ? "Spa page content"
       : section.charAt(0).toUpperCase() + section.slice(1);
   const records = Array.isArray(items) ? items : [];
 
@@ -127,11 +129,14 @@ export default function Admin() {
           {section === "settings" && (
             <AdminSettings settings={items} onSaved={refresh} />
           )}
+          {section === "spa_content" && (
+            <AdminSettings settings={items} onSaved={refresh} spaOnly />
+          )}
           {section === "security" && <AdminSecurity />}
           {section === "inquiries" && (
             <AdminInquiries records={records} loading={loading} onChanged={refresh} />
           )}
-          {sections.includes(section) && !["settings", "security", "inquiries"].includes(section) && (
+          {sections.includes(section) && !["settings", "spa_content", "security", "inquiries"].includes(section) && (
             <AdminResourcePage
               key={section}
               section={section}

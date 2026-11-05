@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { mediaUrl } from "../../api";
 import PackageCard from "./PackageCard";
 import BrandButton from "./BrandButton";
+import { formatOfferPrice, getOfferPrices } from "../../utils/offerPricing";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -87,6 +88,7 @@ export default function FeatureAccordion({
             const shortTitle = getShortTitle(item);
             const description = item.description || item.subtitle || "";
             const image = getImage(item);
+            const prices = getOfferPrices(item);
 
             return (
               <Link
@@ -117,6 +119,22 @@ export default function FeatureAccordion({
                   }`}
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+
+                {prices && (
+                  <p
+                    aria-hidden={!expanded}
+                    className={`pointer-events-none absolute inset-x-5 top-5 z-20 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-full bg-black/55 px-3 py-2 text-white backdrop-blur-sm transition-opacity duration-300 xl:inset-x-8 xl:top-8 ${
+                      expanded ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <span className="text-xs text-white/75 line-through">
+                      Rs. {formatOfferPrice(prices.original)}
+                    </span>
+                    <span className="text-sm font-semibold">
+                      Rs. {formatOfferPrice(prices.discounted)}
+                    </span>
+                  </p>
+                )}
 
                 <div
                   aria-hidden={!expanded}

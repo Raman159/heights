@@ -13,7 +13,7 @@ import {
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 
-import { get } from "../../api";
+import { get, mediaUrl } from "../../api";
 import { getTenDigitPhoneNumber, parsePhoneNumbers } from "../../utils/phoneNumbers";
 import { useToast } from "../Toast";
 import BrandButton from "./BrandButton";
@@ -29,33 +29,11 @@ const LINKS = [
   ["Contact Us", "/contact"],
 ];
 
-// Editorial category cards.
-// These are navigation categories, not invented service packages.
-const FEATURES = [
-  {
-    title: "The Art of Relaxation",
-    subtitle: "Explore our spa experiences",
-    image: "/media/spa-treatment.webp",
-    to: "/spa",
-  },
-  {
-    title: "Strength & Movement",
-    subtitle: "Explore gym and fitness",
-    image: "/media/gym-interior.webp",
-    to: "/gym",
-  },
-  {
-    title: "The Dining Experience",
-    subtitle: "Discover our restaurant",
-    image: "/media/terrace-lounge.webp",
-    to: "/restro",
-  },
-  {
-    title: "Moments to Remember",
-    subtitle: "Explore events and celebrations",
-    image: "/media/infinity-pool.webp",
-    to: "/events",
-  },
+const FEATURED_TREATMENT_SLUGS = [
+  "ayurvedic-massage",
+  "thai-healing-therapy",
+  "head-and-shoulder-massage",
+  "swedish-massage",
 ];
 
 function RevealBlock({ children, delay = 0, className = "" }) {
@@ -127,7 +105,7 @@ function FeatureCard({ item, index }) {
         {/* Card content */}
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5 sm:p-6">
           <div className="min-w-0">
-            <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-white/70">
+            <p className="mb-2 line-clamp-2 text-[10px] uppercase tracking-[0.2em] text-white/70">
               {item.subtitle}
             </p>
 
@@ -150,6 +128,7 @@ export default function Footer() {
   const reduceMotion = useReducedMotion();
 
   const [contact, setContact] = useState(null);
+  const [features, setFeatures] = useState([]);
 
   // Preserve the existing backend settings call.
   useEffect(() => {
@@ -165,6 +144,42 @@ export default function Footer() {
         if (mounted) {
           notify(error.message, "error");
         }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [notify]);
+
+  useEffect(() => {
+    let mounted = true;
+    get("/public/spa")
+      .then((data) => {
+        if (!mounted) return;
+        const treatments = data.treatments || [];
+        const prioritized = FEATURED_TREATMENT_SLUGS
+          .map((slug) => treatments.find((treatment) => treatment.slug === slug))
+          .filter(Boolean);
+        const selected = [
+          ...prioritized,
+          ...treatments.filter(
+            (treatment) =>
+              !FEATURED_TREATMENT_SLUGS.includes(treatment.slug) &&
+              !prioritized.some((featured) => featured.id === treatment.id),
+          ),
+        ].slice(0, 4);
+
+        setFeatures(
+          selected.map((treatment) => ({
+            title: treatment.title,
+            subtitle: treatment.category || "Spa treatment",
+            image: mediaUrl(treatment.image_url) || "/media/spa-treatment.webp",
+            to: "/spa/" + encodeURIComponent(treatment.slug),
+          })),
+        );
+      })
+      .catch((error) => {
+        if (mounted) notify(error.message, "error");
       });
 
     return () => {
@@ -315,7 +330,7 @@ export default function Footer() {
             </RevealBlock>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-2 md:gap-4">
-              {FEATURES.map((item, index) => (
+              {features.map((item, index) => (
                 <FeatureCard
                   key={item.to}
                   item={item}

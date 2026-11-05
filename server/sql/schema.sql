@@ -31,6 +31,8 @@ CREATE TABLE
         description TEXT,
         image_url VARCHAR(1024),
         link_url VARCHAR(1024),
+        original_price DECIMAL(10, 2) NULL,
+        discounted_price DECIMAL(10, 2) NULL,
         sort_order INT DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );

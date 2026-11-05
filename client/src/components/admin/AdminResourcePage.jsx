@@ -47,10 +47,7 @@ export default function AdminResourcePage({
 
     try {
       const content = Object.fromEntries(
-        Object.keys(blank(section)).map((key) => [
-          key,
-          current[key] ?? "",
-        ])
+        Object.keys(blank(section)).map((key) => [key, current[key] ?? ""])
       );
 
       if (current.id) {

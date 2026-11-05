@@ -1,7 +1,7 @@
 import React from "react";
 import { mediaUrl } from "../../api";
 
-export default function Banner({ tag, title, body, image, children }) {
+export default function Banner({ tag, title, body, image, children, compact = false }) {
   return (
     <section className="banner relative isolate flex min-h-[640px] h-[92svh] w-full overflow-hidden bg-neutral-900 text-white">
       <style>{`
@@ -14,6 +14,13 @@ export default function Banner({ tag, title, body, image, children }) {
         }
         .banner .banner-rise-late {
           animation: banner-rise 1.1s cubic-bezier(.2,.7,.2,1) .7s both;
+        }
+        .banner-scrollable {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .banner-scrollable::-webkit-scrollbar {
+          display: none;
         }
         @keyframes banner-settle {
           from { transform: scale(1.08); }
@@ -56,12 +63,26 @@ export default function Banner({ tag, title, body, image, children }) {
         )}
 
         <div className="grid items-end gap-10 md:grid-cols-12 md:gap-8">
-          <h1 className="banner-rise-late text-balance text-[clamp(2.75rem,7.2vw,6.75rem)] font-light leading-[0.98] tracking-[-0.02em] md:col-span-8">
+          <h1
+            tabIndex={compact ? 0 : undefined}
+            className={`banner-rise-late min-w-0 break-words text-balance font-light leading-[0.98] tracking-[-0.02em] md:col-span-8 ${
+            compact
+              ? "banner-scrollable max-h-[5em] overflow-y-auto overscroll-contain text-[clamp(2.25rem,5.2vw,5rem)]"
+              : "text-[clamp(2.75rem,7.2vw,6.75rem)]"
+          }`}
+          >
             {title}
           </h1>
 
-          <div className="banner-rise-late md:col-span-4 md:border-l md:border-white/30 md:pl-8">
-            <p className="max-w-sm text-[15px] leading-7 text-white/80">
+          <div className="banner-rise-late min-w-0 md:col-span-4 md:border-l md:border-white/30 md:pl-8">
+            <p
+              tabIndex={compact ? 0 : undefined}
+              className={`max-w-sm text-[15px] leading-7 text-white/80 ${
+              compact
+                ? "banner-scrollable max-h-36 overflow-y-auto overscroll-contain pr-2"
+                : ""
+            }`}
+            >
               {body}
             </p>
             {children ? (

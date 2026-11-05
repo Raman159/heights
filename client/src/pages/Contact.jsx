@@ -36,12 +36,14 @@ export function Contact() {
       <section className="shell py-24 grid lg:grid-cols-[.75fr_1.25fr] gap-16">
         <div>
           <p className="eyebrow mb-5">Get in touch</p>
-          <h2 className="h2 mb-6">We'd love to hear from you.</h2>
-          <p className="text-muted leading-8">
+          <h2 className="font-display mb-6 text-4xl font-light leading-[1.1] tracking-[-.04em] md:text-[2.8rem]">
+            We'd love to hear from you.
+          </h2>
+          <p className="max-w-lg text-[1.08rem] font-light leading-[2] text-ink/70">
             Tell us how we can make your visit memorable. Our team will respond
             to your enquiry directly.
           </p>
-          <div className="mt-8 space-y-4 text-muted">
+          <div className="mt-8 space-y-5 text-[1.02rem] font-light leading-8 text-ink/75">
             {contact?.whatsapp_number && (
               <p>
                 <span className="font-semibold text-ink">Phone:</span>

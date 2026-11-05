@@ -6,11 +6,13 @@ import Banner from "../components/site/Banner";
 import Card from "../components/site/PackageCard";
 import EmptyState from "../components/site/EmptyState";
 import useCollection from "../hooks/useCollection";
+import { formatOfferPrice, getOfferPrices } from "../utils/offerPricing";
 
 export function Offers() {
   let offers = useCollection("offers");
   let { id } = useParams();
   let item = id && offers ? offers.find((x) => String(x.id) === id) : null;
+  let prices = getOfferPrices(item);
   return (
     <>
       <Banner
@@ -25,7 +27,19 @@ export function Offers() {
       <section className="shell py-24">
         {offers === null ? null : item ? (
           <div className="max-w-3xl mx-auto">
-            <p className="text-muted leading-8 mb-10">{item.description}</p>
+            {prices && (
+              <div className="mb-8 flex flex-wrap items-baseline gap-4">
+                <span className="text-lg text-muted line-through">
+                  Original price: Rs. {formatOfferPrice(prices.original)}
+                </span>
+                <span className="text-2xl font-semibold text-ink">
+                  Now: Rs. {formatOfferPrice(prices.discounted)}
+                </span>
+              </div>
+            )}
+            <p className="font-display mb-10 text-xl font-light leading-[1.8] tracking-[-.015em] text-ink/75 md:text-2xl">
+              {item.description}
+            </p>
             <Inquiry service={item.title} type="offer" />
           </div>
         ) : id || offers.length === 0 ? (

@@ -307,7 +307,7 @@ function Article({ item, more, prev, next }) {
             )}
             {toc.length >= 3 && <Toc items={toc} />}
             <BrandButton onClick={share} size="small" tone="dark">
-              {copied ? "Link copied" : "Share this story"}
+              {copied ? "Link copied" : "Share story"}
             </BrandButton>
           </div>
         </aside>
@@ -390,6 +390,7 @@ export function Blog() {
         title={item?.title || "Stories of mindful living."}
         body={(item && excerptOf(item)) || "Notes on wellness, restoration, food and intentional living."}
         image={item?.image_url || pic("spa-lobby.webp")}
+        compact={Boolean(item)}
       />
 
       <section className="shell py-20 md:py-28">

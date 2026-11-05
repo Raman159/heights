@@ -2,8 +2,10 @@ import React from "react";
 import { Link } from "react-router-dom";
 import BrandButton from "./BrandButton";
 import { mediaUrl } from "../../api";
+import { formatOfferPrice, getOfferPrices } from "../../utils/offerPricing";
 
 export default function PackageCard({ item, to }) {
+  const prices = getOfferPrices(item);
   return (
     <Link
       to={to}
@@ -18,6 +20,17 @@ export default function PackageCard({ item, to }) {
 
       {/* Overlay: slightly dark by default, darker on hover */}
       <div className="absolute inset-0 bg-black/30 transition-colors duration-500 group-hover:bg-black/55" />
+
+      {prices && (
+        <p className="absolute inset-x-4 top-4 z-20 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-full bg-black/55 px-3 py-2 text-white backdrop-blur-sm sm:inset-x-6 sm:top-6">
+          <span className="text-xs text-white/75 line-through">
+            Original Rs. {formatOfferPrice(prices.original)}
+          </span>
+          <span className="text-sm font-semibold">
+            Now Rs. {formatOfferPrice(prices.discounted)}
+          </span>
+        </p>
+      )}
 
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col items-center px-8 py-10 text-center text-white">

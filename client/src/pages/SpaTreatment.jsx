@@ -58,6 +58,7 @@ export function SpaTreatment() {
         title={treatment.title}
         body={treatment.description || "A restorative experience at Spa at The Height."}
         image={image}
+        compact
       />
       <section className="shell py-20">
         <div className="grid items-start gap-12 lg:grid-cols-[1.1fr_.9fr]">

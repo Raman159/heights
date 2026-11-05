@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
-import FeatureAccordion from "../site/FeatureAccordion";
+import PackageCard from "../site/PackageCard";
 import EmptyState from "../site/EmptyState";
 import BrandButton from "../site/BrandButton";
 import { SectionRule, SectionIntro } from "./SectionDetails";
@@ -69,7 +69,7 @@ export default function OffersSection({ offers }) {
           <EmptyState />
         ) : (
           <>
-            {/* Animated accordion */}
+            {/* Offer cards keep each experience and its pricing visible together. */}
             <motion.div
               initial={reduceMotion ? false : { opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -82,12 +82,15 @@ export default function OffersSection({ offers }) {
                 ease,
               }}
             >
-              <FeatureAccordion
-                items={visibleOffers}
-                getTo={(offer) => `/offers/${offer.id}`}
-                actionLabel="More info"
-                eyebrow="A HEIGHT EXPERIENCE"
-              />
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {visibleOffers.map((offer) => (
+                  <PackageCard
+                    key={offer.id}
+                    item={{ ...offer, subtitle: offer.description }}
+                    to={`/offers/${offer.id}`}
+                  />
+                ))}
+              </div>
 
               {safeOffers.length > ITEMS_PER_PAGE && (
                 <div className="mt-8 flex justify-center">
