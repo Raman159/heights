@@ -6,6 +6,7 @@ import useCollection from "../hooks/useCollection";
 import { Reveal } from "../components/Layout";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
+import RichText from "../components/site/RichText";
 import FeatureAccordion from "../components/site/FeatureAccordion";
 
 const CUISINES = [
@@ -99,7 +100,13 @@ export function Restro() {
                 <div className="relative z-10 flex h-full flex-col items-center px-8 py-10 text-center text-white">
                   <div className="flex flex-1 flex-col justify-center">
                     <h3 className="font-display text-4xl font-light leading-tight">{menu.title}</h3>
-                    {menu.description && <p className="mt-4 text-base text-white/85">{menu.description}</p>}
+                    {menu.description && (
+                      <RichText
+                        text={menu.description}
+                        allowLinks={false}
+                        className="mt-4 text-base text-white/85"
+                      />
+                    )}
                   </div>
                   <span className="rounded-full border border-white/60 px-5 py-2 text-xs uppercase tracking-[.15em] transition-colors group-hover:bg-white group-hover:text-ink">
                     View menu

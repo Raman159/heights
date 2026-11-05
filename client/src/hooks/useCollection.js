@@ -2,25 +2,33 @@ import { useEffect, useState } from "react";
 import { get } from "../api";
 import { useToast } from "../components/Toast";
 
-export default function useCollection(key) {
+export default function useCollection(key, { refreshOnFocus = false } = {}) {
   const [value, setValue] = useState(null);
   const notify = useToast();
   useEffect(() => {
     let active = true;
-    get("/public/" + key)
-      .then((r) => {
-        if (!Array.isArray(r)) throw new Error("Invalid collection response");
-        if (active) setValue(r);
-      })
-      .catch((error) => {
-        if (active) {
-          setValue([]);
-          notify(error.message, "error");
-        }
-      });
+    let requestId = 0;
+    const load = () => {
+      const currentRequestId = ++requestId;
+      get("/public/" + key, { cache: "no-store" })
+        .then((r) => {
+          if (!Array.isArray(r)) throw new Error("Invalid collection response");
+          if (active && currentRequestId === requestId) setValue(r);
+        })
+        .catch((error) => {
+          if (active && currentRequestId === requestId) {
+            setValue([]);
+            notify(error.message, "error");
+          }
+        });
+    };
+
+    load();
+    if (refreshOnFocus) window.addEventListener("focus", load);
     return () => {
       active = false;
+      if (refreshOnFocus) window.removeEventListener("focus", load);
     };
-  }, [key, notify]);
+  }, [key, notify, refreshOnFocus]);
   return value;
 }

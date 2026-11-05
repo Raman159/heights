@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { pic } from "../../data";
 import { mediaUrl } from "../../api";
+import RichText from "./RichText";
 
 export default function Card({ item, to }) {
   const href = to || "/services/" + item.slug;
@@ -58,9 +59,11 @@ export default function Card({ item, to }) {
         />
 
         {text && (
-          <p className="mt-4 line-clamp-3 text-sm leading-7 text-muted">
-            {text}
-          </p>
+          <RichText
+            text={text}
+            allowLinks={false}
+            className="mt-4 line-clamp-3 text-sm leading-7 text-muted"
+          />
         )}
 
         <div className="mt-auto flex items-center justify-between pt-6">

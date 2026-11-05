@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { mediaUrl } from "../../api";
 import PackageCard from "./PackageCard";
 import BrandButton from "./BrandButton";
+import RichText from "./RichText";
 import { formatOfferPrice, getOfferPrices } from "../../utils/offerPricing";
 
 const ease = [0.22, 1, 0.36, 1];
@@ -57,6 +58,8 @@ export default function FeatureAccordion({
   getTo,
   actionLabel = "More info",
   eyebrow = "A HEIGHT EXPERIENCE",
+  priceClassName = "",
+  pricePosition = "top-center",
 }) {
   const [active, setActive] = useState(0);
   const reduceMotion = useReducedMotion();
@@ -89,6 +92,10 @@ export default function FeatureAccordion({
             const description = item.description || item.subtitle || "";
             const image = getImage(item);
             const prices = getOfferPrices(item);
+            const pricePositionClass =
+              pricePosition === "bottom-right"
+                ? "left-auto right-5 top-auto bottom-5 w-fit xl:right-8 xl:bottom-8"
+                : "inset-x-5 top-5 xl:inset-x-8 xl:top-8";
 
             return (
               <Link
@@ -123,7 +130,9 @@ export default function FeatureAccordion({
                 {prices && (
                   <p
                     aria-hidden={!expanded}
-                    className={`pointer-events-none absolute inset-x-5 top-5 z-20 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-full bg-black/55 px-3 py-2 text-white backdrop-blur-sm transition-opacity duration-300 xl:inset-x-8 xl:top-8 ${
+                    className={`pointer-events-none absolute z-20 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-full px-3 py-2 text-white transition-opacity duration-300 ${pricePositionClass} ${
+                      priceClassName || "bg-black/55 backdrop-blur-sm"
+                    } ${
                       expanded ? "opacity-100" : "opacity-0"
                     }`}
                   >
@@ -150,9 +159,11 @@ export default function FeatureAccordion({
                       {title}
                     </h3>
                     {description && (
-                      <p className="mt-5 line-clamp-4 max-w-lg text-sm leading-7 text-white/85">
-                        {description}
-                      </p>
+                      <RichText
+                        text={description}
+                        allowLinks={false}
+                        className="mt-5 line-clamp-4 max-w-lg text-sm leading-7 text-white/85"
+                      />
                     )}
                     <BrandButton
                       as="span"
@@ -208,6 +219,7 @@ export default function FeatureAccordion({
             }}
             to={getTo(item)}
             actionLabel={actionLabel}
+            priceClassName={priceClassName}
           />
         ))}
       </div>

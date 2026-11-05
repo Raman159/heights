@@ -11,6 +11,7 @@ import {
   Utensils,
   UsersRound,
   Video,
+  CalendarDays,
 } from "lucide-react";
 
 const content = [
@@ -21,6 +22,7 @@ const content = [
   ["videos", "Videos", Video, "Media library"],
   ["reviews", "Reviews", MessageSquareQuote, "Guest testimonials"],
   ["team_members", "Our team", UsersRound, "Team profiles"],
+  ["events", "Events", CalendarDays, "Event detail pages"],
 ];
 
 const greeting = () => {

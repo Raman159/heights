@@ -2,6 +2,7 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { mediaUrl } from "../../api";
+import RichText from "./RichText";
 
 /* ---------- helpers (shared with the Blog page) ---------- */
 
@@ -23,13 +24,32 @@ const nodeText = (n) =>
 
 /* Headings (## only) for the table of contents */
 export const getHeadings = (md = "") =>
-  [...md.matchAll(/^##\s+(.+)$/gm)].map((m) => {
-    const text = m[1].replace(/[*_`]/g, "").trim();
-    return { text, id: slugify(text) };
-  });
+  [
+    ...[...md.matchAll(/^##\s+(.+)$/gm)].map((match) =>
+      match[1].replace(/[*_`]/g, "").trim(),
+    ),
+    ...[...md.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi)].map((match) =>
+      match[1].replace(/<[^>]*>/g, "").trim(),
+    ),
+  ].map((text) => ({ text, id: slugify(text) }));
 
 /* Plain-text excerpt from the first paragraph of markdown */
 export const excerptFromMarkdown = (md = "", max = 160) => {
+  if (/<\/?(?:p|div|h2|h3|ul|ol|li|blockquote|strong|b|em|i|u|s|a)\b/i.test(md)) {
+    const text = md
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/<\/(?:p|div|h2|h3|li|blockquote)>/gi, " ")
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+    return text.length > max ? text.slice(0, max).replace(/\s+\S*$/, "") + "…" : text;
+  }
   const first =
     md
       .split(/\n{2,}/)
@@ -109,6 +129,10 @@ const components = {
 };
 
 export default function Markdown({ text }) {
+  if (/<\/?(?:p|div|h2|h3|ul|ol|li|blockquote|strong|b|em|i|u|s|a)\b/i.test(text || "")) {
+    return <RichText text={text} className={dropCap} />;
+  }
+
   return (
     <div className={dropCap}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>

@@ -4,6 +4,7 @@ import { get, mediaUrl } from "../api";
 import { Reveal } from "../components/Layout";
 import Banner from "../components/site/Banner";
 import BrandButton from "../components/site/BrandButton";
+import RichText from "../components/site/RichText";
 import { useToast } from "../components/Toast";
 
 export function Service() {
@@ -66,7 +67,10 @@ export function Service() {
         <Reveal>
           <p className="eyebrow mb-5">{service.subtitle}</p>
           <h2 className="h2 mb-6">Your time, beautifully spent.</h2>
-          <p className="text-muted leading-8 mb-8">{service.description}</p>
+          <RichText
+            text={service.description}
+            className="text-muted leading-8 mb-8"
+          />
           <BrandButton
             to={"/contact?service=" + encodeURIComponent(service.title)}
             size="small"

@@ -1,7 +1,7 @@
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
-import PackageCard from "../site/PackageCard";
+import FeatureAccordion from "../site/FeatureAccordion";
 import EmptyState from "../site/EmptyState";
 import BrandButton from "../site/BrandButton";
 import { SectionRule, SectionIntro } from "./SectionDetails";
@@ -82,15 +82,14 @@ export default function OffersSection({ offers }) {
                 ease,
               }}
             >
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {visibleOffers.map((offer) => (
-                  <PackageCard
-                    key={offer.id}
-                    item={{ ...offer, subtitle: offer.description }}
-                    to={`/offers/${offer.id}`}
-                  />
-                ))}
-              </div>
+              <FeatureAccordion
+                items={visibleOffers}
+                getTo={(offer) => `/offers/${offer.id}`}
+                actionLabel="View offer"
+                eyebrow="SELECTED EXPERIENCES"
+                priceClassName="border border-white/35 bg-white/15 shadow-lg backdrop-blur-md"
+                pricePosition="bottom-right"
+              />
 
               {safeOffers.length > ITEMS_PER_PAGE && (
                 <div className="mt-8 flex justify-center">

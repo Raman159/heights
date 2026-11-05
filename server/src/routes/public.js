@@ -6,6 +6,18 @@ import { orderedTables, tableFields } from "../config.js";
 const router = Router();
 
 router.get(
+  "/events/:slug",
+  asyncRoute(async (req, res) => {
+    const [event] = await rows(
+      "SELECT * FROM events WHERE slug=? LIMIT 1",
+      [req.params.slug],
+    );
+    if (!event) return res.status(404).json({ error: "Event not found" });
+    res.json(event);
+  }),
+);
+
+router.get(
   "/spa",
   asyncRoute(async (req, res) => {
     const [settings, categories, treatments] = await Promise.all([

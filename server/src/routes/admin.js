@@ -239,6 +239,8 @@ function validateLengths(data) {
     if (value === null) continue;
     const maxLength = {
       body: 50000,
+      details: 50000,
+      summary: 12000,
       spa_intro: 5000,
       description: 12000,
       benefits: 5000,
@@ -246,9 +248,10 @@ function validateLengths(data) {
       quote: 3000,
       biography: 3000,
       title: 200,
-      slug: 200,
-      subtitle: 200,
       name: 200,
+      slug: 200,
+      setting: 200,
+      subtitle: 200,
       full_name: 200,
       department: 160,
       designation: 200,
@@ -260,6 +263,19 @@ function validateLengths(data) {
 }
 
 async function validateContent(table, data) {
+  if (table === "events" && data.name !== undefined) {
+    data.slug = data.name
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    if (!data.slug)
+      throw Object.assign(new Error("Event name must include letters or numbers"), {
+        status: 400,
+      });
+  }
+
   if (table === "offers") {
     const priceFields = ["original_price", "discounted_price"];
     for (const key of priceFields) {
@@ -332,7 +348,7 @@ async function validateContent(table, data) {
   }
 
   if (
-    ["services", "spa_treatments"].includes(table) &&
+    ["services", "spa_treatments", "events"].includes(table) &&
     data.slug !== undefined &&
     !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug)
   )

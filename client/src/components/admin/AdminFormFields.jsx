@@ -1,5 +1,6 @@
 import React from "react";
 import AdminMediaField from "./AdminMediaField";
+import AdminRichTextEditor from "./AdminRichTextEditor";
 
 export const fieldDefinitions = {
   offers: [
@@ -36,6 +37,16 @@ export const fieldDefinitions = {
     "pricing",
     "image_url",
   ],
+  events: [
+    "name",
+    "summary",
+    "setting",
+    "image_url",
+    "details",
+    "gallery_image_1",
+    "gallery_image_2",
+    "gallery_image_3",
+  ],
 };
 
 const labels = {
@@ -56,6 +67,10 @@ const labels = {
   pricing: "Duration and price options (JSON)",
   original_price: "Original price (Rs.)",
   discounted_price: "Discounted price (Rs.)",
+  details: "Event details",
+  gallery_image_1: "Event detail image 1",
+  gallery_image_2: "Event detail image 2",
+  gallery_image_3: "Event detail image 3",
 };
 
 export const spaSettingFields = [
@@ -102,6 +117,8 @@ export default function AdminFormFields({
                   ? "Treatment image"
                   : name === "image_url" && section === "services"
                     ? "Service image"
+                    : name === "image_url" && section === "events"
+                      ? "Event hero image"
                     : name === "spa_hero_image"
                       ? "Spa hero image"
                       : name === "spa_intro_image"
@@ -129,9 +146,9 @@ export default function AdminFormFields({
             </label>
           );
         }
-        if (["image_url", "thumbnail_url", "hero_image", "spa_hero_image", "spa_intro_image"].includes(name)) {
+        if (["image_url", "thumbnail_url", "hero_image", "spa_hero_image", "spa_intro_image", "gallery_image_1", "gallery_image_2", "gallery_image_3"].includes(name)) {
           return (
-            <div key={name} className="md:col-span-2">
+            <div key={name} className={name.startsWith("gallery_image_") ? "" : "md:col-span-2"}>
               <AdminMediaField label={label} value={value[name] || ""} onChange={(next) => onChange(name, next)} />
             </div>
           );
@@ -188,7 +205,33 @@ export default function AdminFormFields({
           "spa_intro",
           "benefits",
           "pricing",
+          "summary",
+          "details",
         ].includes(name);
+        const richText = [
+          "description",
+          "body",
+          "excerpt",
+          "biography",
+          "spa_intro",
+          "benefits",
+          "summary",
+          "details",
+        ].includes(name);
+        if (richText) {
+          return (
+            <div key={name} className="min-w-0 md:col-span-2">
+              <span className="block text-sm font-medium text-slate-700">
+                {label}
+              </span>
+              <AdminRichTextEditor
+                label={label}
+                value={value[name] ?? ""}
+                onChange={(next) => onChange(name, next)}
+              />
+            </div>
+          );
+        }
         return (
           <label key={name} className={"block text-sm font-medium text-slate-700 " + (multiline ? "md:col-span-2" : "")}>
             {label}

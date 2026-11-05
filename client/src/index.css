@@ -238,6 +238,72 @@ a {
 .admin-app .admin-field {
   @apply block w-full min-w-0 max-w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#a66d59] focus:ring-2 focus:ring-[#a66d59]/10;
 }
+.admin-rich-editor:empty::before {
+  color: #94a3b8;
+  content: "Write your content here…";
+  pointer-events: none;
+}
+.admin-rich-editor {
+  white-space: pre-wrap;
+}
+.admin-rich-editor h2 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.admin-rich-editor h3 {
+  margin: 0.75rem 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.rich-content > p,
+.rich-content > div {
+  margin-bottom: 0.75rem;
+}
+.rich-content > :last-child {
+  margin-bottom: 0;
+}
+.rich-content h2,
+.rich-content h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.rich-content h2 {
+  font-size: 1.25rem;
+}
+.rich-content h3 {
+  font-size: 1.125rem;
+}
+.rich-content ul,
+.rich-content ol {
+  margin: 0 0 0.75rem;
+  padding-left: 1.5rem;
+}
+.rich-content ul {
+  list-style: disc;
+}
+.rich-content ol {
+  list-style: decimal;
+}
+.rich-content blockquote {
+  margin: 0.75rem 0;
+  border-left: 2px solid #a66d59;
+  padding-left: 1rem;
+  font-style: italic;
+}
+.rich-content a {
+  color: #a66d59;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.rich-content hr {
+  margin: 1rem 0;
+  border-color: rgb(48 39 37 / 15%);
+}
 .admin-app input,
 .admin-app textarea,
 .admin-app select {

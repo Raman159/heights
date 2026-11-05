@@ -7,6 +7,7 @@ import EmptyState from "../components/site/EmptyState";
 import BrandButton from "../components/site/BrandButton";
 import useCollection from "../hooks/useCollection";
 import Markdown, { getHeadings, excerptFromMarkdown } from "../components/site/Markdown";
+import RichText from "../components/site/RichText";
 
 /* ---------- helpers ---------- */
 
@@ -21,9 +22,10 @@ const fmtDate = (v) => {
 const dateOf = (p) => fmtDate(p.created_at || p.published_at || p.date);
 /* Prefer the server's read_minutes (list endpoints may omit the body) */
 const readLabel = (p) => {
+  const body = (p.body || "").replace(/<[^>]*>/g, " ");
   const m =
     p.read_minutes ||
-    (p.body ? Math.max(1, Math.round(p.body.trim().split(/\s+/).length / 200)) : 0);
+    (body ? Math.max(1, Math.round(body.trim().split(/\s+/).length / 200)) : 0);
   return m ? m + " min read" : "";
 };
 /* Use the written excerpt, else the first paragraph of the body */
@@ -126,7 +128,11 @@ function Featured({ post }) {
           {post.title}
         </h2>
         {excerptOf(post) && (
-          <p className="mt-6 max-w-md leading-8 text-ink/70 line-clamp-4">{excerptOf(post)}</p>
+          <RichText
+            text={excerptOf(post)}
+            allowLinks={false}
+            className="mt-6 max-w-md leading-8 text-ink/70 line-clamp-4"
+          />
         )}
         <Meta post={post} withCategory className="mt-7" />
         <span className="mt-9 inline-flex w-fit items-center gap-3 border-b border-ink pb-1.5 text-sm font-medium">
@@ -162,7 +168,11 @@ function PostCard({ post, index = 0 }) {
         {post.title}
       </h3>
       {excerptOf(post) && (
-        <p className="mt-3 leading-7 text-ink/65 line-clamp-2">{excerptOf(post)}</p>
+        <RichText
+          text={excerptOf(post)}
+          allowLinks={false}
+          className="mt-3 leading-7 text-ink/65 line-clamp-2"
+        />
       )}
       <span className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-clay">
         Read story
@@ -314,9 +324,10 @@ function Article({ item, more, prev, next }) {
 
         <article className="lg:col-span-9 lg:max-w-[40rem]">
           {item.excerpt && (
-            <p className="font-display mb-10 border-b border-ink/10 pb-10 text-2xl font-light leading-[1.5] tracking-[-.02em] md:text-[1.7rem]">
-              {item.excerpt}
-            </p>
+            <RichText
+              text={item.excerpt}
+              className="font-display mb-10 border-b border-ink/10 pb-10 text-2xl font-light leading-[1.5] tracking-[-.02em] md:text-[1.7rem]"
+            />
           )}
           <Markdown text={item.body} />
           <BrandButton to="/blog" size="small" tone="dark" className="mt-6">

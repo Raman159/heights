@@ -4,6 +4,7 @@ import { Reveal } from "../components/Layout";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
 import BrandButton from "../components/site/BrandButton";
+import RichText from "../components/site/RichText";
 import { useToast } from "../components/Toast";
 
 const pillars = [
@@ -130,9 +131,10 @@ export function Wellness() {
                     aria-hidden="true"
                     className="mx-auto mb-6 block h-px w-14 bg-clay/60 md:mx-0"
                   />
-                  <p className="mx-auto mb-8 max-w-md text-base leading-8 text-muted md:mx-0 md:max-w-none">
-                    {s.description}
-                  </p>
+                  <RichText
+                    text={s.description}
+                    className="mx-auto mb-8 max-w-md text-base leading-8 text-muted md:mx-0 md:max-w-none"
+                  />
                   <BrandButton to={"/services/" + s.slug} size="small" tone="dark">
                     Discover {s.title}
                   </BrandButton>

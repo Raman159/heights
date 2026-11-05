@@ -15,6 +15,7 @@ import {
   Utensils,
   UsersRound,
   Sparkles,
+  CalendarDays,
 } from "lucide-react";
 
 const overview = ["overview", "Overview", LayoutDashboard];
@@ -36,6 +37,7 @@ const groups = [
     title: "Experiences",
     links: [
       ["services", "Service pages", Sparkles],
+      ["events", "Events", CalendarDays],
       ["spa_content", "Spa page content", Sparkles],
       ["spa_categories", "Spa categories", Sparkles],
       ["spa_treatments", "Spa treatments", Sparkles],

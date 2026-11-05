@@ -1,5 +1,6 @@
 import React from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import RichText from "./RichText";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -77,9 +78,10 @@ export default function TeamMemberCard({ member, index = 0, className = "" }) {
           {designation}
         </p>
 
-        <p className="mt-4 text-[13px] leading-6 text-white/90 sm:text-sm sm:leading-7">
-          {biography}
-        </p>
+        <RichText
+          text={biography}
+          className="mt-4 text-[13px] leading-6 text-white/90 sm:text-sm sm:leading-7"
+        />
 
         {socials.length > 0 && (
           <>

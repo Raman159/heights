@@ -88,7 +88,7 @@ export async function logoutSession() {
   }
 }
 
-export const get = (p) => api(p);
+export const get = (p, opts = {}) => api(p, opts);
 export const post = (p, body) =>
   api(p, { method: "POST", body: JSON.stringify(body) });
 export const put = (p, body) =>

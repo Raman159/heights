@@ -4,6 +4,7 @@ import { get, mediaUrl } from "../api";
 import { Reveal } from "../components/Layout";
 import Banner from "../components/site/Banner";
 import BrandButton from "../components/site/BrandButton";
+import RichText from "../components/site/RichText";
 import { useToast } from "../components/Toast";
 
 export function SpaTreatment() {
@@ -46,9 +47,6 @@ export function SpaTreatment() {
   }
 
   const pricing = treatment.pricing ? JSON.parse(treatment.pricing) : [];
-  const benefits = treatment.benefits
-    ? treatment.benefits.split(/\r?\n/).filter(Boolean)
-    : [];
   const image = mediaUrl(treatment.image_url || "/media/spa-treatment.webp");
 
   return (
@@ -69,19 +67,16 @@ export function SpaTreatment() {
               className="h-[420px] w-full rounded-[3rem] object-cover"
             />
             {treatment.description && (
-              <p className="mt-8 whitespace-pre-line text-muted leading-8">
-                {treatment.description}
-              </p>
+              <RichText
+                text={treatment.description}
+                className="mt-8 text-muted leading-8"
+              />
             )}
-            {benefits.length > 0 && (
-              <ul className="mt-8 space-y-3 text-muted">
-                {benefits.map((benefit) => (
-                  <li key={benefit} className="flex gap-3">
-                    <span className="text-clay" aria-hidden="true">•</span>
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
+            {treatment.benefits && (
+              <RichText
+                text={treatment.benefits}
+                className="mt-8 space-y-3 text-muted"
+              />
             )}
           </Reveal>
 

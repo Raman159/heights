@@ -10,7 +10,7 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminSettings from "../components/admin/AdminSettings";
 import AdminSecurity from "../components/admin/AdminSecurity";
 
-const sections = ["offers", "posts", "reviews", "videos", "gallery", "menus", "team_members", "services", "spa_content", "spa_categories", "spa_treatments", "inquiries", "settings", "security"];
+const sections = ["offers", "posts", "reviews", "videos", "gallery", "menus", "team_members", "services", "events", "spa_content", "spa_categories", "spa_treatments", "inquiries", "settings", "security"];
 
 export default function Admin() {
   const notify = useToast();
@@ -41,12 +41,12 @@ export default function Admin() {
     setItems(section === "overview" ? {} : []);
     try {
       if (section === "overview") {
-        const [offers, posts, reviews, videos, gallery, menus, team_members, inquiries] = await Promise.all(
-          ["offers", "posts", "reviews", "videos", "gallery", "menus", "team_members", "inquiries"].map((name) =>
+        const [offers, posts, reviews, videos, gallery, menus, team_members, events, inquiries] = await Promise.all(
+          ["offers", "posts", "reviews", "videos", "gallery", "menus", "team_members", "events", "inquiries"].map((name) =>
             get("/admin/" + name),
           ),
         );
-        setItems({ offers, posts, reviews, videos, gallery, menus, team_members, inquiries });
+        setItems({ offers, posts, reviews, videos, gallery, menus, team_members, events, inquiries });
       } else if (section === "settings" || section === "spa_content") {
         setItems(await get("/admin/settings"));
       } else if (section !== "security") {

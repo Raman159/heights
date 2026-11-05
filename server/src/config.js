@@ -30,6 +30,7 @@ export const allowedTables = [
   "services",
   "spa_categories",
   "spa_treatments",
+  "events",
   "inquiries",
 ];
 
@@ -68,6 +69,16 @@ export const tableFields = {
     "pricing",
     "image_url",
   ],
+  events: [
+    "name",
+    "summary",
+    "setting",
+    "image_url",
+    "details",
+    "gallery_image_1",
+    "gallery_image_2",
+    "gallery_image_3",
+  ],
 };
 
 export const orderedTables = Object.keys(tableFields);
@@ -83,6 +94,7 @@ export const requiredFields = {
   services: ["title", "slug"],
   spa_categories: ["name"],
   spa_treatments: ["category_id", "title", "slug"],
+  events: ["name", "summary"],
 };
 
 export const galleryCategories = [

@@ -5,6 +5,7 @@ import { Reveal } from "../components/Layout";
 import { useToast } from "../components/Toast";
 import Banner from "../components/site/Banner";
 import SectionHead from "../components/site/SectionHead";
+import RichText from "../components/site/RichText";
 
 const fallbackPage = {
   spa_title: "Spa at The Height",
@@ -64,9 +65,10 @@ export function Spa() {
         <div>
           <p className="eyebrow mb-5">A sanctuary for you</p>
           <h2 className="h2 mb-6">{page.spa_intro_heading}</h2>
-          <p className="text-muted leading-8 whitespace-pre-line">
-            {page.spa_intro}
-          </p>
+          <RichText
+            text={page.spa_intro}
+            className="text-muted leading-8"
+          />
         </div>
       </section>
       {content.categories.map((category, index) => {
@@ -82,9 +84,10 @@ export function Spa() {
             <div className="shell">
               <SectionHead eyebrow="THE SPA MENU" title={category.name} />
               {category.description && (
-                <p className="mb-8 max-w-3xl text-muted leading-8">
-                  {category.description}
-                </p>
+                <RichText
+                  text={category.description}
+                  className="mb-8 max-w-3xl text-muted leading-8"
+                />
               )}
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {treatments.map((treatment) => (

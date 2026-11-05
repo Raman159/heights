@@ -1,20 +1,204 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { get, mediaUrl } from "../api";
 import { pic } from "../data";
+import useCollection from "../hooks/useCollection";
+import { useToast } from "../components/Toast";
 import BrandButton from "../components/site/BrandButton";
 import Banner from "../components/site/Banner";
 import Reels from "../components/site/Reels";
 import SectionHead from "../components/site/SectionHead";
-
-const EVENTS = [
-  { name: "Buffet Dinner", img: "restaurant-dining.webp" },
-  { name: "Set Menu", img: "restaurant-lounge.webp" },
-  // { name: "Table Setup", img: "lounge-seating.webp" },
-  { name: "Conference Hall", img: "restaurant-interior.webp" },
-  { name: "Meeting Room", img: "terrace-lounge.webp" },
-];
+import RichText from "../components/site/RichText";
 
 const DISPLAY = "var(--font-display, inherit)";
+const eventPath = (event) => `/events/${event.slug}`;
+const eventImage = (event) => mediaUrl(event.image_url || "/media/rooftop-view.webp");
+
+function useReadProgress() {
+  const [progress, setProgress] = useState(0);
+
+  React.useEffect(() => {
+    let frame;
+    const update = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const page = document.documentElement;
+        const max = page.scrollHeight - page.clientHeight;
+        setProgress(max > 0 ? Math.min(1, page.scrollTop / max) : 0);
+      });
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", update);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  return progress;
+}
+
+function EventDetail({ event, events }) {
+  const [copied, setCopied] = useState(false);
+  const progress = useReadProgress();
+  const relatedEvents = events.filter((item) => item.slug !== event.slug).slice(0, 2);
+  const gallery = [
+    event.gallery_image_1,
+    event.gallery_image_2,
+    event.gallery_image_3,
+  ].filter(Boolean);
+  async function share() {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: event.name, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2000);
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        try {
+          await navigator.clipboard.writeText(url);
+          setCopied(true);
+          window.setTimeout(() => setCopied(false), 2000);
+        } catch {
+          setCopied(false);
+        }
+      }
+    }
+  }
+
+  return (
+    <>
+      <Banner
+        tag="GATHER AT HEIGHT"
+        title={event.name}
+        body={event.summary}
+        image={eventImage(event)}
+        compact
+      />
+      <section className="shell py-20 md:py-28">
+        <div className="fixed inset-x-0 top-0 z-[60] h-[3px]" aria-hidden="true">
+          <div
+            className="h-full origin-left bg-clay"
+            style={{ transform: `scaleX(${progress})` }}
+          />
+        </div>
+
+        <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-12 lg:gap-16">
+          <aside className="lg:col-span-3">
+            <div className="space-y-6 border-t border-ink/15 pt-6 text-sm lg:sticky lg:top-28">
+              <div>
+                <p className="text-ink/50">Event</p>
+                <p className="mt-1 font-medium text-clay">{event.name}</p>
+              </div>
+              <div>
+                <p className="text-ink/50">Setting</p>
+                <p className="mt-1">{event.setting}</p>
+              </div>
+              <BrandButton
+                to={`/contact?service=${encodeURIComponent(event.name)}`}
+                size="small"
+                tone="dark"
+              >
+                Enquire about this event
+              </BrandButton>
+              <button
+                type="button"
+                onClick={share}
+                className="block text-left text-sm font-medium text-clay transition-colors hover:text-ink"
+              >
+                {copied ? "Link copied" : "Share this page"}
+              </button>
+              <Link
+                to="/events"
+                className="block border-t border-ink/15 pt-5 text-ink/65 transition-colors hover:text-clay"
+              >
+                ← All events
+              </Link>
+            </div>
+          </aside>
+
+          <article className="lg:col-span-9 lg:max-w-[40rem]">
+            <RichText
+              text={event.summary}
+              className="font-display mb-10 border-b border-ink/10 pb-10 text-2xl font-light leading-[1.5] tracking-[-.02em] text-ink/75 md:text-[1.7rem]"
+            />
+            {gallery.length > 0 && (
+              <figure className="mb-12">
+                <div className="grid grid-cols-12 items-start gap-x-3 gap-y-4 sm:gap-x-5 sm:gap-y-6">
+                  {gallery.map((image, index) => (
+                    <img
+                      key={image}
+                      src={mediaUrl(image)}
+                      alt={`${event.name} — event photo ${index + 1}`}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      className={
+                        index === 0
+                          ? "col-span-11 col-start-2 aspect-[16/10] w-full object-cover sm:col-span-9 sm:col-start-4"
+                          : index === 1
+                            ? "-mt-6 col-span-6 col-start-1 aspect-[4/5] w-full object-cover sm:-mt-16 sm:col-span-5"
+                            : "col-span-6 col-start-7 mt-5 aspect-[4/5] w-full object-cover sm:col-span-6 sm:col-start-7 sm:mt-10"
+                      }
+                    />
+                  ))}
+                </div>
+              </figure>
+            )}
+            {event.details && (
+              <RichText
+                text={event.details}
+                className="text-[1.08rem] font-light leading-[2] text-ink/80"
+              />
+            )}
+            <div className="mt-12 border-t border-ink/10 pt-8">
+              <p className="mb-5 text-sm leading-7 text-ink/65">
+                Have an occasion in mind? Tell us a little about it and our team
+                will help with your enquiry.
+              </p>
+              <BrandButton
+                to={`/contact?service=${encodeURIComponent(event.name)}`}
+                size="small"
+              >
+                Enquire now
+              </BrandButton>
+            </div>
+          </article>
+        </div>
+
+        <div className="mx-auto mt-24 max-w-5xl border-t border-ink/10 pt-12">
+          <h2 className="h2 mb-10">Explore other events</h2>
+          <div className="grid gap-8 sm:grid-cols-2">
+            {relatedEvents.map((related) => (
+              <Link
+                key={related.slug}
+                to={eventPath(related)}
+                className="group grid grid-cols-[120px_1fr] items-center gap-5 border-t border-ink/15 pt-5 transition-colors hover:border-clay sm:grid-cols-[160px_1fr]"
+              >
+                <img
+                  src={eventImage(related)}
+                  alt=""
+                  loading="lazy"
+                  className="aspect-square w-full object-cover"
+                />
+                <span>
+                  <span className="block text-xs uppercase tracking-[.18em] text-ink/50">
+                    Events at HEIGHT
+                  </span>
+                  <span className="font-display mt-2 block text-xl font-light text-ink group-hover:text-clay">
+                    {related.name}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
 
 /* Concentric arcs ornament */
 function Arcs({ className = "" }) {
@@ -33,7 +217,8 @@ function EventArch({ e, i }) {
   const num = String(i + 1).padStart(2, "0");
   return (
     <Link
-      to={"/contact?service=" + encodeURIComponent(e.name)}
+      to={eventPath(e)}
+      aria-label={`Read more about ${e.name}`}
       className={"group block " + (i % 2 === 1 ? "lg:mt-14" : "")}
     >
       <div className="relative">
@@ -42,7 +227,7 @@ function EventArch({ e, i }) {
         {/* Image */}
         <div className="relative aspect-[3/4] overflow-hidden rounded-t-[999px] bg-black/10">
           <img
-            src={pic(e.img)}
+            src={eventImage(e)}
             alt={e.name}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-[1600ms] ease-out group-hover:scale-[1.07]"
@@ -60,6 +245,68 @@ function EventArch({ e, i }) {
 }
 
 export function Events() {
+  const { slug } = useParams();
+  const eventCollection = useCollection("events", { refreshOnFocus: true });
+  const events = eventCollection || [];
+  const notify = useToast();
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [loadingEvent, setLoadingEvent] = useState(Boolean(slug));
+
+  useEffect(() => {
+    if (!slug) {
+      setSelectedEvent(null);
+      setLoadingEvent(false);
+      return undefined;
+    }
+
+    let active = true;
+    setLoadingEvent(true);
+    get("/public/events/" + encodeURIComponent(slug))
+      .then((event) => {
+        if (active) setSelectedEvent(event);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setSelectedEvent(null);
+        if (!/not found/i.test(error.message)) notify(error.message, "error");
+      })
+      .finally(() => {
+        if (active) setLoadingEvent(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [slug, notify]);
+
+  if (slug) {
+    if (loadingEvent) {
+      return (
+        <section className="shell min-h-[50vh] py-24 text-muted">
+          Loading event…
+        </section>
+      );
+    }
+    return selectedEvent ? (
+      <EventDetail event={selectedEvent} events={events} />
+    ) : (
+      <>
+        <Banner
+          tag="NOT FOUND"
+          title="Event not found"
+          body="Explore the event spaces and experiences available at HEIGHT."
+          image={pic("rooftop-view.webp")}
+          compact
+        />
+        <section className="shell py-16">
+          <BrandButton to="/events" size="small" tone="dark">
+            Browse all events
+          </BrandButton>
+        </section>
+      </>
+    );
+  }
+
   return (
     <>
       <Banner
@@ -78,7 +325,19 @@ export function Events() {
           <SectionHead eyebrow="Celebrate together" title="Events at HEIGHT" />
 
           <div className="mb-20 mt-16 grid gap-x-6 gap-y-14 md:grid-cols-2 lg:grid-cols-4">
-            {EVENTS.map((e, i) => <EventArch key={e.name} e={e} i={i} />)}
+            {events.map((event, index) => (
+              <EventArch key={event.id} e={event} i={index} />
+            ))}
+            {eventCollection === null && (
+              <p className="col-span-full py-8 text-center text-muted">
+                Loading events…
+              </p>
+            )}
+            {eventCollection?.length === 0 && (
+              <p className="col-span-full py-8 text-center text-muted">
+                Events will be available here soon.
+              </p>
+            )}
           </div>
 
           {/* CTA framed by a half-circle */}

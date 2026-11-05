@@ -11,6 +11,7 @@ import {
 
 import { serviceCards } from "../../data";
 import BrandButton from "../site/BrandButton";
+import RichText from "../site/RichText";
 
 // Soft ease-in-out so the expansion starts and ends gently
 const scrollEase = cubicBezier(0.65, 0, 0.35, 1);
@@ -230,9 +231,10 @@ export default function DiningShowcase() {
             style={{ opacity: copyOpacity, y: copyY }}
             className="flex flex-col items-center"
           >
-            <p className="mt-8 max-w-md text-base leading-8 text-white/85">
-              {dining[0].desc}
-            </p>
+            <RichText
+              text={dining[0].desc}
+              className="mt-8 max-w-md text-base leading-8 text-white/85"
+            />
 
             <div className="mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
               <BrandButton href={dining[0].href} size="small">

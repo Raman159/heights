@@ -7,6 +7,7 @@ import Card from "../components/site/PackageCard";
 import EmptyState from "../components/site/EmptyState";
 import useCollection from "../hooks/useCollection";
 import { formatOfferPrice, getOfferPrices } from "../utils/offerPricing";
+import RichText from "../components/site/RichText";
 
 export function Offers() {
   let offers = useCollection("offers");
@@ -37,9 +38,10 @@ export function Offers() {
                 </span>
               </div>
             )}
-            <p className="font-display mb-10 text-xl font-light leading-[1.8] tracking-[-.015em] text-ink/75 md:text-2xl">
-              {item.description}
-            </p>
+            <RichText
+              text={item.description}
+              className="font-display mb-10 text-xl font-light leading-[1.8] tracking-[-.015em] text-ink/75 md:text-2xl"
+            />
             <Inquiry service={item.title} type="offer" />
           </div>
         ) : id || offers.length === 0 ? (
